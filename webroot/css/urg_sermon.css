@@ -1,0 +1,49 @@
+li.pastor_item {
+    font-weight: bold;
+}
+
+div.image_queue {
+    border: 1px solid #e5e5e5;
+    height: 213px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 80%;
+    overflow: auto;
+}
+
+div.image_queue .uploadifyQueueItem {
+    background-color: #FFFFFF;
+    border: none;
+    border-bottom: 1px solid #E5E5E5;
+    font: 11px Verdana, Geneva, sans-serif;
+    height: 50px;
+    margin-top: 0;
+    padding: 10px;
+    width: 95%;
+}
+
+div.image_queue .uploadifyError {
+    background-color: #FDE5DD !important;
+    border: none !important;
+    border-bottom: 1px solid #FBCBBC !important;
+}
+
+div.image_queue .uploadifyQueueItem .cancel {
+    float: right;
+}
+
+div.image_queue .uploadifyQueue .completed {
+    color: #C5C5C5;
+}
+
+div.image_queue .uploadifyProgress {
+    background-color: #E5E5E5;
+    margin-top: 10px;
+    width: 100%;
+}
+
+div.image_queue .uploadifyProgressBar {
+    background-color: #0099FF;
+    height: 3px;
+    width: 1px;
+}

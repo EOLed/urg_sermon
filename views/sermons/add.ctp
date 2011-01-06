@@ -13,10 +13,10 @@
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
 		echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", array("label"=>__("sermons.label.speaker.name", true)));
-        echo $this->Html->div("image_upload_set", $this->element("uploadify", array("plugin" => "uploadify", "dom_id" => "image_upload",
+        echo $this->Html->div("image_upload_set", $this->element("uploadify", array("plugin" => "cuploadify", "dom_id" => "image_upload",
                 "options" => array("auto" => true, 
                        "folder" => ROOT.DS.APP_DIR.DS."plugins".DS."urg_sermon".DS.WEBROOT_DIR.DS."img",
-                       "script" => "/app/plugins/uploadify/webroot/files/uploadphp",
+                       "script" => "/app/plugins/cuploadify/webroot/files/uploadphp",
                        "buttonText" => "ADD IMAGES", 
                        "multi" => true,
                        "queueID" => "image_queue",
@@ -24,7 +24,7 @@
                        "fileDesc" => "Image Files"),
                "include_scripts" => array("uploadify_css", "uploadify", "swfobject"))) .
        $this->Html->div("image_queue", "", array("id" => "image_queue")));
-       echo $this->element("uploadify", array("plugin" => "uploadify", "dom_id" => "audio_upload", 
+       echo $this->element("uploadify", array("plugin" => "cuploadify", "dom_id" => "audio_upload", 
                "options" => array("auto" => true, 
                        "folder" => "/upload", 
                        "buttonText" => "ADD AUDIO"), 

@@ -1,7 +1,16 @@
 <?php
 App::import("Sanitize");
+App::import("Component", "Cuploadify.Cuploadify");
 class SermonsController extends UrgSermonAppController {
-
+    var $components = array(
+           "Auth" => array(
+                   "loginAction" => array(
+                           "plugin" => "urg",
+                           "controller" => "users",
+                           "action" => "login",
+                           "admin" => false
+                   )
+           ), "Urg", "Cuploadify");
 	var $name = 'Sermons';
 
 	function index() {
@@ -20,7 +29,8 @@ class SermonsController extends UrgSermonAppController {
 	function add() {
 		if (!empty($this->data)) {
             if ($this->data["Sermon"]["series_id"] == "") {
-                $this->data["Sermon"]["series_id"] = $this->requestAction("/urg_sermon/series/create/" . $this->data["Sermon"]["series_name"]);
+                $this->data["Sermon"]["series_id"] = $this->requestAction("/urg_sermon/series/create/" .
+                        $this->data["Sermon"]["series_name"]);
             }
 
             $this->Sermon->Post->create();
@@ -116,6 +126,12 @@ class SermonsController extends UrgSermonAppController {
         }
         
         return $prepared_matches;
+    }
+
+    function upload() {
+        $this->log("uploading files...", LOG_DEBUG);
+        $this->Cuploadify->upload();
+        $this->log("done uploading.", LOG_DEBUG);
     }
 }
 ?>

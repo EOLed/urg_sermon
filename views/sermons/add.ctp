@@ -1,8 +1,17 @@
+<?php
+/**
+ * Sermon upload form.
+ * This form is responsible for uplaoding sermons onto an Urg system.
+ *
+ * @author Amos Chan <amos.chan@chapps.org>
+ * @since v 1.0
+ */
+ ?>
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon');?>
 	<fieldset>
 		<legend><?php __('Add Sermon'); ?></legend>
-	<?php
+	    <?php
 		echo $this->Form->hidden('series_id');
         echo $this->Form->hidden("pastor_id");
         echo $this->Form->hidden("confirm_speaker_name");
@@ -12,24 +21,29 @@
 		echo $this->Form->input('Post.title');
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
 		echo $this->Form->hidden('speaker_name');
-        echo $this->Form->input("display_speaker_name", array("label"=>__("sermons.label.speaker.name", true)));
-        echo $this->Html->div("image_upload_set", $this->element("uploadify", array("plugin" => "cuploadify", "dom_id" => "image_upload",
-                "options" => array("auto" => true, 
-                       "folder" => ROOT.DS.APP_DIR.DS."plugins".DS."urg_sermon".DS.WEBROOT_DIR.DS."img",
-                       "script" => "/app/plugins/cuploadify/webroot/files/uploadphp",
-                       "buttonText" => "ADD IMAGES", 
-                       "multi" => true,
-                       "queueID" => "image_queue",
-                       "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
-                       "fileDesc" => "Image Files"),
-               "include_scripts" => array("uploadify_css", "uploadify", "swfobject"))) .
-       $this->Html->div("image_queue", "", array("id" => "image_queue")));
+        echo $this->Form->input("display_speaker_name", 
+                array("label"=>__("sermons.label.speaker.name", true)));
+        echo $this->element("uploadify", 
+                array("plugin" => "cuploadify", 
+                        "dom_id" => "image_upload", 
+                        "session_id" => $this->Session->id(),
+                        "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
+                        "options" => array("auto" => true, 
+                                "folder" => $this->Html->url("/app/plugins/urg_sermon/webroot/img"),
+                                "script" => $this->Html->url("/urg_sermon/sermons/upload"),
+                                "buttonText" => "ADD IMAGES", 
+                                "multi" => true,
+                                "queueID" => "image_queue",
+                                "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
+                                "fileDesc" => "Image Files")));
+       echo $this->Html->div("image_queue", "", array("id" => "image_queue"));
        echo $this->element("uploadify", array("plugin" => "cuploadify", "dom_id" => "audio_upload", 
                "options" => array("auto" => true, 
-                       "folder" => "/upload", 
+                       "folder" => $this->Html->url("/urg_sermon/audio"),
+                       "script" => $this->Html->url("/urg_sermon/sermons/upload"),
                        "buttonText" => "ADD AUDIO"), 
                "include_scripts" => array("uploadify_css", "uploadify", "swfobject")));
-	?>
+	   ?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>

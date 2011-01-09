@@ -1,7 +1,7 @@
 <?php
 App::import("Sanitize");
 class PastorsController extends UrgSermonAppController {
-	var $name = 'Pastors';
+    var $name = 'Pastors';
     var $useTable = false;
     var $uses = array("Group");
 

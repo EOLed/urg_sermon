@@ -1,10 +1,10 @@
 <?php
 class SeriesController extends UrgSermonAppController {
-	var $name = 'Series';
+    var $name = 'Series';
     var $useTable = false;
     var $uses = array("Group");
 
-	function autocomplete() {
+    function autocomplete() {
         $matches = null;
         $term = trim($this->params["url"]["term"]);
         $matches = strlen($term) == 0 ? $this->suggest() : $this->search($term);
@@ -15,7 +15,7 @@ class SeriesController extends UrgSermonAppController {
         }
         $this->set("matches",$prepared_matches);
         $this->layout = "ajax";
-	}
+    }
 
     function suggest() {
         $series_group = $this->Group->findByName("Series");

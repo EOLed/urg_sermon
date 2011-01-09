@@ -11,23 +11,23 @@ class SermonsController extends UrgSermonAppController {
                            "admin" => false
                    )
            ), "Urg", "Cuploadify");
-	var $name = 'Sermons';
+    var $name = 'Sermons';
 
-	function index() {
-		$this->Sermon->recursive = 0;
-		$this->set('sermons', $this->paginate());
-	}
+    function index() {
+        $this->Sermon->recursive = 0;
+        $this->set('sermons', $this->paginate());
+    }
 
-	function view($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid sermon', true));
-			$this->redirect(array('action' => 'index'));
-		}
-		$this->set('sermon', $this->Sermon->read(null, $id));
-	}
+    function view($id = null) {
+        if (!$id) {
+            $this->Session->setFlash(__('Invalid sermon', true));
+            $this->redirect(array('action' => 'index'));
+        }
+        $this->set('sermon', $this->Sermon->read(null, $id));
+    }
 
-	function add() {
-		if (!empty($this->data)) {
+    function add() {
+        if (!empty($this->data)) {
             if ($this->data["Sermon"]["series_id"] == "") {
                 $this->data["Sermon"]["series_id"] = $this->requestAction("/urg_sermon/series/create/" .
                         $this->data["Sermon"]["series_name"]);
@@ -38,54 +38,54 @@ class SermonsController extends UrgSermonAppController {
             $this->data["Post"]["group_id"] = $this->data["Sermon"]["series_id"];
             $post = $this->Sermon->Post->save($this->data);
 
-			$this->Sermon->create();
+            $this->Sermon->create();
             $this->data["Sermon"]["post_id"] = $this->Sermon->Post->id; 
             if (!empty($this->data["Sermon"]["pastor_id"])) {
                 $this->data["Sermon"]["speaker_name"] = null;
             }
-			if ($this->Sermon->save($this->data)) {
-				$this->Session->setFlash(__('The sermon has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
-			}
-		}
-		$posts = $this->Sermon->Post->find('list');
-		$this->set(compact('posts'));
-	}
+            if ($this->Sermon->save($this->data)) {
+                $this->Session->setFlash(__('The sermon has been saved', true));
+                $this->redirect(array('action' => 'index'));
+            } else {
+                $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+            }
+        }
+        $posts = $this->Sermon->Post->find('list');
+        $this->set(compact('posts'));
+    }
 
-	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid sermon', true));
-			$this->redirect(array('action' => 'index'));
-		}
-		if (!empty($this->data)) {
-			if ($this->Sermon->save($this->data)) {
-				$this->Session->setFlash(__('The sermon has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
-			}
-		}
-		if (empty($this->data)) {
-			$this->data = $this->Sermon->read(null, $id);
-		}
-		$posts = $this->Sermon->Post->find('list');
-		$this->set(compact('posts'));
-	}
+    function edit($id = null) {
+        if (!$id && empty($this->data)) {
+            $this->Session->setFlash(__('Invalid sermon', true));
+            $this->redirect(array('action' => 'index'));
+        }
+        if (!empty($this->data)) {
+            if ($this->Sermon->save($this->data)) {
+                $this->Session->setFlash(__('The sermon has been saved', true));
+                $this->redirect(array('action' => 'index'));
+            } else {
+                $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+            }
+        }
+        if (empty($this->data)) {
+            $this->data = $this->Sermon->read(null, $id);
+        }
+        $posts = $this->Sermon->Post->find('list');
+        $this->set(compact('posts'));
+    }
 
-	function delete($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for sermon', true));
-			$this->redirect(array('action'=>'index'));
-		}
-		if ($this->Sermon->delete($id)) {
-			$this->Session->setFlash(__('Sermon deleted', true));
-			$this->redirect(array('action'=>'index'));
-		}
-		$this->Session->setFlash(__('Sermon was not deleted', true));
-		$this->redirect(array('action' => 'index'));
-	}
+    function delete($id = null) {
+        if (!$id) {
+            $this->Session->setFlash(__('Invalid id for sermon', true));
+            $this->redirect(array('action'=>'index'));
+        }
+        if ($this->Sermon->delete($id)) {
+            $this->Session->setFlash(__('Sermon deleted', true));
+            $this->redirect(array('action'=>'index'));
+        }
+        $this->Session->setFlash(__('Sermon was not deleted', true));
+        $this->redirect(array('action' => 'index'));
+    }
 
     function autocomplete_speaker() {
         $term = Sanitize::clean($this->params["url"]["term"]);

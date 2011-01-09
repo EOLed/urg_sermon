@@ -9,18 +9,18 @@
  ?>
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon');?>
-	<fieldset>
-		<legend><?php __('Add Sermon'); ?></legend>
-	    <?php
-		echo $this->Form->hidden('series_id');
+    <fieldset>
+        <legend><?php __('Add Sermon'); ?></legend>
+        <?php
+        echo $this->Form->hidden('series_id');
         echo $this->Form->hidden("pastor_id");
         echo $this->Form->hidden("confirm_speaker_name");
         echo $this->Form->hidden("confirm_series_name");
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
         echo $this->Form->input("passages");
-		echo $this->Form->input('Post.title');
+        echo $this->Form->input('Post.title');
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
-		echo $this->Form->hidden('speaker_name');
+        echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
         echo $this->element("uploadify", 
@@ -43,15 +43,15 @@
                        "script" => $this->Html->url("/urg_sermon/sermons/upload"),
                        "buttonText" => "ADD AUDIO"), 
                "include_scripts" => array("uploadify_css", "uploadify", "swfobject")));
-	   ?>
-	</fieldset>
+       ?>
+    </fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
-	<ul>
-		<li><?php echo $this->Html->link(__('List Sermons', true), array('action' => 'index'));?></li>
-	</ul>
+    <h3><?php __('Actions'); ?></h3>
+    <ul>
+        <li><?php echo $this->Html->link(__('List Sermons', true), array('action' => 'index'));?></li>
+    </ul>
 </div>
 
 <?php echo $this->Html->scriptStart(); ?>

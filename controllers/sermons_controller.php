@@ -49,7 +49,10 @@ class SermonsController extends UrgSermonAppController {
             } else {
                 $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
             }
+        } else {
+            $this->data["Sermon"]["uuid"] = String::uuid();
         }
+        
         $posts = $this->Sermon->Post->find('list');
         $this->set(compact('posts'));
     }
@@ -128,9 +131,11 @@ class SermonsController extends UrgSermonAppController {
         return $prepared_matches;
     }
 
-    function upload() {
+    function upload_images() {
         $this->log("uploading files...", LOG_DEBUG);
-        $this->Cuploadify->upload();
+        $options = array("root" => "/app/plugins/urg_sermon/webroot/img" );
+        $this->log("uploading options: " . Debugger::exportVar($options), LOG_DEBUG);
+        $this->Cuploadify->upload($options);
         $this->log("done uploading.", LOG_DEBUG);
     }
 }

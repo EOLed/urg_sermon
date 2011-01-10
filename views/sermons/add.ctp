@@ -12,6 +12,7 @@
     <fieldset>
         <legend><?php __('Add Sermon'); ?></legend>
         <?php
+        echo $this->Form->hidden("uuid");
         echo $this->Form->hidden('series_id');
         echo $this->Form->hidden("pastor_id");
         echo $this->Form->hidden("confirm_speaker_name");
@@ -29,8 +30,8 @@
                         "session_id" => $this->Session->id(),
                         "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
                         "options" => array("auto" => true, 
-                                "folder" => $this->Html->url("/app/plugins/urg_sermon/webroot/img"),
-                                "script" => $this->Html->url("/urg_sermon/sermons/upload"),
+                                "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                "script" => $this->Html->url("/urg_sermon/sermons/upload_images"),
                                 "buttonText" => "ADD IMAGES", 
                                 "multi" => true,
                                 "queueID" => "image_queue",

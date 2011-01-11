@@ -131,12 +131,20 @@ class SermonsController extends UrgSermonAppController {
         return $prepared_matches;
     }
 
-    function upload_images() {
-        $this->log("uploading files...", LOG_DEBUG);
-        $options = array("root" => "/app/plugins/urg_sermon/webroot/img" );
+    function upload_audio() {
+        $this->log("uploading audio...", LOG_DEBUG);
+        $this->upload("/app/plugins/urg_sermon/webroot/audio");
+    }
+    
+    function upload($root) {
+        $options = array("root" => $root);
         $this->log("uploading options: " . Debugger::exportVar($options), LOG_DEBUG);
         $this->Cuploadify->upload($options);
         $this->log("done uploading.", LOG_DEBUG);
+    }
+    function upload_images() {
+        $this->log("uploading images...", LOG_DEBUG);
+        $this->upload("/app/plugins/urg_sermon/webroot/img");
     }
 }
 ?>

@@ -35,15 +35,23 @@
                                 "buttonText" => "ADD IMAGES", 
                                 "multi" => true,
                                 "queueID" => "image_queue",
+                                "removeCompleted" => false,
                                 "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
+                                "fileDataName" => "imageFile",
                                 "fileDesc" => "Image Files")));
        echo $this->Html->div("image_queue", "", array("id" => "image_queue"));
-       echo $this->element("uploadify", array("plugin" => "cuploadify", "dom_id" => "audio_upload", 
-               "options" => array("auto" => true, 
-                       "folder" => $this->Html->url("/urg_sermon/audio"),
-                       "script" => $this->Html->url("/urg_sermon/sermons/upload"),
-                       "buttonText" => "ADD AUDIO"), 
-               "include_scripts" => array("uploadify_css", "uploadify", "swfobject")));
+       echo $this->element("uploadify",
+                array("plugin" => "cuploadify", 
+                        "dom_id" => "audio_upload", 
+                        "session_id" => $this->Session->id(),
+                        "options" => array("auto" => true, 
+                                "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                "script" => $this->Html->url("/urg_sermon/sermons/upload_audio"),
+                                "buttonText" => "ADD AUDIO", 
+                                "removeCompleted" => false,
+                                "fileExt" => "*.mp3",
+                                "fileDataName" => "audioFile",
+                                "fileDesc" => "Audio Files")));
        ?>
     </fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

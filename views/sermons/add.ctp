@@ -7,6 +7,27 @@
  * @since v 1.0
  */
  ?>
+<?php echo $this->Html->scriptStart(); ?>
+    var attachmentCounter = 0;
+<?php echo $this->Html->scriptEnd(); ?>
+<?php $images_on_complete = <<<IMAGES_ON_COMPLETE
+function(event, ID, fileObj, response, data) {
+    $('<input>').attr({ 
+            type: 'hidden', 
+            id: 'Attachment' + attachmentCounter + 'Filename', 
+            name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
+            value: fileObj.name,
+    }).appendTo('form');
+    $('<input>').attr({ 
+            type: 'hidden', 
+            id: 'Attachment' + attachmentCounter + 'AttachmentTypeId', 
+            name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
+            value: {$banner_type["AttachmentType"]["id"]},
+    }).appendTo('form');
+    attachmentCounter++;
+}
+IMAGES_ON_COMPLETE;
+?>
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon');?>
     <fieldset>
@@ -24,6 +45,7 @@
         echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
+        echo $this->Html->div("upload_queue", "", array("id" => "upload_queue"));
         echo $this->element("uploadify", 
                 array("plugin" => "cuploadify", 
                         "dom_id" => "image_upload", 
@@ -34,12 +56,12 @@
                                 "script" => $this->Html->url("/urg_sermon/sermons/upload_images"),
                                 "buttonText" => "ADD IMAGES", 
                                 "multi" => true,
-                                "queueID" => "image_queue",
+                                "queueID" => "upload_queue",
                                 "removeCompleted" => false,
                                 "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
                                 "fileDataName" => "imageFile",
-                                "fileDesc" => "Image Files")));
-       echo $this->Html->div("image_queue", "", array("id" => "image_queue"));
+                                "fileDesc" => "Image Files",
+                                "onComplete" => $images_on_complete)));
        echo $this->element("uploadify",
                 array("plugin" => "cuploadify", 
                         "dom_id" => "audio_upload", 
@@ -49,6 +71,7 @@
                                 "script" => $this->Html->url("/urg_sermon/sermons/upload_audio"),
                                 "buttonText" => "ADD AUDIO", 
                                 "removeCompleted" => false,
+                                "queueID" => "upload_queue",
                                 "fileExt" => "*.mp3",
                                 "fileDataName" => "audioFile",
                                 "fileDesc" => "Audio Files")));
@@ -66,7 +89,11 @@
 <?php echo $this->Html->scriptStart(); ?>
     $(function() {
         $("#SermonSeriesName").autocomplete({
-            source: "<?php echo $this->Html->url(array("plugin" => "urg_sermon", "controller" => "series", "action" => "autocomplete")); ?>",
+            source: "<?php echo $this->Html->url(
+                    array("plugin" => "urg_sermon", 
+                          "controller" => "series", 
+                          "action" => "autocomplete")
+            ); ?>",
             minLength: 0,
             select: function(event, ui) {
                 $("#SermonSeriesId").val(ui.item.id);
@@ -105,7 +132,10 @@
 
     $(function() {
         $("#SermonDisplaySpeakerName").autocomplete({
-            source: "<?php echo $this->Html->url(array("plugin" => "urg_sermon", "controller" => "sermons", "action" => "autocomplete_speaker")); ?>",
+            source: "<?php echo $this->Html->url(
+                    array("plugin" => "urg_sermon", 
+                          "controller" => "sermons", 
+                          "action" => "autocomplete_speaker")); ?>",
             minLength: 0,
             select: function(event, ui) {
                 $("#SermonDisplaySpeakerName").val(ui.item.value);
@@ -139,7 +169,7 @@
                     .appendTo(ul);
         };
     });
-
+    
     $("#SermonDisplaySpeakerName").blur(function() {
         if ($("#SermonDisplaySpeakerName").val() != $("#SermonConfirmSpeakerName").val()) {
             $("#SermonPastorId").val("");

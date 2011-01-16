@@ -2,7 +2,7 @@ li.pastor_item {
     font-weight: bold;
 }
 
-div.image_queue {
+div.upload_queue {
     border: 1px solid #e5e5e5;
     height: 213px;
     margin-top: 10px;
@@ -11,7 +11,7 @@ div.image_queue {
     overflow: auto;
 }
 
-div.image_queue .uploadifyQueueItem {
+div.upload_queue .uploadifyQueueItem {
     background-color: #FFFFFF;
     border: none;
     border-bottom: 1px solid #E5E5E5;
@@ -22,27 +22,27 @@ div.image_queue .uploadifyQueueItem {
     width: 95%;
 }
 
-div.image_queue .uploadifyError {
+div.upload_queue .uploadifyError {
     background-color: #FDE5DD !important;
     border: none !important;
     border-bottom: 1px solid #FBCBBC !important;
 }
 
-div.image_queue .uploadifyQueueItem .cancel {
+div.upload_queue .uploadifyQueueItem .cancel {
     float: right;
 }
 
-div.image_queue .uploadifyQueue .completed {
+div.upload_queue .uploadifyQueue .completed {
     color: #C5C5C5;
 }
 
-div.image_queue .uploadifyProgress {
+div.upload_queue .uploadifyProgress {
     background-color: #E5E5E5;
     margin-top: 10px;
     width: 100%;
 }
 
-div.image_queue .uploadifyProgressBar {
+div.upload_queue .uploadifyProgressBar {
     background-color: #0099FF;
     height: 3px;
     width: 1px;

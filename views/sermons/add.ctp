@@ -43,13 +43,12 @@
         echo $this->Form->hidden("confirm_speaker_name");
         echo $this->Form->hidden("confirm_series_name");
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
-        echo $this->Form->input("passages");
         echo $this->Form->input('Post.title');
-        echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
         echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
-        echo $this->Html->div("upload_queue", "", array("id" => "upload_queue"));
+        echo $this->Form->input("passages");
+        echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
         echo $this->element("uploadify", 
                 array("plugin" => "cuploadify", 
                         "dom_id" => "image_upload", 
@@ -82,6 +81,7 @@
                                 "fileExt" => "*.mp3",
                                 "fileDataName" => "audioFile",
                                 "fileDesc" => "Audio Files")));
+       echo $this->Html->div("upload_queue", "", array("id" => "upload_queue"));
        ?>
     </fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
@@ -97,6 +97,9 @@
 </div>
 
 <?php echo $this->Html->scriptStart(); ?>
+    var search_series = true;
+    var search_speaker = true;
+
     $(function() {
         $("#SermonSeriesName").autocomplete({
             source: "<?php echo $this->Html->url(
@@ -120,18 +123,20 @@
                 }
             },
             search: function(event, ui) {
-                if ($("#SermonSeriesName").val().length == 1) {
-                    $("#SermonSeriesName").autocomplete("close");
+                search_series = false;
+                if ($(this).val().length == 1) {
+                    $(this).autocomplete("close");
                     return false;
                 }
+            },
+            close: function(event, ui) {
+                search_series = true;
+            }
+        }).focus(function() {
+            if (search_series && this.value == "") {
+                 $(this).autocomplete("search", '');
             }
         });
-    });
-
-    $("#SermonSeriesName").focus(function() {
-        if ($("#SermonSeriesName").val() == "") {
-            $("#SermonSeriesName").autocomplete("search");
-        }
     });
 
     $("#SermonSeriesName").blur(function() {
@@ -166,10 +171,18 @@
                 }
             },
             search: function(event, ui) {
+                search_speaker = false;
                 if ($("#SermonDisplaySpeakerName").val().length == 1) {
                     $("#SermonDisplaySpeakerName").autocomplete("close");
                     return false;
                 }
+            },
+            close: function(event, ui) {
+                search_speaker = true;
+            }
+        }).focus(function() {
+            if (search_speaker && this.value == "") {
+                $(this).autocomplete("search");
             }
         })
         .data("autocomplete")._renderItem = function(ul, item) {
@@ -184,12 +197,6 @@
         if ($("#SermonDisplaySpeakerName").val() != $("#SermonConfirmSpeakerName").val()) {
             $("#SermonPastorId").val("");
             $("#SermonSpeakerName").val($("#SermonDisplaySpeakerName").val());
-        }
-    });
-
-    $("#SermonDisplaySpeakerName").focus(function() {
-        if ($("#SermonDisplaySpeakerName").val() == "") {
-            $("#SermonDisplaySpeakerName").autocomplete("search");
         }
     });
 <?php echo $this->Html->scriptEnd(); ?>

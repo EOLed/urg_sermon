@@ -9,27 +9,31 @@
  ?>
 <?php echo $this->Html->scriptStart(); ?>
     var attachmentCounter = 0;
+    var in_progress = false;
+    var submit_form = false;
+    function on_complete_images(event, ID, fileObj, response, data) {
+        $('<input>').attr({ 
+                type: 'hidden', 
+                id: 'Attachment' + attachmentCounter + 'Filename', 
+                name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
+                value: fileObj.name,
+        }).appendTo('form');
+        $('<input>').attr({ 
+                type: 'hidden', 
+                id: 'Attachment' + attachmentCounter + 'AttachmentTypeId', 
+                name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
+                value: <?php echo $banner_type["AttachmentType"]["id"]; ?>,
+        }).appendTo('form');
+        attachmentCounter++;
+    }
+
+    function upload_in_progress(event, ID, fileObj, data) {
+        in_progress = true;
+    }
 <?php echo $this->Html->scriptEnd(); ?>
-<?php $images_on_complete = <<<IMAGES_ON_COMPLETE
-function(event, ID, fileObj, response, data) {
-    $('<input>').attr({ 
-            type: 'hidden', 
-            id: 'Attachment' + attachmentCounter + 'Filename', 
-            name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
-            value: fileObj.name,
-    }).appendTo('form');
-    $('<input>').attr({ 
-            type: 'hidden', 
-            id: 'Attachment' + attachmentCounter + 'AttachmentTypeId', 
-            name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
-            value: {$banner_type["AttachmentType"]["id"]},
-    }).appendTo('form');
-    attachmentCounter++;
-}
-IMAGES_ON_COMPLETE;
-?>
+
 <div class="sermons form">
-<?php echo $this->Form->create('Sermon');?>
+<?php echo $this->Form->create('Sermon'); ?>
     <fieldset>
         <legend><?php __('Add Sermon'); ?></legend>
         <?php
@@ -57,11 +61,14 @@ IMAGES_ON_COMPLETE;
                                 "buttonText" => "ADD IMAGES", 
                                 "multi" => true,
                                 "queueID" => "upload_queue",
-                                "removeCompleted" => false,
+                                "removeCompleted" => true,
                                 "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
                                 "fileDataName" => "imageFile",
                                 "fileDesc" => "Image Files",
-                                "onComplete" => $images_on_complete)));
+                                "onComplete" => "on_complete_images",
+                                "onProgress" => "upload_in_progress",
+                                "onAllComplete" => "uploads_completed"
+                                )));
        echo $this->element("uploadify",
                 array("plugin" => "cuploadify", 
                         "dom_id" => "audio_upload", 
@@ -78,6 +85,9 @@ IMAGES_ON_COMPLETE;
        ?>
     </fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
+    <div id="in-progress" title="<?php echo __("sermons.form.upload.pending", true); ?>">
+        <p><?php echo __("sermons.form.upload.pending.body", true); ?></p>
+    </div>
 </div>
 <div class="actions">
     <h3><?php __('Actions'); ?></h3>
@@ -199,5 +209,31 @@ IMAGES_ON_COMPLETE;
             theme_advanced_resizing : true
         });
     });
+
+    $(function() {
+        $("#in-progress").dialog({
+            modal: true,
+            autoOpen: false
+        })
+    });
+
+    $("#SermonAddForm").submit(function() {
+        if (in_progress) {
+            submit_form = true;
+            $("#in-progress").dialog("open");
+        }
+
+        return !in_progress;
+    });
+
+    function uploads_completed(event, data) {
+        in_progress = false;
+
+        $("#in-progress").dialog("close");
+
+        if (submit_form) {
+            $("#SermonAddForm").submit();
+        }
+    }
 <?php echo $this->Html->scriptEnd(); ?>
 <?php $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

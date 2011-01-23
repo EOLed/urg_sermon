@@ -1,4 +1,6 @@
 <?php 
-    if ($error != null)
-        echo __("errors." . strtolower($model) . ".$field.$error", true);
+    if ($error != null) {
+        $model = strtolower($model);
+        echo __(($model != "sermon" ? "sermons." : "") . $error, true);
+    }
 ?>

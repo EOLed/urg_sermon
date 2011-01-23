@@ -7,12 +7,32 @@ class Sermon extends UrgSermonAppModel {
                 'rule' => array('numeric'),
             ),
         ),
-		'passages' => array(
+		'series_name' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
 				//'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'display_speaker_name' => array(
+			'notEmpty' => array(
+				'rule' => 'notEmpty',
+                'message' => 'sermons.errors.speaker.name.required',
+                'required' => true,
+                'allowEmpty' => false
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'series_name' => array(
+			'notEmpty' => array(
+				'rule' => 'notEmpty',
+                'message' => 'sermons.errors.series.name.required',
+                'required' => true,
+                'allowEmpty' => false
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),

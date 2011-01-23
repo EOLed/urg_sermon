@@ -206,21 +206,23 @@ class SermonsController extends UrgSermonAppController {
      * Validates the field specified by the parameters.
      * Returns the error message key.
      */
-    function validate_field($model="Sermon", $field) {
+    function validate_field($model_name="Sermon", $field) {
         $this->layout = "ajax";
         $errors = array();
 
-        $this->data[$model][$field] = $this->params["url"]["value"];
-        $this->Sermon->Post->set($this->data);
-       
-        if ($this->Sermon->Post->validates(array("fieldList"=>array($field)))) {
+        $this->data[$model_name][$field] = $this->params["url"]["value"];
+
+        $model = $model_name == "Sermon" ? $this->Sermon : $this->Sermon->{$model_name};
+        $model->set($this->data);
+
+        if ($model->validates(array("fieldList"=>array($field)))) {
         } else {
-            $errors = $this->Sermon->Post->invalidFields();
+            $errors = $model->invalidFields();
         }
 
-        $this->log("Errors on $model.$field: " . Debugger::exportVar($errors, 2), LOG_DEBUG);
-        $this->set("error", isset($errors["title"]) ? $errors["title"] : null);
-        $this->set("model", $model);
+        $this->log("Errors on $model_name.$field: " . Debugger::exportVar($errors, 2), LOG_DEBUG);
+        $this->set("error", isset($errors[$field]) ? $errors[$field] : null);
+        $this->set("model", $model_name);
         $this->set("field", $field);
     }
 

@@ -43,11 +43,16 @@
         echo $this->Form->hidden("confirm_speaker_name");
         echo $this->Form->hidden("confirm_series_name");
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
+        echo $this->Html->div("error-message", "", 
+                array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
         echo $this->Form->input('Post.title');
-        echo $this->Html->div("error-message", "", array("id"=>"PostTitleError", "style"=>"display: none"));
+        echo $this->Html->div("error-message", "", 
+                array("id"=>"PostTitleError", "style"=>"display: none"));
         echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
+        echo $this->Html->div("error-message", "", 
+                array("id"=>"SermonDisplaySpeakerNameError", "style"=>"display: none"));
         echo $this->Form->input("passages");
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
         echo $this->element("uploadify", 
@@ -166,6 +171,19 @@
             },
             close: function(event, ui) {
                 search_series = true;
+                <?php
+                $this->Js->get("#SermonSeriesName");
+                echo $this->Js->request("/urg_sermon/sermons/validate_field/Sermon/series_name", 
+                    array(
+                        "update" => "#SermonSeriesNameError",
+                        "async" => true,
+                        "data" => '{ value: $("#SermonSeriesName").val() }',
+                        "dataExpression" => true,
+                        "complete" => "on_validate('#SermonSeriesName', XMLHttpRequest, textStatus)",
+                        "before" => "loading_validate('#SermonSeriesName')"
+                    )
+                );
+                ?>
             }
         }).focus(function() {
             if (search_series && this.value == "") {
@@ -214,6 +232,19 @@
             },
             close: function(event, ui) {
                 search_speaker = true;
+                <?php
+                $this->Js->get("#SermonDisplaySpeakerName");
+                echo $this->Js->request("/urg_sermon/sermons/validate_field/Sermon/display_speaker_name", 
+                    array(
+                        "update" => "#SermonDisplaySpeakerNameError",
+                        "async" => true,
+                        "data" => '{ value: $("#SermonDisplaySpeakerName").val() }',
+                        "dataExpression" => true,
+                        "complete" => "on_validate('#SermonDisplaySpeakerName', XMLHttpRequest, textStatus)",
+                        "before" => "loading_validate('#SermonDisplaySpeakerName')"
+                    )
+                );
+                ?>
             }
         }).focus(function() {
             if (search_speaker && this.value == "") {

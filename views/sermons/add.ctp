@@ -313,6 +313,8 @@
         }
     }
 
+    $($(":input").addClass("dirty"));
+
     $($(":input").change(function(event) {
         $(this).addClass("dirty");
     }));

@@ -124,6 +124,7 @@
     }
 
     $("#PostTitle").blur(function() {
+        if ($(this).hasClass("dirty")) {
         <?php
         $this->Js->get("#PostTitle");
         echo $this->Js->request("/urg_sermon/sermons/validate_field/Post/title", array(
@@ -135,6 +136,9 @@
                 "before" => "loading_validate('#PostTitle')"
         ));
         ?>
+        }
+
+        $(this).removeClass("dirty");
     });
 
     var search_series = true;
@@ -308,5 +312,9 @@
             $("#SermonAddForm").submit();
         }
     }
+
+    $($(":input").change(function(event) {
+        $(this).addClass("dirty");
+    }));
 <?php echo $this->Html->scriptEnd(); ?>
 <?php $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

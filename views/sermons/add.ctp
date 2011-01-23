@@ -44,6 +44,7 @@
         echo $this->Form->hidden("confirm_series_name");
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
         echo $this->Form->input('Post.title');
+        echo $this->Html->div("error-message", "", array("id"=>"PostTitleError", "style"=>"display: none"));
         echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
@@ -84,7 +85,11 @@
        echo $this->Html->div("upload_queue", "", array("id" => "upload_queue"));
        ?>
     </fieldset>
-<?php echo $this->Form->end(__('Submit', true));?>
+    <?php 
+        echo $this->Html->div("", $this->Html->image("/urg_sermon/img/loading.gif"), 
+                array("id" => "loading-validate", "style" => "display: none")); 
+    ?>
+    <?php echo $this->Form->end(__('Submit', true));?>
     <div id="in-progress" title="<?php echo __("sermons.form.upload.pending", true); ?>">
         <p><?php echo __("sermons.form.upload.pending.body", true); ?></p>
     </div>
@@ -95,8 +100,38 @@
         <li><?php echo $this->Html->link(__('List Sermons', true), array('action' => 'index'));?></li>
     </ul>
 </div>
-
 <?php echo $this->Html->scriptStart(); ?>
+    function on_validate(dom_id, XMLHttpRequest, textStatus) {
+        $("#loading-validate").hide();
+        
+        if ($(dom_id + "Error").text() == "") {
+            $(dom_id + "Error").hide();
+        } else {
+            $(dom_id).after($(dom_id + "Error"));
+            $(dom_id + "Error").show();
+        }
+    }
+
+    function loading_validate(dom_id) {
+        $(dom_id).after($("#loading-validate"));
+        $(dom_id + "Error").hide();
+        $("#loading-validate").show();
+    }
+
+    $("#PostTitle").blur(function() {
+        <?php
+        $this->Js->get("#PostTitle");
+        echo $this->Js->request("/urg_sermon/sermons/validate_field/Post/title", array(
+                "update" => "#PostTitleError",
+                "async" => true,
+                "data" => '{ value: $("#PostTitle").val() }',
+                "dataExpression" => true,
+                "complete" => "on_validate('#PostTitle', XMLHttpRequest, textStatus)",
+                "before" => "loading_validate('#PostTitle')"
+        ));
+        ?>
+    });
+
     var search_series = true;
     var search_speaker = true;
 

@@ -14,6 +14,10 @@ class SermonsController extends UrgSermonAppController {
                            "admin" => false
                    )
            ), "Urg", "Cuploadify");
+
+    var $helpers = array(
+        "Js" => array("Jquery")
+    );
     var $name = 'Sermons';
 
     function index() {
@@ -192,10 +196,34 @@ class SermonsController extends UrgSermonAppController {
         $this->Cuploadify->upload($options);
         $this->log("done uploading.", LOG_DEBUG);
     }
+
     function upload_images() {
         $this->log("uploading images...", LOG_DEBUG);
         $this->upload($this->IMAGES);
     }
+
+    /**
+     * Validates the field specified by the parameters.
+     * Returns the error message key.
+     */
+    function validate_field($model="Sermon", $field) {
+        $this->layout = "ajax";
+        $errors = array();
+
+        $this->data[$model][$field] = $this->params["url"]["value"];
+        $this->Sermon->Post->set($this->data);
+       
+        if ($this->Sermon->Post->validates(array("fieldList"=>array($field)))) {
+        } else {
+            $errors = $this->Sermon->Post->invalidFields();
+        }
+
+        $this->log("Errors on $model.$field: " . Debugger::exportVar($errors, 2), LOG_DEBUG);
+        $this->set("error", isset($errors["title"]) ? $errors["title"] : null);
+        $this->set("model", $model);
+        $this->set("field", $field);
+    }
+
     /**
      * Removes the trailing slash from the string specified.
      * @param $string the string to remove the trailing slash from.

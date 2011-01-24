@@ -9,7 +9,8 @@
  ?>
 <?php echo $this->Html->scriptStart(); ?>
     var attachmentCounter = 0;
-    var in_progress = false;
+    var image_in_progress = false;
+    var audio_in_progress = false;
     var submit_form = false;
     function on_complete_images(event, ID, fileObj, response, data) {
         $('<input>').attr({ 
@@ -27,8 +28,28 @@
         attachmentCounter++;
     }
 
-    function upload_in_progress(event, ID, fileObj, data) {
-        in_progress = true;
+    function on_complete_audio(event, ID, fileObj, response, data) {
+        $('<input>').attr({ 
+                type: 'hidden', 
+                id: 'Attachment' + attachmentCounter + 'Filename', 
+                name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
+                value: fileObj.name,
+        }).appendTo('form');
+        $('<input>').attr({ 
+                type: 'hidden', 
+                id: 'Attachment' + attachmentCounter + 'AttachmentTypeId', 
+                name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
+                value: <?php echo $audio_type["AttachmentType"]["id"]; ?>,
+        }).appendTo('form');
+        attachmentCounter++;
+    }
+
+    function image_upload_in_progress(event, ID, fileObj, data) {
+        image_in_progress = true;
+    }
+
+    function audio_upload_in_progress(event, ID, fileObj, data) {
+        audio_in_progress = true;
     }
 <?php echo $this->Html->scriptEnd(); ?>
 
@@ -71,8 +92,8 @@
                                 "fileDataName" => "imageFile",
                                 "fileDesc" => "Image Files",
                                 "onComplete" => "on_complete_images",
-                                "onProgress" => "upload_in_progress",
-                                "onAllComplete" => "uploads_completed"
+                                "onProgress" => "image_upload_in_progress",
+                                "onAllComplete" => "image_uploads_completed"
                                 )));
        echo $this->element("uploadify",
                 array("plugin" => "cuploadify", 
@@ -86,7 +107,11 @@
                                 "queueID" => "upload_queue",
                                 "fileExt" => "*.mp3",
                                 "fileDataName" => "audioFile",
-                                "fileDesc" => "Audio Files")));
+                                "fileDesc" => "Audio Files",
+                                "onComplete" => "on_complete_audio",
+                                "onProgress" => "audio_upload_in_progress",
+                                "onAllComplete" => "audio_uploads_completed"
+                                )));
        echo $this->Html->div("upload_queue", "", array("id" => "upload_queue"));
        ?>
     </fieldset>
@@ -295,16 +320,16 @@
     });
 
     $("#SermonAddForm").submit(function() {
-        if (in_progress) {
+        if (image_in_progress || audio_in_progress) {
             submit_form = true;
             $("#in-progress").dialog("open");
         }
 
-        return !in_progress;
+        return !image_in_progress && !audio_in_progress;
     });
 
-    function uploads_completed(event, data) {
-        in_progress = false;
+    function image_uploads_completed(event, data) {
+        image_in_progress = false;
 
         $("#in-progress").dialog("close");
 
@@ -313,6 +338,16 @@
         }
     }
 
+    function audio_uploads_completed(event, data) {
+        audio_in_progress = false;
+
+        $("#in-progress").dialog("close");
+
+        if (submit_form) {
+            $("#SermonAddForm").submit();
+        }
+    }
+    
     $($(":input").addClass("dirty"));
 
     $($(":input").change(function(event) {

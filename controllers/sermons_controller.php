@@ -107,6 +107,8 @@ class SermonsController extends UrgSermonAppController {
 
         $this->set("banner_type", 
                 $this->requestAction("/urg_post/attachment_types/find_by_name/Banner"));
+        $this->set("audio_type", 
+                $this->requestAction("/urg_post/attachment_types/find_by_name/Audio"));
         $posts = $this->Sermon->Post->find('list');
         $this->set(compact('posts'));
     }

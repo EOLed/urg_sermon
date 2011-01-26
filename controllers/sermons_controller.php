@@ -36,17 +36,31 @@ class SermonsController extends UrgSermonAppController {
     function add() {
         if (!empty($this->data)) {
             $logged_user = $this->Auth->user("id");
-            if ($this->data["Sermon"]["series_id"] == "") {
+            if ($this->data["Sermon"]["series_name"] != "") {
                 $series_name = $this->data["Sermon"]["series_name"];
-                $this->log("Creating new series for: " . $series_name, LOG_DEBUG);
-                $this->data["Sermon"]["series_id"] = 
-                        $this->requestAction("/urg_sermon/series/create/" .  $series_name);
+                $series_group = $this->Sermon->Series->findByName("Series");
+                $existing_series = $this->Sermon->Series->find("first", 
+                        array("conditions" => 
+                                array(
+                                        "Series.group_id" => $series_group["Series"]["id"], 
+                                        "Series.name" => $series_name
+                                )
+                        )
+                );
+
+                if ($existing_series === false) {
+                    $this->Sermon->Series->create();
+                    $this->data["Series"]["group_id"] = $series_group["Series"]["id"];
+                    $this->data["Series"]["name"] = $this->data["Sermon"]["series_name"];
+                    $this->log("New Series for: " . $series_name, LOG_DEBUG);
+                } else {
+                    $this->data["Series"] = $existing_series["Series"];
+                    $this->log("Series exists: $series_name", LOG_DEBUG);
+                }
             }
 
             $this->Sermon->Post->create();
-            $this->log("Saving sermon as post...");
             $this->data["Post"]["user_id"] = $logged_user;
-            $this->data["Post"]["group_id"] = $this->data["Sermon"]["series_id"];
 
             $attachment_count = isset($this->data["Attachment"]) ? 
                     sizeof($this->data["Attachment"]) : 0;
@@ -61,16 +75,31 @@ class SermonsController extends UrgSermonAppController {
                 unset($this->Sermon->Post->Attachment->validate["post_id"]);
             }
 
-            $post = $this->Sermon->Post->saveAll($this->data);
-            $this->log("Sermon post saved..", LOG_DEBUG);
-
             $this->Sermon->create();
-            $this->data["Sermon"]["post_id"] = $this->Sermon->Post->id; 
-            if (!empty($this->data["Sermon"]["pastor_id"])) {
-                $this->log("erasing speaker name because it was a Pastor", LOG_DEBUG);
-                $this->data["Sermon"]["speaker_name"] = null;
+            if ($this->data["Sermon"]["speaker_name"] != "") {
+                $speaker_name = $this->data["Sermon"]["speaker_name"];
+                $pastors_group = $this->Sermon->Pastor->findByName("Pastors");
+                $existing_pastor = $this->Sermon->Pastor->find("first", 
+                        array("conditions" => 
+                                array(
+                                        "Pastor.group_id" => $pastors_group["Pastor"]["id"], 
+                                        "Pastor.name" => $speaker_name
+                                )
+                        )
+                );
+
+                if ($existing_pastor === false) {
+                    $this->log("New speaker: " . $speaker_name, LOG_DEBUG);
+                } else {
+                    $this->data["Pastor"] = $existing_pastor["Pastor"];
+                    $this->data["Sermon"]["speaker_name"] = null;
+                    unset($this->Sermon->validate["speaker_name"]);
+                    $this->log("Speaker is a pastor: $speaker_name", LOG_DEBUG);
+                }
             }
-            if ($this->Sermon->save($this->data)) {
+
+            $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
+            if ($this->Sermon->saveAll($this->data)) {
                 $temp_dir = $this->data["Sermon"]["uuid"];
                 $temp_audio = $this->AUDIO . "/$temp_dir";
                 $temp_images = $this->IMAGES . "/$temp_dir";

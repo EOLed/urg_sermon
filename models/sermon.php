@@ -2,11 +2,6 @@
 class Sermon extends UrgSermonAppModel {
     var $name = 'Sermon';
     var $validate = array(
-        'post_id' => array(
-            'numeric' => array(
-                'rule' => array('numeric'),
-            ),
-        ),
 		'series_name' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
@@ -17,7 +12,7 @@ class Sermon extends UrgSermonAppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'display_speaker_name' => array(
+		'speaker_name' => array(
 			'notEmpty' => array(
 				'rule' => 'notEmpty',
                 'message' => 'sermons.errors.speaker.name.required',
@@ -49,11 +44,11 @@ class Sermon extends UrgSermonAppModel {
             'order' => ''
         ),
         'Series' => array(
-            'className' => 'Group',
+            'className' => 'Urg.Group',
             'foreignKey' => 'series_id'
         ),
-        'Pastors' => array(
-            'className' => 'Group',
+        'Pastor' => array(
+            'className' => 'Urg.Group',
             'foreignKey' => 'pastor_id'
         )
     );

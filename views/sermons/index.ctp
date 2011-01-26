@@ -23,7 +23,7 @@
         <td><?php echo $sermon['Sermon']['id']; ?>&nbsp;</td>
         <td><?php echo $sermon['Series']['name']; ?>&nbsp;</td>
         <td><?php echo $sermon['Sermon']['passages']; ?>&nbsp;</td>
-        <td><?php echo $sermon['Pastors']['name']; ?>&nbsp;</td>
+        <td><?php echo $sermon['Pastor']['name']; ?>&nbsp;</td>
         <td>
             <?php echo $this->Html->link($sermon['Post']['title'], array('controller' => 'posts', 'action' => 'view', $sermon['Post']['id'])); ?>
         </td>

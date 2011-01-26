@@ -7,7 +7,6 @@
  * @since v 1.0
  */
  ?>
-<?php echo $this->Html->script("/urg_sermon/js/jquery.scrollTo-min"); ?>
 <?php echo $this->Html->scriptStart(); ?>
     var attachmentCounter = 0;
     var image_in_progress = false;
@@ -60,8 +59,6 @@
         <legend><?php __('Add Sermon'); ?></legend>
         <?php
         echo $this->Form->hidden("uuid");
-        echo $this->Form->hidden('series_id');
-        echo $this->Form->hidden("pastor_id");
         echo $this->Form->hidden("confirm_speaker_name");
         echo $this->Form->hidden("confirm_series_name");
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
@@ -74,13 +71,12 @@
                 array("id"=>"PostTitleError", "style"=>"display: none"));
         echo $this->Html->div("validated", "✓", 
                 array("id"=>"PostTitleValid", "style"=>"display: none"));
-        echo $this->Form->hidden('speaker_name');
-        echo $this->Form->input("display_speaker_name", 
+        echo $this->Form->input("speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
         echo $this->Html->div("error-message", "", 
-                array("id"=>"SermonDisplaySpeakerNameError", "style"=>"display: none"));
+                array("id"=>"SermonSpeakerNameError", "style"=>"display: none"));
         echo $this->Html->div("validated", "✓", 
-                array("id"=>"SermonDisplaySpeakerNameValid", "style"=>"display: none"));
+                array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
         echo $this->Form->input("passages");
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
         echo $this->element("uploadify", 
@@ -127,7 +123,7 @@
                 array("id" => "loading-validate", "style" => "display: none")); 
     ?>
     <?php echo $this->Form->end(__('Submit', true));?>
-    <div id="in-progress" title="<?php echo __("sermons.form.upload.pending", true); ?>">
+    <div style="display: none;" id="in-progress" title="<?php echo __("sermons.form.upload.pending", true); ?>">
         <p><?php echo __("sermons.form.upload.pending.body", true); ?></p>
     </div>
 </div>
@@ -240,22 +236,15 @@
     });
 
     $(function() {
-        $("#SermonDisplaySpeakerName").autocomplete({
+        $("#SermonSpeakerName").autocomplete({
             source: "<?php echo $this->Html->url(
                     array("plugin" => "urg_sermon", 
                           "controller" => "sermons", 
                           "action" => "autocomplete_speaker")); ?>",
             minLength: 0,
             select: function(event, ui) {
-                $("#SermonDisplaySpeakerName").val(ui.item.value);
+                $("#SermonSpeakerName").val(ui.item.value);
                 $("#SermonConfirmSpeakerName").val(ui.item.value);
-
-                if (ui.item.group_id) {
-                    $("#SermonPastorId").val(ui.item.group_id);
-                } else {
-                    $("#SermonPastorId").val("");
-                    $("#SermonSpeakerName").val(ui.item.value); 
-                }
             },
             change: function(event, ui) {
                 if (ui.item != null) {
@@ -266,23 +255,23 @@
             },
             search: function(event, ui) {
                 search_speaker = false;
-                if ($("#SermonDisplaySpeakerName").val().length == 1) {
-                    $("#SermonDisplaySpeakerName").autocomplete("close");
+                if ($("#SermonSpeakerName").val().length == 1) {
+                    $("#SermonSpeakerName").autocomplete("close");
                     return false;
                 }
             },
             close: function(event, ui) {
                 search_speaker = true;
                 <?php
-                $this->Js->get("#SermonDisplaySpeakerName");
+                $this->Js->get("#SermonSpeakerName");
                 echo $this->Js->request("/urg_sermon/sermons/validate_field/Sermon/display_speaker_name", 
                     array(
-                        "update" => "#SermonDisplaySpeakerNameError",
+                        "update" => "#SermonSpeakerNameError",
                         "async" => true,
-                        "data" => '{ value: $("#SermonDisplaySpeakerName").val() }',
+                        "data" => '{ value: $("#SermonSpeakerName").val() }',
                         "dataExpression" => true,
-                        "complete" => "on_validate('#SermonDisplaySpeakerName', XMLHttpRequest, textStatus)",
-                        "before" => "loading_validate('#SermonDisplaySpeakerName')"
+                        "complete" => "on_validate('#SermonSpeakerName', XMLHttpRequest, textStatus)",
+                        "before" => "loading_validate('#SermonSpeakerName')"
                     )
                 );
                 ?>
@@ -300,10 +289,9 @@
         };
     });
     
-    $("#SermonDisplaySpeakerName").blur(function() {
-        if ($("#SermonDisplaySpeakerName").val() != $("#SermonConfirmSpeakerName").val()) {
-            $("#SermonPastorId").val("");
-            $("#SermonSpeakerName").val($("#SermonDisplaySpeakerName").val());
+    $("#SermonSpeakerName").blur(function() {
+        if ($("#SermonSpeakerName").val() != $("#SermonConfirmSpeakerName").val()) {
+            $("#SermonSpeakerName").val("");
         }
     });
 <?php echo $this->Html->scriptEnd(); ?>

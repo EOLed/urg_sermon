@@ -336,7 +336,10 @@
         scrolled = false;
         $(":input.invalid").each(function(index) {
             if (!scrolled) {
-                $('html,body').animate({ scrollTop: $(this).offset().top - 30 }, { duration: 'fast', easing: 'swing'})
+                $('html,body').animate(
+                        { scrollTop: $(this).offset().top - 30 }, 
+                        { duration: 'fast', easing: 'swing'}
+                );
                 scrolled = true;
             }
             $(this).effect("highlight", { color: "#FFD4D4" });

@@ -7,6 +7,7 @@
  * @since v 1.0
  */
  ?>
+<?php echo $this->Html->script("/urg_sermon/js/jquery.scrollTo-min"); ?>
 <?php echo $this->Html->scriptStart(); ?>
     var attachmentCounter = 0;
     var image_in_progress = false;
@@ -66,14 +67,20 @@
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
+        echo $this->Html->div("validated", "✓", 
+                array("id"=>"SermonSeriesNameValid", "style"=>"display: none"));
         echo $this->Form->input('Post.title');
         echo $this->Html->div("error-message", "", 
                 array("id"=>"PostTitleError", "style"=>"display: none"));
+        echo $this->Html->div("validated", "✓", 
+                array("id"=>"PostTitleValid", "style"=>"display: none"));
         echo $this->Form->hidden('speaker_name');
         echo $this->Form->input("display_speaker_name", 
                 array("label"=>__("sermons.label.speaker.name", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonDisplaySpeakerNameError", "style"=>"display: none"));
+        echo $this->Html->div("validated", "✓", 
+                array("id"=>"SermonDisplaySpeakerNameValid", "style"=>"display: none"));
         echo $this->Form->input("passages");
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
         echo $this->element("uploadify", 
@@ -136,9 +143,14 @@
         
         if ($(dom_id + "Error").text() == "") {
             $(dom_id + "Error").hide();
+            $(dom_id).after($(dom_id + "Valid"));
+            $(dom_id + "Valid").show();
+            $(dom_id).removeClass("invalid");
         } else {
+            $(dom_id + "Valid").hide();
             $(dom_id).after($(dom_id + "Error"));
             $(dom_id + "Error").show();
+            $(dom_id).addClass("invalid");
         }
     }
 
@@ -164,7 +176,7 @@
         }
 
         $(this).removeClass("dirty");
-    });
+    }).addClass("invalid");
 
     var search_series = true;
     var search_speaker = true;
@@ -218,7 +230,7 @@
             if (search_series && this.value == "") {
                  $(this).autocomplete("search", '');
             }
-        });
+        }).addClass("invalid");
     });
 
     $("#SermonSeriesName").blur(function() {
@@ -279,7 +291,7 @@
             if (search_speaker && this.value == "") {
                 $(this).autocomplete("search");
             }
-        })
+        }).addClass("invalid")
         .data("autocomplete")._renderItem = function(ul, item) {
             var pastor_class = item.belongsToChurch ? " class='pastor_item' " : "";
             return $("<li" + pastor_class + "></li>").data("item.autocomplete", item)
@@ -320,6 +332,19 @@
     });
 
     $("#SermonAddForm").submit(function() {
+        error = false;
+        scrolled = false;
+        $(":input.invalid").each(function(index) {
+            if (!scrolled) {
+                $('html,body').animate({ scrollTop: $(this).offset().top - 30 }, { duration: 'fast', easing: 'swing'})
+                scrolled = true;
+            }
+            $(this).effect("highlight", { color: "#FFD4D4" });
+            error = true;
+        });
+
+        if (error) return false;
+
         if (image_in_progress || audio_in_progress) {
             submit_form = true;
             $("#in-progress").dialog("open");

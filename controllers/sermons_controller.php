@@ -35,7 +35,7 @@ class SermonsController extends UrgSermonAppController {
 
     function add() {
         if (!empty($this->data)) {
-            $logged_user = $this->Auth->user("id");
+            $logged_user = $this->Auth->user();
             if ($this->data["Sermon"]["series_name"] != "") {
                 $series_name = $this->data["Sermon"]["series_name"];
                 $series_group = $this->Sermon->Series->findByName("Series");
@@ -60,7 +60,7 @@ class SermonsController extends UrgSermonAppController {
             }
 
             $this->Sermon->Post->create();
-            $this->data["Post"]["user_id"] = $logged_user;
+            $this->data["User"] = $logged_user["User"];
 
             $attachment_count = isset($this->data["Attachment"]) ? 
                     sizeof($this->data["Attachment"]) : 0;
@@ -68,65 +68,90 @@ class SermonsController extends UrgSermonAppController {
             if ($attachment_count > 0) {
                 $this->log("preparing $attachment_count attachments...", LOG_DEBUG);
                 foreach ($this->data["Attachment"] as &$attachment) {
-                    $attachment["user_id"] = $logged_user;
+                    $attachment["User"] = $logged_user["User"];
                 }
 
                 $this->Sermon->Post->bindModel(array("hasMany" => array("Attachment")));
                 unset($this->Sermon->Post->Attachment->validate["post_id"]);
             }
 
-            $this->Sermon->create();
-            if ($this->data["Sermon"]["speaker_name"] != "") {
-                $speaker_name = $this->data["Sermon"]["speaker_name"];
-                $pastors_group = $this->Sermon->Pastor->findByName("Pastors");
-                $existing_pastor = $this->Sermon->Pastor->find("first", 
-                        array("conditions" => 
-                                array(
-                                        "Pastor.group_id" => $pastors_group["Pastor"]["id"], 
-                                        "Pastor.name" => $speaker_name
-                                )
-                        )
-                );
+            $this->Sermon->Post->bindModel(array("belongsTo" => array(
+                    "Series" => array(
+                        "className" => "Urg.Group",
+                        "foreignKey" => "group_id"
+                    )
+                )
+            ));
+                unset($this->Sermon->Post->validate["group_id"]);
 
-                if ($existing_pastor === false) {
-                    $this->log("New speaker: " . $speaker_name, LOG_DEBUG);
-                } else {
-                    $this->data["Pastor"] = $existing_pastor["Pastor"];
-                    $this->data["Sermon"]["speaker_name"] = null;
-                    unset($this->Sermon->validate["speaker_name"]);
-                    $this->log("Speaker is a pastor: $speaker_name", LOG_DEBUG);
-                }
-            }
+            $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
 
-            $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
-            if ($this->Sermon->saveAll($this->data)) {
-                $temp_dir = $this->data["Sermon"]["uuid"];
-                $temp_audio = $this->AUDIO . "/$temp_dir";
-                $temp_images = $this->IMAGES . "/$temp_dir";
-                $doc_root = $this->remove_trailing_slash(env("DOCUMENT_ROOT"));
+            $status = $this->Sermon->Post->saveAll($this->data);
 
-                if (file_exists($doc_root . $temp_audio)) {
-                    $audio_dir = $this->AUDIO . "/" . $this->Sermon->id;
-                    $this->rename_dir($doc_root . $temp_audio, $doc_root . $audio_dir);
-                    $this->log("moved audio to permanent folder: $doc_root$audio_dir", LOG_DEBUG);
-                } else {
-                    $this->log("no audio to move, since folder doesn't exist: $doc_root$temp_audio", 
-                            LOG_DEBUG);
-                }
+            $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
+            if (!is_bool($status) || $status) {
+                $this->data["Series"]["id"] = $this->Sermon->Post->Series->id;
+                $this->data["Post"]["id"] = $this->Sermon->Post->id;
+                $this->log("Post successfully saved. Now saving sermon with series id as: " . 
+                        $this->data["Series"]["id"] . " and post id as: " . 
+                        $this->data["Post"]["id"], LOG_DEBUG);
+                $this->Sermon->create();
+                if ($this->data["Sermon"]["speaker_name"] != "") {
+                    $speaker_name = $this->data["Sermon"]["speaker_name"];
+                    $pastors_group = $this->Sermon->Pastor->findByName("Pastors");
+                    $existing_pastor = $this->Sermon->Pastor->find("first", 
+                            array("conditions" => 
+                                    array(
+                                            "Pastor.group_id" => $pastors_group["Pastor"]["id"], 
+                                            "Pastor.name" => $speaker_name
+                                    )
+                            )
+                    );
 
-                if (file_exists($doc_root . $temp_images)) {
-                    $images_dir = $this->IMAGES . "/" .  $this->Sermon->id;
-                    $this->rename_dir($doc_root . $temp_images, $doc_root . $images_dir);
-                    $this->log("moved images to permanent folder: $doc_root$images_dir", LOG_DEBUG);
-                } else {
-                    $this->log("no images to move, since folder doesn't exist: $doc_root$temp_images", 
-                            LOG_DEBUG);
+                    if ($existing_pastor === false) {
+                        $this->log("New speaker: " . $speaker_name, LOG_DEBUG);
+                    } else {
+                        $this->data["Pastor"] = $existing_pastor["Pastor"];
+                        $this->data["Sermon"]["speaker_name"] = null;
+                        unset($this->Sermon->validate["speaker_name"]);
+                        $this->log("Speaker is a pastor: $speaker_name", LOG_DEBUG);
+                    }
                 }
 
-                $this->log("Sermon successfully saved.", LOG_DEBUG);
-                $this->Session->setFlash(__('The sermon has been saved', true));
-                $this->redirect(array('action' => 'index'));
+                $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
+                if ($this->Sermon->saveAll($this->data)) {
+                    $temp_dir = $this->data["Sermon"]["uuid"];
+                    $temp_audio = $this->AUDIO . "/$temp_dir";
+                    $temp_images = $this->IMAGES . "/$temp_dir";
+                    $doc_root = $this->remove_trailing_slash(env("DOCUMENT_ROOT"));
+
+                    if (file_exists($doc_root . $temp_audio)) {
+                        $audio_dir = $this->AUDIO . "/" . $this->Sermon->id;
+                        $this->rename_dir($doc_root . $temp_audio, $doc_root . $audio_dir);
+                        $this->log("moved audio to permanent folder: $doc_root$audio_dir", LOG_DEBUG);
+                    } else {
+                        $this->log("no audio to move, since folder doesn't exist: $doc_root$temp_audio", 
+                                LOG_DEBUG);
+                    }
+
+                    if (file_exists($doc_root . $temp_images)) {
+                        $images_dir = $this->IMAGES . "/" .  $this->Sermon->id;
+                        $this->rename_dir($doc_root . $temp_images, $doc_root . $images_dir);
+                        $this->log("moved images to permanent folder: $doc_root$images_dir", LOG_DEBUG);
+                    } else {
+                        $this->log("no images to move, since folder doesn't exist: $doc_root$temp_images", 
+                                LOG_DEBUG);
+                    }
+
+                    $this->log("Sermon successfully saved.", LOG_DEBUG);
+                    $this->Session->setFlash(__('The sermon has been saved', true));
+                    $this->redirect(array('action' => 'index'));
+                } else {
+                    $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
+                    $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+                } 
             } else {
+                $this->Sermon->saveAll($this->data, array("validate"=>"only"));
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
                 $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
             }

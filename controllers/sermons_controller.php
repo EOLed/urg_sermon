@@ -35,6 +35,9 @@ class SermonsController extends UrgSermonAppController {
 
     function add() {
         if (!empty($this->data)) {
+            $sermon_ds = $this->Sermon->getDataSource();
+            $post_ds = $this->Sermon->Post->getDataSource();
+
             $logged_user = $this->Auth->user();
             if ($this->data["Sermon"]["series_name"] != "") {
                 $series_name = $this->data["Sermon"]["series_name"];
@@ -60,6 +63,8 @@ class SermonsController extends UrgSermonAppController {
             }
 
             $this->Sermon->Post->create();
+            $post_ds->begin($this->Sermon->Post);
+            $sermon_ds->begin($this->Sermon);
             $this->data["User"] = $logged_user["User"];
 
             $attachment_count = isset($this->data["Attachment"]) ? 
@@ -82,12 +87,13 @@ class SermonsController extends UrgSermonAppController {
                     )
                 )
             ));
-                unset($this->Sermon->Post->validate["group_id"]);
+            
+            unset($this->Sermon->Post->validate["group_id"]);
 
             $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
 
-            $status = $this->Sermon->Post->saveAll($this->data);
-
+            $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
+  
             $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
             if (!is_bool($status) || $status) {
                 $this->data["Series"]["id"] = $this->Sermon->Post->Series->id;
@@ -119,7 +125,7 @@ class SermonsController extends UrgSermonAppController {
                 }
 
                 $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
-                if ($this->Sermon->saveAll($this->data)) {
+                if ($this->Sermon->saveAll($this->data, array("atomic"=>false))) {
                     $temp_dir = $this->data["Sermon"]["uuid"];
                     $temp_audio = $this->AUDIO . "/$temp_dir";
                     $temp_images = $this->IMAGES . "/$temp_dir";
@@ -139,16 +145,22 @@ class SermonsController extends UrgSermonAppController {
                         $this->rename_dir($doc_root . $temp_images, $doc_root . $images_dir);
                         $this->log("moved images to permanent folder: $doc_root$images_dir", LOG_DEBUG);
                     } else {
-                        $this->log("no images to move, since folder doesn't exist: $doc_root$temp_images", 
-                                LOG_DEBUG);
+                        $this->log("no images to move, since folder doesn't exist: " .
+                                "$doc_root$temp_images", LOG_DEBUG);
                     }
+
+                    $post_ds->commit($this->Sermon->Post);
+                    $sermon_ds->commit($this->Sermon);
 
                     $this->log("Sermon successfully saved.", LOG_DEBUG);
                     $this->Session->setFlash(__('The sermon has been saved', true));
                     $this->redirect(array('action' => 'index'));
                 } else {
+                    $sermon_ds->rollback($this->Sermon);
+                    $post_ds->rollback($this->Sermon->Post);
                     $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
-                    $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+                    $this->Session->setFlash(
+                            __('The sermon could not be saved. Please, try again.', true));
                 } 
             } else {
                 $this->Sermon->saveAll($this->data, array("validate"=>"only"));

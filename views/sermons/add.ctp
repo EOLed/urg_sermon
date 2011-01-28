@@ -59,8 +59,6 @@
         <legend><?php __('Add Sermon'); ?></legend>
         <?php
         echo $this->Form->hidden("uuid");
-        echo $this->Form->hidden("confirm_speaker_name");
-        echo $this->Form->hidden("confirm_series_name");
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
@@ -123,7 +121,8 @@
                 array("id" => "loading-validate", "style" => "display: none")); 
     ?>
     <?php echo $this->Form->end(__('Submit', true));?>
-    <div style="display: none;" id="in-progress" title="<?php echo __("sermons.form.upload.pending", true); ?>">
+    <div style="display: none;" id="in-progress" 
+            title="<?php echo __("sermons.form.upload.pending", true); ?>">
         <p><?php echo __("sermons.form.upload.pending.body", true); ?></p>
     </div>
 </div>
@@ -186,18 +185,10 @@
             ); ?>",
             minLength: 0,
             select: function(event, ui) {
-                $("#SermonSeriesId").val(ui.item.id);
-                $("#SermonConfirmSeriesName").val(ui.item.value);
+                $("#SermonSeriesName").val(ui.item.id);
             },
             open: function(event, ui) {
-                $("#SermonSeriesId").val("");
-            },
-            change: function(event, ui) {
-                if (ui.item != null) {
-                    $("#SermonConfirmSeriesName").val(ui.item.value);
-                } else {
-                    $("#SermonConfirmSeriesName").val("");
-                }
+                $("#SermonSeriesName").val("");
             },
             search: function(event, ui) {
                 search_series = false;
@@ -229,12 +220,6 @@
         }).addClass("invalid");
     });
 
-    $("#SermonSeriesName").blur(function() {
-        if ($("#SermonSeriesName").val() != $("#SermonConfirmSeriesName").val()) {
-            $("#SermonSeriesId").val("");
-        }
-    });
-
     $(function() {
         $("#SermonSpeakerName").autocomplete({
             source: "<?php echo $this->Html->url(
@@ -244,14 +229,6 @@
             minLength: 0,
             select: function(event, ui) {
                 $("#SermonSpeakerName").val(ui.item.value);
-                $("#SermonConfirmSpeakerName").val(ui.item.value);
-            },
-            change: function(event, ui) {
-                if (ui.item != null) {
-                    $("#SermonConfirmSpeakerName").val(ui.item.value);
-                } else {
-                    $("#SermonConfirmSpeakerName").val("");
-                }
             },
             search: function(event, ui) {
                 search_speaker = false;
@@ -264,7 +241,8 @@
                 search_speaker = true;
                 <?php
                 $this->Js->get("#SermonSpeakerName");
-                echo $this->Js->request("/urg_sermon/sermons/validate_field/Sermon/display_speaker_name", 
+                echo $this->Js->request(
+                        "/urg_sermon/sermons/validate_field/Sermon/display_speaker_name", 
                     array(
                         "update" => "#SermonSpeakerNameError",
                         "async" => true,
@@ -287,12 +265,6 @@
                     .append("<a>" + item.label + "</a>" )
                     .appendTo(ul);
         };
-    });
-    
-    $("#SermonSpeakerName").blur(function() {
-        if ($("#SermonSpeakerName").val() != $("#SermonConfirmSpeakerName").val()) {
-            $("#SermonSpeakerName").val("");
-        }
     });
 <?php echo $this->Html->scriptEnd(); ?>
 

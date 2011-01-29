@@ -187,9 +187,6 @@
             select: function(event, ui) {
                 $("#SermonSeriesName").val(ui.item.id);
             },
-            open: function(event, ui) {
-                $("#SermonSeriesName").val("");
-            },
             search: function(event, ui) {
                 search_series = false;
                 if ($(this).val().length == 1) {

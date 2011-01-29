@@ -171,7 +171,7 @@
         }
 
         $(this).removeClass("dirty");
-    }).addClass("invalid");
+    });
 
     var search_series = true;
     var search_speaker = true;
@@ -217,7 +217,7 @@
             if (search_series && this.value == "") {
                  $(this).autocomplete("search", '');
             }
-        }).addClass("invalid");
+        });
     });
 
     $(function() {
@@ -258,7 +258,7 @@
             if (search_speaker && this.value == "") {
                 $(this).autocomplete("search");
             }
-        }).addClass("invalid")
+        })
         .data("autocomplete")._renderItem = function(ul, item) {
             var pastor_class = item.belongsToChurch ? " class='pastor_item' " : "";
             return $("<li" + pastor_class + "></li>").data("item.autocomplete", item)
@@ -275,8 +275,10 @@
         $('#PostContent').tinymce({
             script_url: "<?php echo $this->Html->url("/js/tinymce/tiny_mce.js"); ?>",
             theme: "advanced",
-            theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,fontsizeselect",
-            theme_advanced_buttons2 : "bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,cleanup,code,|,forecolor,backcolor",
+            theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|," +
+                                      "justifyleft,justifycenter,justifyright,fontsizeselect",
+            theme_advanced_buttons2 : "bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|," +
+                                      "link,unlink,anchor,cleanup,code,|,forecolor,backcolor",
             theme_advanced_buttons3 : "",
             theme_advanced_toolbar_location : "top",
             theme_advanced_toolbar_align : "left",
@@ -341,5 +343,18 @@
     $($(":input").change(function(event) {
         $(this).addClass("dirty");
     }));
+
+    function invalidate(dom_id) {
+        has_errors = $("#flashMessage").length;
+        if (!has_errors || $(dom_id).hasClass("form-error")) {
+            $(dom_id).addClass("invalid"); 
+        }
+    }
+
+    $(function() {
+        invalidate("#PostTitle");
+        invalidate("#SermonSeriesName");
+        invalidate("#SermonSpeakerName");
+    });
 <?php echo $this->Html->scriptEnd(); ?>
 <?php $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

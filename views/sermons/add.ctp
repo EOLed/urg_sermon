@@ -26,6 +26,14 @@
                 value: <?php echo $banner_type["AttachmentType"]["id"]; ?>,
         }).appendTo('form');
         attachmentCounter++;
+
+        banner_width = $("#sermon-banner").width();
+
+        $("#sermon-banner").html(
+                "<img id='#sermon-banner-img' src='" +
+                "<?php echo $this->Html->url("/urg_sermon/img/" . $this->data["Sermon"]["uuid"]); ?>" 
+                + "/banner" + fileObj.name.substr(fileObj.name.lastIndexOf('.')) + "' style='width: " 
+                + banner_width +  "px;' />");
     }
 
     function on_complete_audio(event, ID, fileObj, response, data) {
@@ -59,6 +67,27 @@
         <legend><?php __('Add Sermon'); ?></legend>
         <?php
         echo $this->Form->hidden("uuid");
+        echo $this->Html->div("placeholder", "INSERT SERMON BANNER HERE", 
+                array("id" => "sermon-banner"));
+        echo $this->element("uploadify", 
+                array("plugin" => "cuploadify", 
+                        "dom_id" => "image_upload", 
+                        "session_id" => $this->Session->id(),
+                        "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
+                        "options" => array("auto" => true, 
+                                "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                "script" => $this->Html->url("/urg_sermon/sermons/upload_image"),
+                                "buttonText" => "ADD IMAGES", 
+                                //"multi" => true,
+                                //"queueID" => "upload_queue",
+                                "removeCompleted" => true,
+                                "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
+                                "fileDataName" => "imageFile",
+                                "fileDesc" => "Image Files",
+                                "onComplete" => "on_complete_images",
+                                "onProgress" => "image_upload_in_progress",
+                                "onAllComplete" => "image_uploads_completed"
+                                )));
         echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
@@ -77,26 +106,7 @@
                 array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
         echo $this->Form->input("passages");
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
-        echo $this->element("uploadify", 
-                array("plugin" => "cuploadify", 
-                        "dom_id" => "image_upload", 
-                        "session_id" => $this->Session->id(),
-                        "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
-                        "options" => array("auto" => true, 
-                                "folder" => "/" . $this->data["Sermon"]["uuid"],
-                                "script" => $this->Html->url("/urg_sermon/sermons/upload_images"),
-                                "buttonText" => "ADD IMAGES", 
-                                "multi" => true,
-                                "queueID" => "upload_queue",
-                                "removeCompleted" => true,
-                                "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
-                                "fileDataName" => "imageFile",
-                                "fileDesc" => "Image Files",
-                                "onComplete" => "on_complete_images",
-                                "onProgress" => "image_upload_in_progress",
-                                "onAllComplete" => "image_uploads_completed"
-                                )));
-       echo $this->element("uploadify",
+        echo $this->element("uploadify",
                 array("plugin" => "cuploadify", 
                         "dom_id" => "audio_upload", 
                         "session_id" => $this->Session->id(),

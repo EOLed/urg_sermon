@@ -270,6 +270,18 @@ class SermonsController extends UrgSermonAppController {
         $this->upload($this->IMAGES);
     }
 
+    function upload_image() {
+        $this->upload($this->IMAGES);
+        $options = array("root" => $this->IMAGES);
+        $target_folder = $this->Cuploadify->get_target_folder($options);
+        $filename = $target_folder . $this->Cuploadify->get_filename();
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $banner = $target_folder . "banner.$ext";
+
+        rename($filename, $banner); 
+        $this->log("uploading $filename as $banner", LOG_DEBUG);
+    }
+
     /**
      * Validates the field specified by the parameters.
      * Returns the error message key.

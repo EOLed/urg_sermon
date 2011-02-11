@@ -8,40 +8,49 @@
  */
  ?>
 <?php echo $this->Html->scriptStart(); ?>
-    var attachmentCounter = 0;
     var image_in_progress = false;
     var audio_in_progress = false;
     var submit_form = false;
     function on_complete_images(event, ID, fileObj, response, data) {
-        $('<input>').attr({ 
-                type: 'hidden', 
-                id: 'Attachment' + attachmentCounter + 'Filename', 
-                name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
-                value: fileObj.name,
-        }).appendTo('form');
-        $('<input>').attr({ 
-                type: 'hidden', 
-                id: 'Attachment' + attachmentCounter + 'AttachmentTypeId', 
-                name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
-                value: <?php echo $banner_type["AttachmentType"]["id"]; ?>,
-        }).appendTo('form');
-        attachmentCounter++;
+        if ($("#SermonBannerAttachmentIndex").val() == "") {
+            $("#SermonBannerAttachmentIndex").val($("input.attachment").size());
+        }
+
+        bannerIndex = $("#SermonBannerAttachmentIndex").val();
+
+        banner_filename = "banner" + fileObj.name.substr(fileObj.name.lastIndexOf('.'));
+
+        if ($("#Attachment" + bannerIndex + "Filename").length == 0) {
+            $('<input>').attr({ 
+                    type: 'hidden', 
+                    id: 'Attachment' + bannerIndex + 'Filename', 
+                    name: 'data[Attachment][' + bannerIndex + '][filename]' ,
+                    value: banner_filename,
+                    class: "attachment"
+            }).appendTo('form');
+            $('<input>').attr({ 
+                    type: 'hidden', 
+                    id: 'Attachment' + bannerIndex + 'AttachmentTypeId', 
+                    name: 'data[Attachment][' + bannerIndex + '][attachment_type_id]' ,
+                    value: <?php echo $banner_type["AttachmentType"]["id"]; ?>,
+            }).appendTo('form');
+        }
 
         banner_width = $("#sermon-banner").width();
 
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
                 "<?php echo $this->Html->url("/urg_sermon/img/" . $this->data["Sermon"]["uuid"]); ?>" 
-                + "/banner" + fileObj.name.substr(fileObj.name.lastIndexOf('.')) + "' style='width: " 
-                + banner_width +  "px;' />");
+                + "/" + banner_filename + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
     function on_complete_audio(event, ID, fileObj, response, data) {
-        $('<input>').attr({ 
-                type: 'hidden', 
+        attachmentCounter = $("input.attachment").size();
+        $('<input>').attr({ type: 'hidden', 
                 id: 'Attachment' + attachmentCounter + 'Filename', 
                 name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
                 value: fileObj.name,
+                class: "attachment"
         }).appendTo('form');
         $('<input>').attr({ 
                 type: 'hidden', 
@@ -49,7 +58,16 @@
                 name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
                 value: <?php echo $audio_type["AttachmentType"]["id"]; ?>,
         }).appendTo('form');
-        attachmentCounter++;
+
+        $("<li>").attr({ id: "AttachmentQueueListItem" + attachmentCounter }).appendTo("#audio-queue");
+
+        $("<a>").attr({
+                href: "<?php echo $this->Html->url("/urg_sermon/audio/" . $this->data["Sermon"]["uuid"]); ?>"
+                        + "/" + fileObj.name,
+                id: "AttachmentQueueAudioLink" + attachmentCounter 
+        }).appendTo("#AttachmentQueueListItem" + attachmentCounter);
+
+        $("#AttachmentQueueAudioLink" + attachmentCounter).text(fileObj.name);
     }
 
     function image_upload_in_progress(event, ID, fileObj, data) {
@@ -67,6 +85,7 @@
         <legend><?php __('Add Sermon'); ?></legend>
         <?php
         echo $this->Form->hidden("uuid");
+        echo $this->Form->hidden("bannerAttachmentIndex");
         echo $this->Html->div("placeholder", "INSERT SERMON BANNER HERE", 
                 array("id" => "sermon-banner"));
         echo $this->element("uploadify", 
@@ -114,8 +133,7 @@
                                 "folder" => "/" . $this->data["Sermon"]["uuid"],
                                 "script" => $this->Html->url("/urg_sermon/sermons/upload_audio"),
                                 "buttonText" => "ADD AUDIO", 
-                                "removeCompleted" => false,
-                                "queueID" => "upload_queue",
+                                "removeCompleted" => true,
                                 "fileExt" => "*.mp3",
                                 "fileDataName" => "audioFile",
                                 "fileDesc" => "Audio Files",
@@ -123,7 +141,7 @@
                                 "onProgress" => "audio_upload_in_progress",
                                 "onAllComplete" => "audio_uploads_completed"
                                 )));
-       echo $this->Html->div("upload_queue", "", array("id" => "upload_queue"));
+       echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"audio-queue")));
        ?>
     </fieldset>
     <?php 

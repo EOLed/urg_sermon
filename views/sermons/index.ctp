@@ -3,12 +3,12 @@
     <table cellpadding="0" cellspacing="0">
     <tr>
             <th><?php echo $this->Paginator->sort('id');?></th>
-            <th><?php echo $this->Paginator->sort('series_id');?></th>
+            <th><?php echo $this->Paginator->sort('Post.publish_timestamp');?></th>
+            <th><?php echo $this->Paginator->sort('Series.name');?></th>
             <th><?php echo $this->Paginator->sort('passages');?></th>
-            <th><?php echo $this->Paginator->sort('pastor_id');?></th>
-            <th><?php echo $this->Paginator->sort('post_id');?></th>
+            <th><?php echo $this->Paginator->sort('Pastor.name');?></th>
+            <th><?php echo $this->Paginator->sort('Post.title');?></th>
             <th><?php echo $this->Paginator->sort('speaker_name');?></th>
-            <th><?php echo $this->Paginator->sort('created');?></th>
             <th class="actions"><?php __('Actions');?></th>
     </tr>
     <?php
@@ -21,6 +21,9 @@
     ?>
     <tr<?php echo $class;?>>
         <td><?php echo $sermon['Sermon']['id']; ?>&nbsp;</td>
+        <td>
+            <?php echo $this->Html->link($sermon['Post']['publish_timestamp'], array('controller' => 'posts', 'action' => 'view', $sermon['Post']['id'])); ?>
+        </td>
         <td><?php echo $sermon['Series']['name']; ?>&nbsp;</td>
         <td><?php echo $sermon['Sermon']['passages']; ?>&nbsp;</td>
         <td><?php echo $sermon['Pastor']['name']; ?>&nbsp;</td>
@@ -28,7 +31,6 @@
             <?php echo $this->Html->link($sermon['Post']['title'], array('controller' => 'posts', 'action' => 'view', $sermon['Post']['id'])); ?>
         </td>
         <td><?php echo $sermon['Sermon']['speaker_name']; ?>&nbsp;</td>
-        <td><?php echo $sermon['Sermon']['created']; ?>&nbsp;</td>
         <td class="actions">
             <?php echo $this->Html->link(__('View', true), array('action' => 'view', $sermon['Sermon']['id'])); ?>
             <?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', $sermon['Sermon']['id'])); ?>

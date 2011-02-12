@@ -16,7 +16,7 @@ class SermonsController extends UrgSermonAppController {
            ), "Urg", "Cuploadify");
 
     var $helpers = array(
-        "Js" => array("Jquery")
+        "Js" => array("Jquery"), "Time"
     );
     var $name = 'Sermons';
 

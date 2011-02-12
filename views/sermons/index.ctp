@@ -22,7 +22,16 @@
     <tr<?php echo $class;?>>
         <td><?php echo $sermon['Sermon']['id']; ?>&nbsp;</td>
         <td>
-            <?php echo $this->Html->link($sermon['Post']['publish_timestamp'], array('controller' => 'posts', 'action' => 'view', $sermon['Post']['id'])); ?>
+            <?php
+                if ($sermon["Post"]["publish_timestamp"] == null || 
+                        $sermon["Post"]["publish_timestamp"] == "") {
+                    echo __("Post.status.draft", true);
+                } else {
+                    echo $this->Html->link(
+                            $this->Time->format("n/j/y", $sermon['Post']['publish_timestamp']), 
+                        array('controller' => 'posts', 'action' => 'view', $sermon['Post']['id']));
+                }
+            ?>
         </td>
         <td><?php echo $sermon['Series']['name']; ?>&nbsp;</td>
         <td><?php echo $sermon['Sermon']['passages']; ?>&nbsp;</td>

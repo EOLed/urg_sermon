@@ -124,6 +124,9 @@
         echo $this->Html->div("validated", "✓", 
                 array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
         echo $this->Form->input("passages");
+        echo $this->Form->hidden("Post.publish_timestamp");
+        echo $this->Form->input("Post.displayDate", 
+                array("type"=>"text", "label"=>__("sermons.label.date", true)));
         echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
         echo $this->element("uploadify",
                 array("plugin" => "cuploadify", 
@@ -380,6 +383,14 @@
         invalidate("#PostTitle");
         invalidate("#SermonSeriesName");
         invalidate("#SermonSpeakerName");
+    });
+
+    $(function() {
+        $("#PostDisplayDate").datepicker({
+            altField: "#PostPublishTimestamp",
+            altFormat: "yy-mm-dd",
+            dateFormat: "MM d, yy"
+        });
     });
 <?php echo $this->Html->scriptEnd(); ?>
 <?php $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

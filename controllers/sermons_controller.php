@@ -73,7 +73,7 @@ class SermonsController extends UrgSermonAppController {
             if ($attachment_count > 0) {
                 $this->log("preparing $attachment_count attachments...", LOG_DEBUG);
                 foreach ($this->data["Attachment"] as &$attachment) {
-                    $attachment["User"] = $logged_user["User"];
+                    $attachment["user_id"] = $logged_user["User"]["id"];
                 }
 
                 $this->Sermon->Post->bindModel(array("hasMany" => array("Attachment")));

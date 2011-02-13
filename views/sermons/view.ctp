@@ -21,8 +21,9 @@
             <a href="<?php echo $this->Html->url("/urg_sermon/sermons/view/") . 
                     $series_sermon["Sermon"]["id"] ?>"><?php echo $series_sermon["Post"]["title"]?></a>
             <div class="series-sermon-details">
-                <?php echo sprintf(__("sermon.series.details"), 
-                        $this->element("speaker_name", array("sermon"=> $series_sermon)),
+                <?php echo sprintf(__("Preached by %s on %s", true),
+                        $this->element("speaker_name", array("plugin"=>"urg_sermon", 
+                                "sermon"=> $series_sermon)),
                         $this->Time->format("n/j/y", $sermon['Post']['publish_timestamp'])) ?>
             </div>
         </li>

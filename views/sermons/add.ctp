@@ -86,7 +86,7 @@
         <?php
         echo $this->Form->hidden("uuid");
         echo $this->Form->hidden("bannerAttachmentIndex");
-        echo $this->Html->div("placeholder", "INSERT SERMON BANNER HERE", 
+        echo $this->Html->div("placeholder", __("INSERT SERMON BANNER", true), 
                 array("id" => "sermon-banner"));
         echo $this->element("uploadify", 
                 array("plugin" => "cuploadify", 
@@ -107,7 +107,7 @@
                                 "onProgress" => "image_upload_in_progress",
                                 "onAllComplete" => "image_uploads_completed"
                                 )));
-        echo $this->Form->input("series_name", array("label"=>__("sermons.label.series", true)));
+        echo $this->Form->input("series_name", array("label"=>__("Series", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
         echo $this->Html->div("validated", "✓", 
@@ -118,7 +118,7 @@
         echo $this->Html->div("validated", "✓", 
                 array("id"=>"PostTitleValid", "style"=>"display: none"));
         echo $this->Form->input("speaker_name", 
-                array("label"=>__("sermons.label.speaker.name", true)));
+                array("label"=>__("Speaker", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonSpeakerNameError", "style"=>"display: none"));
         echo $this->Html->div("validated", "✓", 
@@ -126,8 +126,8 @@
         echo $this->Form->input("passages");
         echo $this->Form->hidden("Post.publish_timestamp");
         echo $this->Form->input("Post.displayDate", 
-                array("type"=>"text", "label"=>__("sermons.label.date", true)));
-        echo $this->Form->input('Post.content', array("label"=>__("sermons.label.description", true)));
+                array("type"=>"text", "label"=>__("Date", true)));
+        echo $this->Form->input('Post.content', array("label"=>__("Description", true)));
         echo $this->element("uploadify",
                 array("plugin" => "cuploadify", 
                         "dom_id" => "audio_upload", 
@@ -153,8 +153,8 @@
     ?>
     <?php echo $this->Form->end(__('Submit', true));?>
     <div style="display: none;" id="in-progress" 
-            title="<?php echo __("sermons.form.upload.pending", true); ?>">
-        <p><?php echo __("sermons.form.upload.pending.body", true); ?></p>
+            title="<?php echo __("Uploads pending...", true); ?>">
+        <p><?php echo __("The sermon form will be submitted after all attachments have been uploaded.", true); ?></p>
     </div>
 </div>
 <div class="actions">

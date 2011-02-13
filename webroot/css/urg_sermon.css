@@ -55,6 +55,16 @@ div.placeholder {
     color: #eeeeee;
 }
 
+div.sermon-banner {
+    width: 960px;
+    height: 540px;
+    overflow: hidden;
+}
+
+div.series-sermon-details {
+    font-size: 10px;
+}
+
 
 /** NOTICES & MESSAGES */
 div.validated {

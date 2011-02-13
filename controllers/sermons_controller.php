@@ -30,7 +30,46 @@ class SermonsController extends UrgSermonAppController {
             $this->Session->setFlash(__('Invalid sermon', true));
             $this->redirect(array('action' => 'index'));
         }
-        $this->set('sermon', $this->Sermon->read(null, $id));
+        $sermon = $this->Sermon->find("first", 
+                array(  "conditions" => array("Sermon.id"=>$id),
+                        "recursive" => 3
+                )
+        );
+
+        $series = $this->Sermon->find("all",
+                array(  "conditions" => array("Sermon.series_id" => $sermon["Series"]["id"]),
+                        "order" => array("Post.publish_timestamp")
+                )
+        );
+                        
+
+        $this->loadModel("Attachment");
+        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+        $attachments = $this->Attachment->find("list", 
+                array(  "conditions" => array("AttachmentType.name" => array("Banner", "Audio")),
+                        "fields" => array(  "Attachment.filename", 
+                                            "Attachment.id",
+                                            "AttachmentType.name"
+                                    ),
+                        "joins" => array(   
+                                array(  "table" => "attachment_types",
+                                        "alias" => "AttachmentType",
+                                        "type" => "LEFT",
+                                        "conditions" => array(
+                                            "AttachmentType.id = Attachment.attachment_type_id"
+                                        )
+                                )
+                        )
+               )
+        );
+        $this->log("Viewing sermon: " . Debugger::exportVar($sermon, 3), 
+                LOG_DEBUG);
+        $this->log("Available attachments: " . Debugger::exportVar($attachments, 1), 
+                LOG_DEBUG);
+        $this->log("Related sermons: " . Debugger::exportVar($series, 3), LOG_DEBUG);
+        $this->set('sermon', $sermon);
+        $this->set("attachments", $attachments);
+        $this->set("series_sermons", $series);
     }
 
     function add() {

@@ -25,7 +25,7 @@
             <?php
                 if ($sermon["Post"]["publish_timestamp"] == null || 
                         $sermon["Post"]["publish_timestamp"] == "") {
-                    echo __("Post.status.draft", true);
+                    echo __("Draft", true);
                 } else {
                     echo $this->Html->link(
                             $this->Time->format("n/j/y", $sermon['Post']['publish_timestamp']), 

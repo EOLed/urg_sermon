@@ -9,7 +9,7 @@
  ?>
 <?php echo $this->Html->scriptStart(); ?>
     var image_in_progress = false;
-    var audio_in_progress = false;
+    var attachment_in_progress = false;
     var submit_form = false;
     function on_complete_images(event, ID, fileObj, response, data) {
         if ($("#SermonBannerAttachmentIndex").val() == "") {
@@ -44,8 +44,9 @@
                 + "/" + banner_filename + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
-    function on_complete_audio(event, ID, fileObj, response, data) {
+    function on_complete_attachments(event, ID, fileObj, response, data) {
         attachmentCounter = $("input.attachment").size();
+        response = jQuery.parseJSON(response);
         $('<input>').attr({ type: 'hidden', 
                 id: 'Attachment' + attachmentCounter + 'Filename', 
                 name: 'data[Attachment][' + attachmentCounter + '][filename]' ,
@@ -56,15 +57,17 @@
                 type: 'hidden', 
                 id: 'Attachment' + attachmentCounter + 'AttachmentTypeId', 
                 name: 'data[Attachment][' + attachmentCounter + '][attachment_type_id]' ,
-                value: <?php echo $audio_type["AttachmentType"]["id"]; ?>,
+                value: response.attachment_type_id,
         }).appendTo('form');
 
-        $("<li>").attr({ id: "AttachmentQueueListItem" + attachmentCounter }).appendTo("#audio-queue");
+        $("<li>").attr({ id: "AttachmentQueueListItem" + attachmentCounter })
+                .appendTo("#attachment-queue");
 
         $("<a>").attr({
-                href: "<?php echo $this->Html->url("/urg_sermon/audio/" . $this->data["Sermon"]["uuid"]); ?>"
-                        + "/" + fileObj.name,
-                id: "AttachmentQueueAudioLink" + attachmentCounter 
+                href: "<?php echo $this->Html->url("/urg_sermon/") ?>" + response.webroot_folder + 
+                        "/<?php echo $this->data["Sermon"]["uuid"] ?>/" + fileObj.name,
+                id: "AttachmentQueueAudioLink" + attachmentCounter ,
+                target: "_blank"
         }).appendTo("#AttachmentQueueListItem" + attachmentCounter);
 
         $("#AttachmentQueueAudioLink" + attachmentCounter).text(fileObj.name);
@@ -74,8 +77,8 @@
         image_in_progress = true;
     }
 
-    function audio_upload_in_progress(event, ID, fileObj, data) {
-        audio_in_progress = true;
+    function attachment_upload_in_progress(event, ID, fileObj, data) {
+        attachment_in_progress = true;
     }
 <?php echo $this->Html->scriptEnd(); ?>
 
@@ -86,9 +89,10 @@
         <?php
         echo $this->Form->hidden("uuid");
         echo $this->Form->hidden("bannerAttachmentIndex");
-        echo $this->Html->div("placeholder", __("INSERT SERMON BANNER", true), 
-                array("id" => "sermon-banner"));
-        echo $this->element("uploadify", 
+        echo $this->Html->div("input", 
+                $this->Html->div("placeholder", __("INSERT SERMON BANNER", true), 
+                        array("id" => "sermon-banner")) . 
+                $this->element("uploadify", 
                 array("plugin" => "cuploadify", 
                         "dom_id" => "image_upload", 
                         "session_id" => $this->Session->id(),
@@ -96,7 +100,7 @@
                         "options" => array("auto" => true, 
                                 "folder" => "/" . $this->data["Sermon"]["uuid"],
                                 "script" => $this->Html->url("/urg_sermon/sermons/upload_image"),
-                                "buttonText" => "ADD IMAGES", 
+                                "buttonText" => strtoupper(__("Add Banner", true)), 
                                 //"multi" => true,
                                 //"queueID" => "upload_queue",
                                 "removeCompleted" => true,
@@ -106,7 +110,7 @@
                                 "onComplete" => "on_complete_images",
                                 "onProgress" => "image_upload_in_progress",
                                 "onAllComplete" => "image_uploads_completed"
-                                )));
+                                ))));
         echo $this->Form->input("series_name", array("label"=>__("Series", true)));
         echo $this->Html->div("error-message", "", 
                 array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
@@ -128,23 +132,25 @@
         echo $this->Form->input("Post.displayDate", 
                 array("type"=>"text", "label"=>__("Date", true)));
         echo $this->Form->input('Post.content', array("label"=>__("Description", true)));
-        echo $this->element("uploadify",
+        echo $this->Html->div("input", $this->element("uploadify",
                 array("plugin" => "cuploadify", 
-                        "dom_id" => "audio_upload", 
+                        "dom_id" => "attachment_upload", 
                         "session_id" => $this->Session->id(),
                         "options" => array("auto" => true, 
                                 "folder" => "/" . $this->data["Sermon"]["uuid"],
-                                "script" => $this->Html->url("/urg_sermon/sermons/upload_audio"),
-                                "buttonText" => "ADD AUDIO", 
+                                "script" => $this->Html->url("/urg_sermon/sermons/upload_attachments"),
+                                "buttonText" => strtoupper(__("Attachments", true)), 
                                 "removeCompleted" => true,
-                                "fileExt" => "*.mp3",
-                                "fileDataName" => "audioFile",
-                                "fileDesc" => "Audio Files",
-                                "onComplete" => "on_complete_audio",
-                                "onProgress" => "audio_upload_in_progress",
-                                "onAllComplete" => "audio_uploads_completed"
-                                )));
-       echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"audio-queue")));
+                                "fileExt" => "*.mp3;*.jpg;*.jpeg;*.png;*.gif;*.bmp;" .
+                                             "*.ppt;*.pptx;*.doc;*.docx",
+                                "fileDataName" => "attachmentFile",
+                                "fileDesc" => "Sermon Attachments",
+                                "multi" => true,
+                                "onComplete" => "on_complete_attachments",
+                                "onProgress" => "attachment_upload_in_progress",
+                                "onAllComplete" => "attachment_uploads_completed"
+                                ))));
+       echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"attachment-queue")));
        ?>
     </fieldset>
     <?php 
@@ -338,12 +344,12 @@
 
         if (error) return false;
 
-        if (image_in_progress || audio_in_progress) {
+        if (image_in_progress || attachment_in_progress) {
             submit_form = true;
             $("#in-progress").dialog("open");
         }
 
-        return !image_in_progress && !audio_in_progress;
+        return !image_in_progress && !attachment_in_progress;
     });
 
     function image_uploads_completed(event, data) {
@@ -356,8 +362,8 @@
         }
     }
 
-    function audio_uploads_completed(event, data) {
-        audio_in_progress = false;
+    function attachment_uploads_completed(event, data) {
+        attachment_in_progress = false;
 
         $("#in-progress").dialog("close");
 

@@ -2,9 +2,14 @@
 App::import("Sanitize");
 App::import("Component", "Cuploadify.Cuploadify");
 class SermonsController extends UrgSermonAppController {
+    var $AUDIO_WEBROOT = "audio";
+    var $IMAGES_WEBROOT = "img";
+    var $FILES_WEBROOT = "files";
+
     var $AUDIO = "/app/plugins/urg_sermon/webroot/audio";
     var $IMAGES = "/app/plugins/urg_sermon/webroot/img";
-
+    var $FILES = "/app/plugins/urg_sermon/webroot/files";
+    
     var $components = array(
            "Auth" => array(
                    "loginAction" => array(
@@ -46,7 +51,10 @@ class SermonsController extends UrgSermonAppController {
         $this->loadModel("Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $attachments = $this->Attachment->find("list", 
-                array(  "conditions" => array("AttachmentType.name" => array("Banner", "Audio")),
+                array(  "conditions" => array("AND" => array(
+                                "AttachmentType.name" => array("Banner", "Audio"),
+                                "Attachment.post_id" => $sermon["Post"]["id"])
+                        ),
                         "fields" => array(  "Attachment.filename", 
                                             "Attachment.id",
                                             "AttachmentType.name"
@@ -168,6 +176,7 @@ class SermonsController extends UrgSermonAppController {
                     $temp_dir = $this->data["Sermon"]["uuid"];
                     $temp_audio = $this->AUDIO . "/$temp_dir";
                     $temp_images = $this->IMAGES . "/$temp_dir";
+                    $temp_files = $this->FILES . "/$temp_dir";
                     $doc_root = $this->remove_trailing_slash(env("DOCUMENT_ROOT"));
 
                     if (file_exists($doc_root . $temp_audio)) {
@@ -175,7 +184,16 @@ class SermonsController extends UrgSermonAppController {
                         $this->rename_dir($doc_root . $temp_audio, $doc_root . $audio_dir);
                         $this->log("moved audio to permanent folder: $doc_root$audio_dir", LOG_DEBUG);
                     } else {
-                        $this->log("no audio to move, since folder doesn't exist: $doc_root$temp_audio", 
+                        $this->log("no audio to move, since folder doesn't exist: $doc_root$temp_audio",
+                                LOG_DEBUG);
+                    }
+
+                    if (file_exists($doc_root . $temp_files)) {
+                        $files_dir = $this->FILES . "/" . $this->Sermon->id;
+                        $this->rename_dir($doc_root . $temp_files, $doc_root . $files_dir);
+                        $this->log("moved files to permanent folder: $doc_root$files_dir", LOG_DEBUG);
+                    } else {
+                        $this->log("no files to move, since folder doesn't exist: $doc_root$temp_files",
                                 LOG_DEBUG);
                     }
 
@@ -210,10 +228,13 @@ class SermonsController extends UrgSermonAppController {
             $this->data["Sermon"]["uuid"] = String::uuid();
         }
 
+        $this->loadModel("Attachment");
+        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+
         $this->set("banner_type", 
-                $this->requestAction("/urg_post/attachment_types/find_by_name/Banner"));
+                $this->Attachment->AttachmentType->findByName("Banner"));
         $this->set("audio_type", 
-                $this->requestAction("/urg_post/attachment_types/find_by_name/Audio"));
+                $this->Attachment->AttachmentType->findByName("Audio"));
         $posts = $this->Sermon->Post->find('list');
         $this->set(compact('posts'));
     }
@@ -254,8 +275,8 @@ class SermonsController extends UrgSermonAppController {
     function autocomplete_speaker() {
         $term = Sanitize::clean($this->params["url"]["term"]);
         $matches = strlen($term) == 0 ? $this->suggest_speaker() : $this->search_speaker($term);
-        $this->set("matches",$matches);
-        $this->layout = "ajax";
+        $this->set("data",$matches);
+        $this->render("json", "ajax");
     }
     
     function search_speaker($term) {
@@ -292,9 +313,40 @@ class SermonsController extends UrgSermonAppController {
         return $prepared_matches;
     }
 
-    function upload_audio() {
-        $this->log("uploading audio...", LOG_DEBUG);
-        $this->upload($this->AUDIO);
+    function upload_attachments() {
+        $this->log("uploading attachments...", LOG_DEBUG);
+
+        $this->log("determining what type of attachment...", LOG_DEBUG);
+
+        $this->loadModel("Attachment");
+        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+        $attachment_type = null;
+        $root = null;
+        if ($this->is_filetype($this->Cuploadify->get_filename(),
+                array(".jpg", ".jpeg", ".png", ".gif", ".bmp"))) {
+            $root = $this->IMAGES;
+            $attachment_type = $this->Attachment->AttachmentType->findByName("Images");
+            $webroot_folder = $this->IMAGES_WEBROOT;
+        } else if ($this->is_filetype($this->Cuploadify->get_filename(), array(".mp3"))) {
+            $root = $this->AUDIO;
+            $attachment_type = $this->Attachment->AttachmentType->findByName("Audio");
+            $webroot_folder = $this->AUDIO_WEBROOT;
+        } else if ($this->is_filetype($this->Cuploadify->get_filename(), 
+                array(".ppt", ".pptx", ".doc", ".docx"))) {
+            $root = $this->FILES;
+            $attachment_type = $this->Attachment->AttachmentType->findByName("Documents");
+            $webroot_folder = $this->FILES_WEBROOT;
+        }
+        $this->log("attachment type detected as: " . Debugger::exportVar($attachment_type, 3), 
+                LOG_DEBUG);
+        $this->upload($root);
+
+        //TODO cache id
+        $this->set("data", array(
+                "attachment_type_id"=>$attachment_type["AttachmentType"]["id"],
+                "webroot_folder"=>$webroot_folder
+        ));
+        $this->render("json", "ajax");
     }
     
     function upload($root) {
@@ -380,6 +432,29 @@ class SermonsController extends UrgSermonAppController {
                 rmdir($old_name);
             }
         }
+    }
+
+    function is_filetype($filename, $filetypes) {
+        $filename = strtolower($filename);
+        $is = false;
+        if (is_array($filetypes)) {
+            foreach ($filetypes as $filetype) {
+                if ($this->ends_with($filename, $filetype)) {
+                    $is = true;
+                    break;
+                }
+            }
+        } else {
+            $is = $this->ends_with($filename, $filetypes);
+        }
+
+        $this->log("is $filename part of " . implode(",",$filetypes) . "? " . ($is ? "true" : "false"), 
+                LOG_DEBUG);
+        return $is;
+    }
+
+    function ends_with($haystack, $needle) {
+        return strrpos($haystack, $needle) === strlen($haystack)-strlen($needle);
     }
 }
 ?>

@@ -25,7 +25,7 @@
         if (isset($attachments["Banner"])) {
             foreach ($attachments["Banner"] as $filename => $attachment_id) {
                 echo $this->Html->image(
-                        "/urg_sermon/img/" . $sermon["Sermon"]["id"] . "/" . $filename
+                        "/urg_sermon/img/" . $sermon["Sermon"]["id"] . "/960-" . $filename
                 );
             }
         }

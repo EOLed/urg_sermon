@@ -1,6 +1,7 @@
 <?php
 App::import("Sanitize");
 App::import("Component", "Cuploadify.Cuploadify");
+App::import("Component", "ImgLib.ImgLib");
 class SermonsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
@@ -18,7 +19,7 @@ class SermonsController extends UrgSermonAppController {
                            "action" => "login",
                            "admin" => false
                    )
-           ), "Urg", "Cuploadify");
+           ), "Urg", "Cuploadify", "ImgLib");
 
     var $helpers = array(
         "Js" => array("Jquery"), "Time"
@@ -201,6 +202,30 @@ class SermonsController extends UrgSermonAppController {
                         $images_dir = $this->IMAGES . "/" .  $this->Sermon->id;
                         $this->rename_dir($doc_root . $temp_images, $doc_root . $images_dir);
                         $this->log("moved images to permanent folder: $doc_root$images_dir", LOG_DEBUG);
+
+                        $this->loadModel("Attachment");
+                        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+
+                        $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
+                        $post_banner = $this->Attachment->find("first", 
+                                array("conditions" => array("AND" => array(
+                                "Attachment.attachment_type_id" => $banner_type["AttachmentType"]["id"],
+                                "Attachment.post_id" => $this->data["Post"]["id"]
+                        ))));
+                        $this->log("post banner: " . Debugger::exportVar($post_banner, 3), LOG_DEBUG);
+
+                        $this->log("resizing banners...", LOG_DEBUG);
+                        $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .
+                                $this->Sermon->id;
+                        $this->log("full sermon image path: $full_image_path", LOG_DEBUG);
+                        $this->ImgLib->init($full_image_path . "/" . 
+                                $post_banner["Attachment"]["filename"]);
+                        $this->ImgLib->resizeImage(960, 0, 'landscape');
+                        $saved_image = $full_image_path . "/960-" . 
+                                $post_banner["Attachment"]["filename"];
+                        $this->log("resized banner saving as: $saved_image", LOG_DEBUG);
+                        $this->ImgLib->saveImage($saved_image);
+                        $this->log("saved $saved_image", LOG_DEBUG);
                     } else {
                         $this->log("no images to move, since folder doesn't exist: " .
                                 "$doc_root$temp_images", LOG_DEBUG);
@@ -455,6 +480,14 @@ class SermonsController extends UrgSermonAppController {
 
     function ends_with($haystack, $needle) {
         return strrpos($haystack, $needle) === strlen($haystack)-strlen($needle);
+    }
+    
+    function get_doc_root($root) {
+        $doc_root = $this->remove_trailing_slash(env('DOCUMENT_ROOT'));
+        $root = $this->remove_trailing_slash($root);
+        $doc_root .=  $root;
+
+        return $doc_root;
     }
 }
 ?>

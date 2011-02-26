@@ -65,6 +65,11 @@ div.series-sermon-details {
     font-size: 10px;
 }
 
+.sermon-attachment-viewer {
+    width: 100%;
+    height: 400px;
+}
+
 
 /** NOTICES & MESSAGES */
 div.validated {

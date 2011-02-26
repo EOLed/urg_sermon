@@ -10,6 +10,8 @@ class SermonsController extends UrgSermonAppController {
     var $AUDIO = "/app/plugins/urg_sermon/webroot/audio";
     var $IMAGES = "/app/plugins/urg_sermon/webroot/img";
     var $FILES = "/app/plugins/urg_sermon/webroot/files";
+
+    var $BANNER_SIZE = 700;
     
     var $components = array(
            "Auth" => array(
@@ -53,7 +55,7 @@ class SermonsController extends UrgSermonAppController {
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $attachments = $this->Attachment->find("list", 
                 array(  "conditions" => array("AND" => array(
-                                "AttachmentType.name" => array("Banner", "Audio"),
+                                "AttachmentType.name" => array("Banner", "Audio", "Documents"),
                                 "Attachment.post_id" => $sermon["Post"]["id"])
                         ),
                         "fields" => array(  "Attachment.filename", 
@@ -79,6 +81,17 @@ class SermonsController extends UrgSermonAppController {
         $this->set('sermon', $sermon);
         $this->set("attachments", $attachments);
         $this->set("series_sermons", $series);
+        $banners = array();
+        
+        foreach ($attachments["Banner"] as $key=>$attachment_id) {
+            $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon["Sermon"]["id"];
+            $image = $this->ImgLib->get_image("$full_image_path/$key", 
+                    $this->BANNER_SIZE, 0, 'landscape'); 
+            array_push($banners, "/urg_sermon/img/" . $sermon["Sermon"]["id"] . "/" . 
+                    $image["filename"]);
+        }
+
+        $this->set("banners", $banners);
     }
 
     function add() {
@@ -218,14 +231,10 @@ class SermonsController extends UrgSermonAppController {
                         $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .
                                 $this->Sermon->id;
                         $this->log("full sermon image path: $full_image_path", LOG_DEBUG);
-                        $this->ImgLib->init($full_image_path . "/" . 
-                                $post_banner["Attachment"]["filename"]);
-                        $this->ImgLib->resizeImage(960, 0, 'landscape');
-                        $saved_image = $full_image_path . "/960-" . 
-                                $post_banner["Attachment"]["filename"];
-                        $this->log("resized banner saving as: $saved_image", LOG_DEBUG);
-                        $this->ImgLib->saveImage($saved_image);
-                        $this->log("saved $saved_image", LOG_DEBUG);
+                        $saved_image = $this->ImgLib->get_image($full_image_path . "/" . 
+                                $post_banner["Attachment"]["filename"], $this->BANNER_SIZE, 0, 
+                                'landscape');
+                        $this->log("saved $saved_image[filename]", LOG_DEBUG);
                     } else {
                         $this->log("no images to move, since folder doesn't exist: " .
                                 "$doc_root$temp_images", LOG_DEBUG);
@@ -482,10 +491,13 @@ class SermonsController extends UrgSermonAppController {
         return strrpos($haystack, $needle) === strlen($haystack)-strlen($needle);
     }
     
-    function get_doc_root($root) {
+    function get_doc_root($root = null) {
         $doc_root = $this->remove_trailing_slash(env('DOCUMENT_ROOT'));
-        $root = $this->remove_trailing_slash($root);
-        $doc_root .=  $root;
+
+        if ($root != null) {
+            $root = $this->remove_trailing_slash($root);
+            $doc_root .=  $root;
+        }
 
         return $doc_root;
     }

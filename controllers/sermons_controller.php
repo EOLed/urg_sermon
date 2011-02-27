@@ -2,6 +2,8 @@
 App::import("Sanitize");
 App::import("Component", "Cuploadify.Cuploadify");
 App::import("Component", "ImgLib.ImgLib");
+App::import("Component", "Bible.Bible");
+App::import("Helper", "Bible.Bible");
 class SermonsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
@@ -21,10 +23,12 @@ class SermonsController extends UrgSermonAppController {
                            "action" => "login",
                            "admin" => false
                    )
-           ), "Urg", "Cuploadify", "ImgLib");
+           ), "Urg", "Cuploadify", "ImgLib", 
+           "Bible" => array("translation"=>"Esv", "key"=>"bef9e04393f0f17f")
+    );
 
     var $helpers = array(
-        "Js" => array("Jquery"), "Time"
+        "Js" => array("Jquery"), "Time", "Bible"
     );
     var $name = 'Sermons';
 
@@ -81,6 +85,7 @@ class SermonsController extends UrgSermonAppController {
         $this->set('sermon', $sermon);
         $this->set("attachments", $attachments);
         $this->set("series_sermons", $series);
+
         $banners = array();
         
         foreach ($attachments["Banner"] as $key=>$attachment_id) {
@@ -92,6 +97,13 @@ class SermonsController extends UrgSermonAppController {
         }
 
         $this->set("banners", $banners);
+    }
+
+    function passages($passage) {
+        $this->layout = "ajax";
+        $passages = $this->Bible->get_passage($passage);
+
+        $this->set("passages", $passages);
     }
 
     function add() {

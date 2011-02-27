@@ -70,6 +70,69 @@ div.series-sermon-details {
     height: 400px;
 }
 
+.sermon-description, .sermon-passage, .series {
+    padding-bottom: 20px;
+}
+
+#sermon-passage-text {
+    padding-top: 10px;
+}
+
+div.esv {
+}
+
+div.esv a {
+    color: #aa1111;
+    font-size: 10px;
+}
+
+div.esv-text {
+    line-height: 120%;
+    margin-bottom: 20px;
+}
+
+span.chapter-num {
+    font-weight: bold;
+}
+
+span.verse-num {
+    vertical-align: super;
+    font-size: 10px;
+}
+
+div.esv h3 {
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+div.esv p {
+    padding-bottom: 5px;
+}
+
+div.footnotes {
+    line-height: 120%;
+    font-size: 12px;
+    color: #acacac;
+}
+
+div.footnotes a {
+    color: #999999;
+}
+
+div.footnotes h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #aa1111;
+    padding-bottom: 5px;
+    text-shadow: 0px 1px 2px #aaa;
+}
+
+span.footnote {
+}
+
+span.footnote-ref {
+}
+
 
 /** NOTICES & MESSAGES */
 div.validated {

@@ -8,7 +8,7 @@
 <div id="sm2-container" style="width: 1px; height: 1px;"></div>
 <div class="sermons view">
     <?php foreach ($banners as $banner) { ?>
-    <div id="banner-<?php echo $sermon["Sermon"]["id"]; ?>" class="grid_9 right-border">
+    <div id="banner" class="grid_9 right-border">
         <?php echo $this->Html->image($banner, array("class"=>"shadow")); ?>
     </div>
     <?php } ?>
@@ -42,23 +42,23 @@
     <div id="sermon-info" class="grid_12">
         <div id="sermon-series" 
                 class="alpha grid_3 top-border bottom-border right-border sermon-details">
-            <h3 class="sermon-details"><?php echo strtoupper(__("From the series", true)); ?></h3>
+            <h3 class="sermon-details"><?php __("From the series"); ?></h3>
             <?php echo $sermon["Series"]["name"]; ?>
         </div>
         <div id="sermon-date" 
                 class="grid_3 top-border bottom-border right-border left-border sermon-details">
-            <h3 class="sermon-details"><?php echo strtoupper(__("Taken place on", true)); ?></h3>
+            <h3 class="sermon-details"><?php __("Taken place on"); ?></h3>
             <?php echo $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"]) ?>
         </div>
         <div id="sermon-speaker" 
                 class="grid_3 top-border bottom-border right-border left-border sermon-details">
-            <h3 class="sermon-details"><?php echo strtoupper(__("Spoken by", true)); ?></h3>
+            <h3 class="sermon-details"><?php __("Spoken by"); ?></h3>
             <?php echo $sermon["Pastor"]["name"] != "" ? $sermon["Pastor"]["name"] : 
                     $sermon["Sermon"]["speaker_name"] ?>
         </div>
         <div id="sermon-resources" 
                 class="omega grid_3 top-border bottom-border left-border sermon-details">
-            <h3 class="sermon-details"><?php echo strtoupper(__("Resources", true)); ?></h3>
+            <h3 class="sermon-details"><?php __("Resources"); ?></h3>
             <?php if (isset($attachments["Documents"])) { ?>
                 <ul id="sermon-resource-list">
                 <?php foreach ($attachments["Documents"] as $filename=>$attachment_id) { ?> 
@@ -66,7 +66,7 @@
                         <?php echo $this->Html->link(
                                 $this->Html->image("/urg_sermon/img/icons/" . 
                                         strtolower(substr($filename, strrpos($filename, ".") + 1, 
-                                        strlen($filename))) . ".png", array("style"=>"height: 48px")), 
+                                        strlen($filename))) . ".png", array("style"=>"height: 32px")), 
                                 $this->Html->url("/urg_sermon/files/" . 
                                         $sermon["Sermon"]["id"] . "/" . $filename), 
                                         array("escape" => false, "class" => "gdoc") ); ?>
@@ -77,14 +77,15 @@
         </div>
     </div>
 
-    <div class="grid_4">
+    <div class="grid_5">
         <div class="sermon-description">
             <h2><?php __("Description") ?></h2>
             <?php echo $sermon["Sermon"]["description"] ?>
         </div>
         <div class="sermon-passage">
             <h2><?php __("Passage") ?></h2>
-            <?php echo $sermon["Sermon"]["passages"] ?>
+            <?php echo $this->Html->link($sermon["Sermon"]["passages"], "/urg_sermon/sermons/passages/" . $this->Bible->encode_passage($sermon["Sermon"]["passages"])); ?>
+            <div id="sermon-passage-text"></div>
         </div>
         
         <?php if (isset($sermon["Series"]) && $sermon["Series"]["name"] != "No Series") { ?>
@@ -108,12 +109,17 @@
         <?php } ?>
     </div>
 
-    <div class="grid_8">
+    <div class="grid_7 left-border">
     <?php if (isset($attachments["Documents"])) { ?>
         <div id="sermon-docs" style="display: none">
             <iframe class="shadow sermon-attachment-viewer" id="sermon-doc-viewer"></iframe>
+            <a href="#" id="close-sermon-doc"><?php echo $this->Html->image("/urg_sermon/img/icons/x.png", array("style"=>"height: 32px")); ?></a>
         </div>
     <? } ?>
+        <div id="sermon-notes">
+            <h2><?php echo __("Sermon notes", true); ?></h2>
+            <?php echo $sermon["Post"]["content"]; ?>
+        </div>
     </div>
 
 </div>
@@ -124,6 +130,19 @@ $("div.sermon-details").equalHeight();
 $(".gdoc").click(function() {
     $("#sermon-doc-viewer").attr("src", "http://docs.google.com/gview?embedded=true&url=http://<?php echo $_SERVER['SERVER_NAME'] ?>" + $(this).attr("href"));
     $("#sermon-docs").show();
+    $("#sermon-notes").hide();
+    return false;
+});
+
+$("#close-sermon-doc").click(function() {
+    $("#sermon-docs").hide();
+    $("#sermon-notes").show();
+    return false;
+});
+
+$(".sermon-passage a").click(function() {
+    $("#sermon-passage-text").load($(this).attr("href"));
+
     return false;
 });
 </script>

@@ -31,7 +31,7 @@
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
                 echo $this->Html->tag("li", $this->Html->link($sermon["Post"]["title"],
                         "/urg_sermon/audio/" . $sermon["Sermon"]["id"] . "/" . $filename,
-                        array("class" => "inline-playable"))
+                        array("class" => "inline-playable", "id"=>"sermon-audio-link-" . $sermon["Sermon"]["id"] . "-player"))
                 );
             }
             echo "</ul>";
@@ -41,17 +41,20 @@
 
     <div id="sermon-info" class="grid_12">
         <div id="sermon-series" 
-                class="alpha grid_3 top-border bottom-border right-border sermon-details">
+                class="alpha grid_3 top-border bottom-border right-border sermon-details" 
+                style="border-right-width: 0px">
             <h3 class="sermon-details"><?php __("From the series"); ?></h3>
             <?php echo $sermon["Series"]["name"]; ?>
         </div>
         <div id="sermon-date" 
-                class="grid_3 top-border bottom-border right-border left-border sermon-details">
+                class="grid_3 top-border bottom-border right-border left-border sermon-details"
+                style="border-right-width: 0px">
             <h3 class="sermon-details"><?php __("Taken place on"); ?></h3>
             <?php echo $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"]) ?>
         </div>
         <div id="sermon-speaker" 
-                class="grid_3 top-border bottom-border right-border left-border sermon-details">
+                class="grid_3 top-border bottom-border right-border left-border sermon-details"
+                style="border-right-width: 0px">
             <h3 class="sermon-details"><?php __("Spoken by"); ?></h3>
             <?php echo $sermon["Pastor"]["name"] != "" ? $sermon["Pastor"]["name"] : 
                     $sermon["Sermon"]["speaker_name"] ?>
@@ -72,21 +75,45 @@
                                         array("escape" => false, "class" => "gdoc") ); ?>
                     </li>
                 <?php } ?>
+                <?php if (isset($attachments["Audio"])) { ?>
+                    <li>
+                        <?php foreach ($attachments["Audio"] as $filename => $attachment_id) { ?>
+                        <?php echo $this->Html->link(
+                                $this->Html->image("/urg_sermon/img/icons/" . 
+                                        strtolower(substr($filename, strrpos($filename, ".") + 1, 
+                                        strlen($filename))) . ".png", array("style"=>"height: 32px")), 
+                                $this->Html->url("/urg_sermon/audio/" . 
+                                        $sermon["Sermon"]["id"] . "/" . $filename), 
+                                        array("escape" => false, "class" => "exclude sermon-audio",
+                                        "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"]) ); ?>
+                        <?php } ?>
+                    </li>
+                <?php } ?>
                 </ul>
             <? } ?>
         </div>
     </div>
 
     <div class="grid_5">
+        <?php if ($sermon["Sermon"]["description"] != "") { ?>
         <div class="sermon-description">
             <h2><?php __("Description") ?></h2>
             <?php echo $sermon["Sermon"]["description"] ?>
         </div>
+        <?php } ?>
+        <?php if ($sermon["Sermon"]["passages"] != "") { ?>
         <div class="sermon-passage">
             <h2><?php __("Passage") ?></h2>
-            <?php echo $this->Html->link($sermon["Sermon"]["passages"], "/urg_sermon/sermons/passages/" . $this->Bible->encode_passage($sermon["Sermon"]["passages"])); ?>
-            <div id="sermon-passage-text"></div>
+            <?php echo $sermon["Sermon"]["passages"] . " "; ?>
+            <span class="sermon-passage-translation">
+                <?php echo $this->Html->link("[ESV]", "/urg_sermon/sermons/passages/" . $this->Bible->encode_passage($sermon["Sermon"]["passages"])); ?>
+            </span>
+            <div id="sermon-passage-text" style="display: none"></div>
+            <div id="sermon-passage-text-loading" style="display: none">
+                <?php echo $this->Html->image("/urg_sermon/img/loading.gif"); ?>
+            </div>
         </div>
+        <?php } ?>
         
         <?php if (isset($sermon["Series"]) && $sermon["Series"]["name"] != "No Series") { ?>
         <div class="series">
@@ -129,20 +156,33 @@ $("div.sermon-details").equalHeight();
 
 $(".gdoc").click(function() {
     $("#sermon-doc-viewer").attr("src", "http://docs.google.com/gview?embedded=true&url=http://<?php echo $_SERVER['SERVER_NAME'] ?>" + $(this).attr("href"));
-    $("#sermon-docs").show();
     $("#sermon-notes").hide();
+    $("#sermon-docs").show("fade");
     return false;
 });
 
 $("#close-sermon-doc").click(function() {
     $("#sermon-docs").hide();
-    $("#sermon-notes").show();
+    $("#sermon-notes").show("slide");
     return false;
 });
 
 $(".sermon-passage a").click(function() {
-    $("#sermon-passage-text").load($(this).attr("href"));
+    $("#sermon-passage-text-loading").show();
+    $("#sermon-passage-text").load($(this).attr("href"),
+        function () { 
+            $("#sermon-passage-text-loading").hide();
+            $(this).show("slide");
+        }
+    );
 
+    return false;
+});
+
+$("#sermon-resource-list li a").click(function() {
+    pagePlayer.handleClick({
+        target:document.getElementById($(this).attr("id") + "-player")
+    });
     return false;
 });
 </script>

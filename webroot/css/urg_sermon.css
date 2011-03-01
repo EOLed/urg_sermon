@@ -65,6 +65,10 @@ div.series-sermon-details {
     font-size: 10px;
 }
 
+li.series-sermon-list-item {
+    margin-bottom: 5px;
+}
+
 .sermon-attachment-viewer {
     width: 100%;
     height: 400px;
@@ -78,6 +82,10 @@ div.series-sermon-details {
     padding-top: 10px;
 }
 
+span.sermon-passage-translation {
+    font-size: 12px;;
+}
+
 div.esv {
 }
 
@@ -87,7 +95,7 @@ div.esv a {
 }
 
 div.esv-text {
-    line-height: 120%;
+    line-height: 130%;
     margin-bottom: 20px;
 }
 
@@ -98,6 +106,7 @@ span.chapter-num {
 span.verse-num {
     vertical-align: super;
     font-size: 10px;
+    line-height: 0px;
 }
 
 div.esv h3 {

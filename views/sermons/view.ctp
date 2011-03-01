@@ -36,6 +36,10 @@
             }
             echo "</ul>";
             echo "</div>";
+        } else {
+            echo "<div id='sermon-title' class='grid_12'>";
+            echo "<div>" . $sermon["Post"]["title"] . "</div>";
+            echo "</div>";
         }
     ?>
 

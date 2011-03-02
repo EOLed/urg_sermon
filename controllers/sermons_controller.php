@@ -4,6 +4,7 @@ App::import("Component", "Cuploadify.Cuploadify");
 App::import("Component", "ImgLib.ImgLib");
 App::import("Component", "Bible.Bible");
 App::import("Helper", "Bible.Bible");
+App::import("Helper", "Sm2.SoundManager2");
 class SermonsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
@@ -28,7 +29,7 @@ class SermonsController extends UrgSermonAppController {
     );
 
     var $helpers = array(
-        "Js" => array("Jquery"), "Time", "Bible"
+        "Js" => array("Jquery"), "Time", "Bible", "SoundManager2"
     );
     var $name = 'Sermons';
 

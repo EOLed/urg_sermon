@@ -1,11 +1,13 @@
-<script type="text/javascript" src="<?php echo $this->Html->url("/sm2/script/soundmanager2-nodebug-jsmin.js") ?>"></script>
-<script type="text/javascript" src="<?php echo $this->Html->url("/sm2/script/page-player.js") ?>"></script>
+<?php echo $this->SoundManager2->script(array("soundmanager2-nodebug-jsmin", "page-player")); ?>
+
 <script type="text/javascript">
-    soundManager.url = "<?php echo $this->Html->url("/sm2/swf/") ?>";
-    soundManager.flashVersion = 9;
+    <?php echo $this->SoundManager2->init(array(
+            "flashVersion" => 9,
+            "debugFlash" => true
+    )); ?>
 </script>
-<?php echo $this->Html->css("/sm2/css/page-player.css", null, array("inline" => false)) ?>
-<div id="sm2-container" style="width: 1px; height: 1px;"></div>
+<?php echo $this->SoundManager2->css("page-player", null, array("inline" => false)) ?>
+<?php echo $this->SoundManager2->container("", "", array("style"=>"width: 1px; height: 1px")); ?>
 <div class="sermons view">
     <?php foreach ($banners as $banner) { ?>
     <div id="banner" class="grid_9 right-border">
@@ -27,14 +29,15 @@
     <?php 
         if (isset($attachments["Audio"])) {
             echo "<div class='grid_12 sermon-audio'>";
-            echo "<ul class='playlist'>";
+            $playlist = array();
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
-                echo $this->Html->tag("li", $this->Html->link($sermon["Post"]["title"],
-                        "/urg_sermon/audio/" . $sermon["Sermon"]["id"] . "/" . $filename,
-                        array("class" => "inline-playable", "id"=>"sermon-audio-link-" . $sermon["Sermon"]["id"] . "-player"))
-                );
+                array_push($playlist, array(
+                        "title" => $sermon["Post"]["title"],
+                        "link" => "/urg_sermon/audio/" . $sermon["Sermon"]["id"] . "/" . $filename,
+                        "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"] . "-player"
+                ));
             }
-            echo "</ul>";
+            echo $this->SoundManager2->page_player($playlist);
             echo "</div>";
         } else {
             echo "<div id='sermon-title' class='grid_12'>";

@@ -124,6 +124,10 @@ ul.playlist li .timing {
     border-color: #A3A3A3;
 }
 
+ul.playlist li .controls .statusbar {
+    background-color: #ffffff;
+}
+
 ul.playlist li .controls .statusbar .position {
     background-color: #aa1111;
     border-right-color: #aa1111;

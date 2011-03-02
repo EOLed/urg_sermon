@@ -1,13 +1,3 @@
-<?php echo $this->SoundManager2->script(array("soundmanager2-nodebug-jsmin", "page-player")); ?>
-
-<script type="text/javascript">
-    <?php echo $this->SoundManager2->init(array(
-            "flashVersion" => 9,
-            "debugFlash" => true
-    )); ?>
-</script>
-<?php echo $this->SoundManager2->css("page-player", null, array("inline" => false)) ?>
-<?php echo $this->SoundManager2->container("", "", array("style"=>"width: 1px; height: 1px")); ?>
 <div class="sermons view">
     <?php foreach ($banners as $banner) { ?>
     <div id="banner" class="grid_9 right-border">
@@ -37,7 +27,7 @@
                         "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"] . "-player"
                 ));
             }
-            echo $this->SoundManager2->page_player($playlist);
+            echo $this->SoundManager2->build_page_player($playlist);
             echo "</div>";
         } else {
             echo "<div id='sermon-title' class='grid_12'>";

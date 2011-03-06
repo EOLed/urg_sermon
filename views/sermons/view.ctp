@@ -79,16 +79,19 @@
                 <?php } ?>
                 <?php if (isset($attachments["Audio"])) { ?>
                     <li>
-                        <?php foreach ($attachments["Audio"] as $filename => $attachment_id) { ?>
-                        <?php echo $this->Html->link(
+                        <?php foreach ($attachments["Audio"] as $filename => $attachment_id) {
+                            $url = $this->Html->url("/urg_sermon/audio/" . 
+                                    $sermon["Sermon"]["id"] . "/" . $filename);
+                            $image_options = array("style"=>"height: 32px",
+                                                   "alt"=>$filename,
+                                                   "title"=>$filename);
+                            echo $this->Html->link(
                                 $this->Html->image("/urg_sermon/img/icons/" . 
                                         strtolower(substr($filename, strrpos($filename, ".") + 1, 
-                                        strlen($filename))) . ".png", array("style"=>"height: 32px")), 
-                                $this->Html->url("/urg_sermon/audio/" . 
-                                        $sermon["Sermon"]["id"] . "/" . $filename), 
+                                        strlen($filename))) . ".png", $image_options), $url,
                                         array("escape" => false, "class" => "exclude sermon-audio",
-                                        "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"]) ); ?>
-                        <?php } ?>
+                                        "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"]) );
+                        } ?>
                     </li>
                 <?php } ?>
                 </ul>

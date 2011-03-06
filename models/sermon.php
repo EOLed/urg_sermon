@@ -15,7 +15,7 @@ class Sermon extends UrgSermonAppModel {
 		'speaker_name' => array(
 			'notEmpty' => array(
 				'rule' => 'notEmpty',
-                'message' => 'sermons.errors.speaker.name.required',
+                'message' => 'Speaker name is required.',
                 'required' => true,
                 'allowEmpty' => false
 				//'last' => false, // Stop validation after this rule
@@ -25,7 +25,7 @@ class Sermon extends UrgSermonAppModel {
 		'series_name' => array(
 			'notEmpty' => array(
 				'rule' => 'notEmpty',
-                'message' => 'sermons.errors.series.name.required',
+                'message' => 'Series name is required.',
                 'required' => true,
                 'allowEmpty' => false
 				//'last' => false, // Stop validation after this rule

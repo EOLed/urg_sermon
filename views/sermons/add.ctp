@@ -84,90 +84,96 @@
 
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon'); ?>
-    <fieldset>
-        <legend><?php __('Add Sermon'); ?></legend>
-        <?php
-        echo $this->Form->hidden("uuid");
-        echo $this->Form->hidden("bannerAttachmentIndex");
-        echo $this->Html->div("input", 
-                $this->Html->div("placeholder", __("INSERT SERMON BANNER", true), 
-                        array("id" => "sermon-banner")) . 
-                $this->element("uploadify", 
-                array("plugin" => "cuploadify", 
-                        "dom_id" => "image_upload", 
-                        "session_id" => $this->Session->id(),
-                        "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
-                        "options" => array("auto" => true, 
-                                "folder" => "/" . $this->data["Sermon"]["uuid"],
-                                "script" => $this->Html->url("/urg_sermon/sermons/upload_image"),
-                                "buttonText" => strtoupper(__("Add Banner", true)), 
-                                //"multi" => true,
-                                //"queueID" => "upload_queue",
-                                "removeCompleted" => true,
-                                "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
-                                "fileDataName" => "imageFile",
-                                "fileDesc" => "Image Files",
-                                "onComplete" => "on_complete_images",
-                                "onProgress" => "image_upload_in_progress",
-                                "onAllComplete" => "image_uploads_completed"
-                                ))));
-        echo $this->Form->input("series_name", array("label"=>__("Series", true)));
-        echo $this->Html->div("error-message", "", 
-                array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
-        echo $this->Html->div("validated", "✓", 
-                array("id"=>"SermonSeriesNameValid", "style"=>"display: none"));
-        echo $this->Form->input('Post.title');
-        echo $this->Html->div("error-message", "", 
-                array("id"=>"PostTitleError", "style"=>"display: none"));
-        echo $this->Html->div("validated", "✓", 
-                array("id"=>"PostTitleValid", "style"=>"display: none"));
-        echo $this->Form->input("speaker_name", 
-                array("label"=>__("Speaker", true)));
-        echo $this->Html->div("error-message", "", 
-                array("id"=>"SermonSpeakerNameError", "style"=>"display: none"));
-        echo $this->Html->div("validated", "✓", 
-                array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
-        echo $this->Form->input("passages");
-        echo $this->Form->hidden("Post.publish_timestamp");
-        echo $this->Form->input("Post.displayDate", 
-                array("type"=>"text", "label"=>__("Date", true)));
-        echo $this->Form->input('Post.content', array("label"=>__("Description", true)));
-        echo $this->Html->div("input", $this->element("uploadify",
-                array("plugin" => "cuploadify", 
-                        "dom_id" => "attachment_upload", 
-                        "session_id" => $this->Session->id(),
-                        "options" => array("auto" => true, 
-                                "folder" => "/" . $this->data["Sermon"]["uuid"],
-                                "script" => $this->Html->url("/urg_sermon/sermons/upload_attachments"),
-                                "buttonText" => strtoupper(__("Attachments", true)), 
-                                "removeCompleted" => true,
-                                "fileExt" => "*.mp3;*.jpg;*.jpeg;*.png;*.gif;*.bmp;" .
-                                             "*.ppt;*.pptx;*.doc;*.docx",
-                                "fileDataName" => "attachmentFile",
-                                "fileDesc" => "Sermon Attachments",
-                                "multi" => true,
-                                "onComplete" => "on_complete_attachments",
-                                "onProgress" => "attachment_upload_in_progress",
-                                "onAllComplete" => "attachment_uploads_completed"
-                                ))));
-       echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"attachment-queue")));
-       ?>
-    </fieldset>
+    <div class="grid_6 right-border">
+        <fieldset>
+            <legend> <div> <h2><?php __('Add Sermon'); ?></h2> </div> </legend>
+            <?php
+            echo $this->Form->hidden("uuid");
+            echo $this->Form->hidden("bannerAttachmentIndex");
+            echo $this->Form->input("series_name", array("label"=>__("Series", true)));
+            echo $this->Html->div("error-message", "", 
+                    array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
+            echo $this->Html->div("validated", "✓", 
+                    array("id"=>"SermonSeriesNameValid", "style"=>"display: none"));
+            echo $this->Form->input('Post.title');
+            echo $this->Html->div("error-message", "", 
+                    array("id"=>"PostTitleError", "style"=>"display: none"));
+            echo $this->Html->div("validated", "✓", 
+                    array("id"=>"PostTitleValid", "style"=>"display: none"));
+            echo $this->Form->input("speaker_name", 
+                    array("label"=>__("Speaker", true)));
+            echo $this->Html->div("error-message", "", 
+                    array("id"=>"SermonSpeakerNameError", "style"=>"display: none"));
+            echo $this->Html->div("validated", "✓", 
+                    array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
+            echo $this->Form->input("passages");
+            echo $this->Form->hidden("Post.publish_timestamp");
+            echo $this->Form->input("Post.displayDate", 
+                    array("type"=>"text", "label"=>__("Date", true)));
+            echo $this->Form->input('description', array("label"=>__("Description", true)));
+            echo $this->Form->input('Post.content', array("label"=>__("Notes", true)));
+            ?>
+        </fieldset>
+    </div>
+    <div class="grid_3 suffix_3">
+        <fieldset>
+            <legend> <div> <h2><?php __('Add Resources'); ?></h2> </div> </legend>
+            <?php 
+            echo $this->Html->div("input", 
+                    $this->Html->div("placeholder", "", array("id" => "sermon-banner")) . 
+                    $this->element("uploadify", 
+                    array("plugin" => "cuploadify", 
+                            "dom_id" => "image_upload", 
+                            "session_id" => $this->Session->id(),
+                            "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
+                            "options" => array("auto" => true, 
+                                    "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                    "script" => $this->Html->url("/urg_sermon/sermons/upload_image"),
+                                    "buttonText" => strtoupper(__("Add Banner", true)), 
+                                    //"multi" => true,
+                                    //"queueID" => "upload_queue",
+                                    "removeCompleted" => true,
+                                    "fileExt" => "*.jpg;*.jpeg;*.png;*.gif;*.bmp",
+                                    "fileDataName" => "imageFile",
+                                    "fileDesc" => "Image Files",
+                                    "onComplete" => "on_complete_images",
+                                    "onProgress" => "image_upload_in_progress",
+                                    "onAllComplete" => "image_uploads_completed"
+                                    )))); 
+            echo $this->Html->div("input", $this->element("uploadify",
+                    array("plugin" => "cuploadify", 
+                            "dom_id" => "attachment_upload", 
+                            "session_id" => $this->Session->id(),
+                            "options" => array("auto" => true, 
+                                    "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                    "script" => $this->Html->url("/urg_sermon/sermons/upload_attachments"),
+                                    "buttonText" => strtoupper(__("Attachments", true)), 
+                                    "removeCompleted" => true,
+                                    "fileExt" => "*.mp3;*.jpg;*.jpeg;*.png;*.gif;*.bmp;" .
+                                                 "*.ppt;*.pptx;*.doc;*.docx",
+                                    "fileDataName" => "attachmentFile",
+                                    "fileDesc" => "Sermon Attachments",
+                                    "multi" => true,
+                                    "onComplete" => "on_complete_attachments",
+                                    "onProgress" => "attachment_upload_in_progress",
+                                    "onAllComplete" => "attachment_uploads_completed"
+                                    ))));
+            echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"attachment-queue")));
+            ?>
+        </fieldset>
+    </div>
+    <div class="alpha grid_12 omega">
+        <?php echo $this->Form->end(__('Upload Sermon', true));?>
+    </div>
     <?php 
         echo $this->Html->div("", $this->Html->image("/urg_sermon/img/loading.gif"), 
                 array("id" => "loading-validate", "style" => "display: none")); 
     ?>
-    <?php echo $this->Form->end(__('Submit', true));?>
-    <div style="display: none;" id="in-progress" 
-            title="<?php echo __("Uploads pending...", true); ?>">
-        <p><?php echo __("The sermon form will be submitted after all attachments have been uploaded.", true); ?></p>
+    <div style="display: none;" id="in-progress" title="<?php echo __("Uploads pending...", true); ?>">
+        <p>
+            <?php echo __("The sermon form will be submitted after all attachments have been uploaded.", true); ?>
+        </p>
     </div>
-</div>
-<div class="actions">
-    <h3><?php __('Actions'); ?></h3>
-    <ul>
-        <li><?php echo $this->Html->link(__('List Sermons', true), array('action' => 'index'));?></li>
-    </ul>
 </div>
 <?php echo $this->Html->scriptStart(); ?>
     function on_validate(dom_id, XMLHttpRequest, textStatus) {
@@ -306,7 +312,7 @@
 
 <?php echo $this->Html->scriptStart(); ?>
     $(function() {
-        $('#PostContent').tinymce({
+        $('#SermonDescription, #PostContent').tinymce({
             script_url: "<?php echo $this->Html->url("/js/tinymce/tiny_mce.js"); ?>",
             theme: "advanced",
             theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|," +

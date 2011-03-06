@@ -33,12 +33,17 @@ class SermonsController extends UrgSermonAppController {
     );
     var $name = 'Sermons';
 
+    function beforeFilter() {
+        $this->Auth->allow("view", "passages");
+    }
+
     function index() {
         $this->Sermon->recursive = 0;
         $this->set('sermons', $this->paginate());
     }
 
     function view($id = null) {
+        $this->log("Entering view action", LOG_DEBUG);
         if (!$id) {
             $this->Session->setFlash(__('Invalid sermon', true));
             $this->redirect(array('action' => 'index'));

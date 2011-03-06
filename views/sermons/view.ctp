@@ -63,13 +63,18 @@
                 <ul id="sermon-resource-list">
                 <?php foreach ($attachments["Documents"] as $filename=>$attachment_id) { ?> 
                     <li>
-                        <?php echo $this->Html->link(
-                                $this->Html->image("/urg_sermon/img/icons/" . 
-                                        strtolower(substr($filename, strrpos($filename, ".") + 1, 
-                                        strlen($filename))) . ".png", array("style"=>"height: 32px")), 
-                                $this->Html->url("/urg_sermon/files/" . 
-                                        $sermon["Sermon"]["id"] . "/" . $filename), 
-                                        array("escape" => false, "class" => "gdoc") ); ?>
+                        <?php 
+                        $url = $this->Html->url("/urg_sermon/files/" .  
+                                $sermon["Sermon"]["id"] . "/" . $filename); 
+                        $image_options = array("style"=>"height: 32px", 
+                                               "alt"=>$filename, 
+                                               "title"=>$filename); 
+                        echo $this->Html->link(
+                            $this->Html->image("/urg_sermon/img/icons/" . 
+                                    strtolower(substr($filename, strrpos($filename, ".") + 1, 
+                                    strlen($filename))) . ".png", $image_options), 
+                                    $url, array("escape" => false, "class" => "gdoc") ); 
+                        ?>
                     </li>
                 <?php } ?>
                 <?php if (isset($attachments["Audio"])) { ?>

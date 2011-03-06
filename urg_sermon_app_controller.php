@@ -14,7 +14,6 @@ class UrgSermonAppController extends AppController {
 
     function beforeFilter() {
         parent::beforeFilter();
-        
         if (!$this->Urg->has_access()) {
             $this->log("Redirecting to " . Debugger::exportVar($this->Auth->loginAction, 2), LOG_DEBUG);
             $this->redirect($this->Auth->loginAction);

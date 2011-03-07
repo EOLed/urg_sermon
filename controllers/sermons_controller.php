@@ -25,7 +25,7 @@ class SermonsController extends UrgSermonAppController {
                            "admin" => false
                    )
            ), "Urg", "Cuploadify", "ImgLib", 
-           "Bible" => array("translation"=>"Esv", "key"=>"bef9e04393f0f17f")
+           "Bible" => array("Esv"=>array("key" => "bef9e04393f0f17f"))
     );
 
     var $helpers = array(

@@ -111,7 +111,7 @@
             echo $this->Form->input("Post.displayDate", 
                     array("type"=>"text", "label"=>__("Date", true)));
             echo $this->Form->input('description', array("label"=>__("Description", true)));
-            echo $this->Form->input('Post.content', array("label"=>__("Notes", true)));
+            echo $this->Form->input('Post.content', array("label"=>__("Notes", true), "rows"=>"20"));
             ?>
         </fieldset>
     </div>
@@ -162,7 +162,7 @@
             ?>
         </fieldset>
     </div>
-    <div class="alpha grid_12 omega">
+    <div class="grid_6 suffix_6">
         <?php echo $this->Form->end(__('Upload Sermon', true));?>
     </div>
     <?php 
@@ -403,6 +403,8 @@
             altFormat: "yy-mm-dd",
             dateFormat: "MM d, yy"
         });
+
+        $("input:submit").button();
     });
 <?php echo $this->Html->scriptEnd(); ?>
 <?php $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

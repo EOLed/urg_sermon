@@ -15,6 +15,7 @@ class SermonsController extends UrgSermonAppController {
     var $FILES = "/app/plugins/urg_sermon/webroot/files";
 
     var $BANNER_SIZE = 700;
+    var $PANEL_BANNER_SIZE = 460;
     
     var $components = array(
            "Auth" => array(
@@ -95,14 +96,16 @@ class SermonsController extends UrgSermonAppController {
         $banners = array();
         
         foreach ($attachments["Banner"] as $key=>$attachment_id) {
-            $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon["Sermon"]["id"];
-            $image = $this->ImgLib->get_image("$full_image_path/$key", 
-                    $this->BANNER_SIZE, 0, 'landscape'); 
-            array_push($banners, "/urg_sermon/img/" . $sermon["Sermon"]["id"] . "/" . 
-                    $image["filename"]);
+            array_push($banners, $this->get_image_path($key, $sermon, $this->BANNER_SIZE));
         }
 
         $this->set("banners", $banners);
+    }
+
+    function get_image_path($filename, $sermon, $width, $height = 0) {
+        $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon["Sermon"]["id"];
+        $image = $this->ImgLib->get_image("$full_image_path/$filename", $width, $height, 'landscape'); 
+        return "/urg_sermon/img/" . $sermon["Sermon"]["id"] . "/" . $image["filename"];
     }
 
     function passages($passage) {
@@ -307,7 +310,28 @@ class SermonsController extends UrgSermonAppController {
         if (empty($this->data)) {
             $this->data = $this->Sermon->read(null, $id);
         }
+
+        $this->loadModel("Attachment");
+        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+        
+        $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
+        $this->set("banner_type", $banner_type);
+        $this->set("audio_type", 
+                $this->Attachment->AttachmentType->findByName("Audio"));
         $posts = $this->Sermon->Post->find('list');
+        $this->data["Sermon"]["series_name"] = $this->data["Series"]["name"];
+        $banner = $this->Attachment->find("first", array("conditions"=>
+                array("Attachment.post_id"=>$this->data["Post"]["id"],
+                      "Attachment.attachment_type_id"=>$banner_type["AttachmentType"]["id"]
+                )
+            )
+        );
+
+        $this->set("banner", $this->get_image_path($banner["Attachment"]["filename"], 
+                                                   $this->data, 
+                                                   $this->PANEL_BANNER_SIZE));
+
+        $this->log("sermon banner: " . Debugger::exportVar($banner, 2), LOG_DEBUG);
         $this->set(compact('posts'));
     }
 

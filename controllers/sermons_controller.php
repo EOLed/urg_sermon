@@ -115,151 +115,179 @@ class SermonsController extends UrgSermonAppController {
         $this->set("passages", $passages);
     }
 
+    function populate_series() {
+        if ($this->data["Sermon"]["series_name"] != "") {
+            $series_name = $this->data["Sermon"]["series_name"];
+            $series_group = $this->Sermon->Series->findByName("Series");
+            $existing_series = $this->Sermon->Series->find("first", 
+                    array("conditions" => 
+                            array(
+                                    "Series.group_id" => $series_group["Series"]["id"], 
+                                    "Series.name" => $series_name
+                            )
+                    )
+            );
+
+            if ($existing_series === false) {
+                $this->Sermon->Series->create();
+                $this->data["Series"]["group_id"] = $series_group["Series"]["id"];
+                $this->data["Series"]["name"] = $this->data["Sermon"]["series_name"];
+                $this->log("New Series for: " . $series_name, LOG_DEBUG);
+            } else {
+                $this->data["Series"] = $existing_series["Series"];
+                $this->log("Series exists: $series_name", LOG_DEBUG);
+            }
+        }
+    }
+
+    function prepare_attachments() {
+        $logged_user = $this->Auth->user();
+        $attachment_count = isset($this->data["Attachment"]) ? 
+                sizeof($this->data["Attachment"]) : 0;
+        if ($attachment_count > 0) {
+            $this->log("preparing $attachment_count attachments...", LOG_DEBUG);
+            foreach ($this->data["Attachment"] as &$attachment) {
+                $attachment["user_id"] = $logged_user["User"]["id"];
+            }
+
+            $this->Sermon->Post->bindModel(array("hasMany" => array("Attachment")));
+            unset($this->Sermon->Post->Attachment->validate["post_id"]);
+        }
+    }
+
+    function save_post() {
+        $logged_user = $this->Auth->user();
+        $this->data["User"] = $logged_user["User"];
+
+        $this->Sermon->Post->create();
+
+        $this->populate_series();
+        $this->prepare_attachments();
+
+        $this->Sermon->Post->bindModel(array("belongsTo" => array(
+                "Series" => array(
+                    "className" => "Urg.Group",
+                    "foreignKey" => "group_id"
+                )
+            )
+        ));
+        
+        unset($this->Sermon->Post->validate["group_id"]);
+
+        $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
+
+        $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
+
+        $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
+
+        return $status;
+    }
+
+    function populate_speaker() {
+        if ($this->data["Sermon"]["speaker_name"] != "") {
+            $speaker_name = $this->data["Sermon"]["speaker_name"];
+            $pastors_group = $this->Sermon->Pastor->findByName("Pastors");
+            $existing_pastor = $this->Sermon->Pastor->find("first", 
+                    array("conditions" => 
+                            array(
+                                    "Pastor.group_id" => $pastors_group["Pastor"]["id"], 
+                                    "Pastor.name" => $speaker_name
+                            )
+                    )
+            );
+
+            if ($existing_pastor === false) {
+                $this->log("New speaker: " . $speaker_name, LOG_DEBUG);
+            } else {
+                $this->data["Pastor"] = $existing_pastor["Pastor"];
+                $this->data["Sermon"]["speaker_name"] = null;
+                unset($this->Sermon->validate["speaker_name"]);
+                $this->log("Speaker is a pastor: $speaker_name", LOG_DEBUG);
+            }
+        }
+    }
+
+    function consolidate_attachments($webroot_dirs, $temp_dir) {
+        $doc_root = $this->remove_trailing_slash(env("DOCUMENT_ROOT"));
+
+        if (!is_array($webroot_dirs)) {
+            $webroot_dirs = array($webroot_dirs);
+        }
+
+        foreach ($webroot_dirs as $webroot_dir) {
+            $temp_webroot = "$webroot_dir/$temp_dir";
+
+            if (file_exists($doc_root . $temp_webroot)) {
+                $perm_dir = $webroot_dir . "/" . $this->Sermon->id;
+                $this->rename_dir($doc_root . $temp_webroot, $doc_root . $perm_dir);
+                $this->log("moved attachments to permanent folder: $doc_root$perm_dir", LOG_DEBUG);
+            } else {
+                $this->log("no attachments to move, since folder doesn't exist: $doc_root$temp_webroot",
+                        LOG_DEBUG);
+            }
+        }
+    }
+
+    function resize_banner($sermon_id) {
+        $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon_id;
+
+        if (file_exists($full_image_path)) {
+            $this->loadModel("Attachment");
+            $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+
+            $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
+            $post_banner = $this->Attachment->find("first", 
+                    array("conditions" => array("AND" => array(
+                    "Attachment.attachment_type_id" => $banner_type["AttachmentType"]["id"],
+                    "Attachment.post_id" => $this->data["Post"]["id"]
+            ))));
+
+            if (isset($post_banner["Attachment"])) {
+                $this->log("post banner: " . Debugger::exportVar($post_banner, 3), LOG_DEBUG);
+                $this->log("resizing banners...", LOG_DEBUG);
+                $this->log("full sermon image path: $full_image_path", LOG_DEBUG);
+                $saved_image = $this->ImgLib->get_image($full_image_path . "/" . 
+                        $post_banner["Attachment"]["filename"], $this->BANNER_SIZE, 0, 'landscape');
+                $this->log("saved $saved_image[filename]", LOG_DEBUG);
+            } else {
+                $this->log("no banners found for post: " . $this->data["Post"]["id"], LOG_DEBUG);
+            }
+        }
+    }
+
     function add() {
         if (!empty($this->data)) {
+            $logged_user = $this->Auth->user();
+
             $sermon_ds = $this->Sermon->getDataSource();
             $post_ds = $this->Sermon->Post->getDataSource();
 
-            $logged_user = $this->Auth->user();
-            if ($this->data["Sermon"]["series_name"] != "") {
-                $series_name = $this->data["Sermon"]["series_name"];
-                $series_group = $this->Sermon->Series->findByName("Series");
-                $existing_series = $this->Sermon->Series->find("first", 
-                        array("conditions" => 
-                                array(
-                                        "Series.group_id" => $series_group["Series"]["id"], 
-                                        "Series.name" => $series_name
-                                )
-                        )
-                );
-
-                if ($existing_series === false) {
-                    $this->Sermon->Series->create();
-                    $this->data["Series"]["group_id"] = $series_group["Series"]["id"];
-                    $this->data["Series"]["name"] = $this->data["Sermon"]["series_name"];
-                    $this->log("New Series for: " . $series_name, LOG_DEBUG);
-                } else {
-                    $this->data["Series"] = $existing_series["Series"];
-                    $this->log("Series exists: $series_name", LOG_DEBUG);
-                }
-            }
-
-            $this->Sermon->Post->create();
             $post_ds->begin($this->Sermon->Post);
             $sermon_ds->begin($this->Sermon);
-            $this->data["User"] = $logged_user["User"];
 
-            $attachment_count = isset($this->data["Attachment"]) ? 
-                    sizeof($this->data["Attachment"]) : 0;
+            $save_post_status = $this->save_post();
 
-            if ($attachment_count > 0) {
-                $this->log("preparing $attachment_count attachments...", LOG_DEBUG);
-                foreach ($this->data["Attachment"] as &$attachment) {
-                    $attachment["user_id"] = $logged_user["User"]["id"];
-                }
-
-                $this->Sermon->Post->bindModel(array("hasMany" => array("Attachment")));
-                unset($this->Sermon->Post->Attachment->validate["post_id"]);
-            }
-
-            $this->Sermon->Post->bindModel(array("belongsTo" => array(
-                    "Series" => array(
-                        "className" => "Urg.Group",
-                        "foreignKey" => "group_id"
-                    )
-                )
-            ));
-            
-            unset($this->Sermon->Post->validate["group_id"]);
-
-            $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
-
-            $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
-  
-            $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
-            if (!is_bool($status) || $status) {
+            // if post saved successfully
+            if (!is_bool($save_post_status) || $save_post_status) {
                 $this->data["Series"]["id"] = $this->Sermon->Post->Series->id;
                 $this->data["Post"]["id"] = $this->Sermon->Post->id;
                 $this->log("Post successfully saved. Now saving sermon with series id as: " . 
                         $this->data["Series"]["id"] . " and post id as: " . 
                         $this->data["Post"]["id"], LOG_DEBUG);
                 $this->Sermon->create();
-                if ($this->data["Sermon"]["speaker_name"] != "") {
-                    $speaker_name = $this->data["Sermon"]["speaker_name"];
-                    $pastors_group = $this->Sermon->Pastor->findByName("Pastors");
-                    $existing_pastor = $this->Sermon->Pastor->find("first", 
-                            array("conditions" => 
-                                    array(
-                                            "Pastor.group_id" => $pastors_group["Pastor"]["id"], 
-                                            "Pastor.name" => $speaker_name
-                                    )
-                            )
-                    );
 
-                    if ($existing_pastor === false) {
-                        $this->log("New speaker: " . $speaker_name, LOG_DEBUG);
-                    } else {
-                        $this->data["Pastor"] = $existing_pastor["Pastor"];
-                        $this->data["Sermon"]["speaker_name"] = null;
-                        unset($this->Sermon->validate["speaker_name"]);
-                        $this->log("Speaker is a pastor: $speaker_name", LOG_DEBUG);
-                    }
-                }
+                $this->populate_speaker();
 
                 $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
                 if ($this->Sermon->saveAll($this->data, array("atomic"=>false))) {
                     $temp_dir = $this->data["Sermon"]["uuid"];
-                    $temp_audio = $this->AUDIO . "/$temp_dir";
-                    $temp_images = $this->IMAGES . "/$temp_dir";
-                    $temp_files = $this->FILES . "/$temp_dir";
-                    $doc_root = $this->remove_trailing_slash(env("DOCUMENT_ROOT"));
 
-                    if (file_exists($doc_root . $temp_audio)) {
-                        $audio_dir = $this->AUDIO . "/" . $this->Sermon->id;
-                        $this->rename_dir($doc_root . $temp_audio, $doc_root . $audio_dir);
-                        $this->log("moved audio to permanent folder: $doc_root$audio_dir", LOG_DEBUG);
-                    } else {
-                        $this->log("no audio to move, since folder doesn't exist: $doc_root$temp_audio",
-                                LOG_DEBUG);
-                    }
+                    $this->consolidate_attachments(
+                            array($this->AUDIO, $this->FILES, $this->IMAGES), 
+                            $temp_dir
+                    );
 
-                    if (file_exists($doc_root . $temp_files)) {
-                        $files_dir = $this->FILES . "/" . $this->Sermon->id;
-                        $this->rename_dir($doc_root . $temp_files, $doc_root . $files_dir);
-                        $this->log("moved files to permanent folder: $doc_root$files_dir", LOG_DEBUG);
-                    } else {
-                        $this->log("no files to move, since folder doesn't exist: $doc_root$temp_files",
-                                LOG_DEBUG);
-                    }
-
-                    if (file_exists($doc_root . $temp_images)) {
-                        $images_dir = $this->IMAGES . "/" .  $this->Sermon->id;
-                        $this->rename_dir($doc_root . $temp_images, $doc_root . $images_dir);
-                        $this->log("moved images to permanent folder: $doc_root$images_dir", LOG_DEBUG);
-
-                        $this->loadModel("Attachment");
-                        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
-
-                        $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
-                        $post_banner = $this->Attachment->find("first", 
-                                array("conditions" => array("AND" => array(
-                                "Attachment.attachment_type_id" => $banner_type["AttachmentType"]["id"],
-                                "Attachment.post_id" => $this->data["Post"]["id"]
-                        ))));
-                        $this->log("post banner: " . Debugger::exportVar($post_banner, 3), LOG_DEBUG);
-
-                        $this->log("resizing banners...", LOG_DEBUG);
-                        $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .
-                                $this->Sermon->id;
-                        $this->log("full sermon image path: $full_image_path", LOG_DEBUG);
-                        $saved_image = $this->ImgLib->get_image($full_image_path . "/" . 
-                                $post_banner["Attachment"]["filename"], $this->BANNER_SIZE, 0, 
-                                'landscape');
-                        $this->log("saved $saved_image[filename]", LOG_DEBUG);
-                    } else {
-                        $this->log("no images to move, since folder doesn't exist: " .
-                                "$doc_root$temp_images", LOG_DEBUG);
-                    }
+                    $this->resize_banner($this->Sermon->id);
 
                     $post_ds->commit($this->Sermon->Post);
                     $sermon_ds->commit($this->Sermon);
@@ -283,6 +311,13 @@ class SermonsController extends UrgSermonAppController {
             $this->data["Sermon"]["uuid"] = String::uuid();
         }
 
+        $this->set_attachment_types();
+
+        $posts = $this->Sermon->Post->find('list');
+        $this->set(compact('posts'));
+    }
+
+    function set_attachment_types() {
         $this->loadModel("Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
 
@@ -290,8 +325,6 @@ class SermonsController extends UrgSermonAppController {
                 $this->Attachment->AttachmentType->findByName("Banner"));
         $this->set("audio_type", 
                 $this->Attachment->AttachmentType->findByName("Audio"));
-        $posts = $this->Sermon->Post->find('list');
-        $this->set(compact('posts'));
     }
 
     function edit($id = null) {

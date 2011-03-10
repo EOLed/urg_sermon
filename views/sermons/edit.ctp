@@ -89,6 +89,8 @@
             <legend> <div> <h2><?php __('Edit Sermon'); ?></h2> </div> </legend>
             <?php
             echo $this->Form->hidden("bannerAttachmentIndex");
+            echo $this->Form->hidden("Sermon.id");
+            echo $this->Form->hidden("Post.id");
             echo $this->Form->input("series_name", array("label"=>__("Series", true)));
             echo $this->Html->div("error-message", "", 
                     array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
@@ -167,7 +169,10 @@
                                     "onProgress" => "attachment_upload_in_progress",
                                     "onAllComplete" => "attachment_uploads_completed"
                                     ))));
-            echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"attachment-queue")));
+            echo $this->element("sermon_attachment_queue", 
+                    array("attachments"=>$attachments, 
+                          "sermon_id"=>$this->data["Sermon"]["id"], 
+                          "plugin"=>"urg_sermon"));
             ?>
         </fieldset>
     </div>

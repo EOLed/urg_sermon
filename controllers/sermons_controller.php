@@ -300,7 +300,7 @@ class SermonsController extends UrgSermonAppController {
             $this->redirect(array('action' => 'index'));
         }
         if (!empty($this->data)) {
-            if ($this->Sermon->save($this->data)) {
+            if ($this->Sermon->saveAll($this->data)) {
                 $this->Session->setFlash(__('The sermon has been saved', true));
                 $this->redirect(array('action' => 'index'));
             } else {
@@ -330,6 +330,13 @@ class SermonsController extends UrgSermonAppController {
         $this->set("banner", $this->get_image_path($banner["Attachment"]["filename"], 
                                                    $this->data, 
                                                    $this->PANEL_BANNER_SIZE));
+
+        $this->set("attachments", $this->Attachment->find("all", array("conditions"=>
+                array("Attachment.post_id"=>$this->data["Post"]["id"],
+                      "Attachment.attachment_type_id !="=>$banner_type["AttachmentType"]["id"]
+                )
+            )
+        ));
 
         $this->log("sermon banner: " . Debugger::exportVar($banner, 2), LOG_DEBUG);
         $this->set(compact('posts'));
@@ -413,6 +420,8 @@ class SermonsController extends UrgSermonAppController {
             $attachment_type = $this->Attachment->AttachmentType->findByName("Documents");
             $webroot_folder = $this->FILES_WEBROOT;
         }
+
+        $webroot_folder = $this->get_webroot_folder($this->Cuploadify->get_filename());
         $this->log("attachment type detected as: " . Debugger::exportVar($attachment_type, 3), 
                 LOG_DEBUG);
         $this->upload($root);
@@ -424,7 +433,21 @@ class SermonsController extends UrgSermonAppController {
         ));
         $this->render("json", "ajax");
     }
-    
+
+    function get_webroot_folder($filename) {
+        $webroot_folder = null;
+
+        if ($this->is_filetype($filename, array(".jpg", ".jpeg", ".png", ".gif", ".bmp"))) {
+            $webroot_folder = $this->IMAGES_WEBROOT;
+        } else if ($this->is_filetype($filename, array(".mp3"))) {
+            $webroot_folder = $this->AUDIO_WEBROOT;
+        } else if ($this->is_filetype($filename, array(".ppt", ".pptx", ".doc", ".docx"))) {
+            $webroot_folder = $this->FILES_WEBROOT;
+        }
+
+        return $webroot_folder;
+    }
+
     function upload($root) {
         $options = array("root" => $root);
         $this->log("uploading options: " . Debugger::exportVar($options), LOG_DEBUG);

@@ -93,13 +93,12 @@ class SermonsController extends UrgSermonAppController {
         $this->set("attachments", $attachments);
         $this->set("series_sermons", $series);
 
-        $banners = array();
-        
+        $banner = null; 
         foreach ($attachments["Banner"] as $key=>$attachment_id) {
-            array_push($banners, $this->get_image_path($key, $sermon, $this->BANNER_SIZE));
+            $banner = $key;
         }
 
-        $this->set("banners", $banners);
+        $this->set("banners", array($this->get_image_path($banner, $sermon, $this->BANNER_SIZE)));
     }
 
     function get_image_path($filename, $sermon, $width, $height = 0) {
@@ -135,8 +134,11 @@ class SermonsController extends UrgSermonAppController {
                 $this->log("New Series for: " . $series_name, LOG_DEBUG);
             } else {
                 $this->data["Series"] = $existing_series["Series"];
-                $this->log("Series exists: $series_name", LOG_DEBUG);
+                $this->log("Series exists: " . Debugger::exportVar($this->data["Series"], 3), 
+                        LOG_DEBUG);
             }
+        } else {
+            $this->log("No series to populate...", LOG_DEBUG);
         }
     }
 
@@ -159,24 +161,30 @@ class SermonsController extends UrgSermonAppController {
         $logged_user = $this->Auth->user();
         $this->data["User"] = $logged_user["User"];
 
-        $this->Sermon->Post->create();
-
         $this->populate_series();
         $this->prepare_attachments();
 
-        $this->Sermon->Post->bindModel(array("belongsTo" => array(
-                "Series" => array(
-                    "className" => "Urg.Group",
-                    "foreignKey" => "group_id"
-                )
-            )
-        ));
-        
-        unset($this->Sermon->Post->validate["group_id"]);
+        $this->log("post belongsto: " . Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
+//        $this->Sermon->Post->bindModel(array("belongsTo" => array(
+//                "Series" => array(
+//                    "className" => "Urg.Group",
+//                    "foreignKey" => "group_id"
+//                )
+//            )
+//        ));
 
+        if (isset($this->data["Series"]["id"])) {
+            $this->data["Post"]["series_id"] = $this->data["Series"]["id"];
+        }
+        unset($this->Sermon->Post->validate["group_id"]);
         $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
 
+        $this->log("Saving post: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
+
+        $this->log("updated post belongsto: " . Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
         $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
+
+        $this->data["Series"]["id"] = $this->Sermon->Series->id;
 
         $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
 
@@ -265,6 +273,7 @@ class SermonsController extends UrgSermonAppController {
             $post_ds->begin($this->Sermon->Post);
             $sermon_ds->begin($this->Sermon);
 
+            $this->Sermon->Post->create();
             $save_post_status = $this->save_post();
 
             // if post saved successfully
@@ -311,13 +320,6 @@ class SermonsController extends UrgSermonAppController {
             $this->data["Sermon"]["uuid"] = String::uuid();
         }
 
-        $this->set_attachment_types();
-
-        $posts = $this->Sermon->Post->find('list');
-        $this->set(compact('posts'));
-    }
-
-    function set_attachment_types() {
         $this->loadModel("Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
 
@@ -325,6 +327,9 @@ class SermonsController extends UrgSermonAppController {
                 $this->Attachment->AttachmentType->findByName("Banner"));
         $this->set("audio_type", 
                 $this->Attachment->AttachmentType->findByName("Audio"));
+
+        $posts = $this->Sermon->Post->find('list');
+        $this->set(compact('posts'));
     }
 
     function edit($id = null) {
@@ -333,30 +338,69 @@ class SermonsController extends UrgSermonAppController {
             $this->redirect(array('action' => 'index'));
         }
         if (!empty($this->data)) {
-            if ($this->Sermon->saveAll($this->data)) {
-                $this->Session->setFlash(__('The sermon has been saved', true));
-                $this->redirect(array('action' => 'index'));
+            $logged_user = $this->Auth->user();
+
+            $sermon_ds = $this->Sermon->getDataSource();
+            $post_ds = $this->Sermon->Post->getDataSource();
+
+            $post_ds->begin($this->Sermon->Post);
+            $sermon_ds->begin($this->Sermon);
+
+            $this->Sermon->Post->create();
+            $save_post_status = $this->save_post();
+
+            // if post saved successfully
+            if (!is_bool($save_post_status) || $save_post_status) {
+                $this->log("Post successfully saved. Now saving sermon with series id as: " . 
+                        $this->data["Series"]["id"] . " and post id as: " . 
+                        $this->data["Post"]["id"], LOG_DEBUG);
+
+                $this->populate_speaker();
+
+                $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
+                if ($this->Sermon->saveAll($this->data, array("atomic"=>false))) {
+                    $this->resize_banner($this->Sermon->id);
+
+                    $post_ds->commit($this->Sermon->Post);
+                    $sermon_ds->commit($this->Sermon);
+
+                    $this->log("Sermon successfully saved.", LOG_DEBUG);
+                    $this->Session->setFlash(__('The sermon has been saved', true));
+                    $this->redirect(array('action' => 'index'));
+                } else {
+                    $sermon_ds->rollback($this->Sermon);
+                    $post_ds->rollback($this->Sermon->Post);
+                    $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
+                    $this->Session->setFlash(
+                            __('The sermon could not be saved. Please, try again.', true));
+                } 
             } else {
+                $this->Sermon->saveAll($this->data, array("validate"=>"only"));
+                $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
                 $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
             }
         }
+
         if (empty($this->data)) {
             $this->data = $this->Sermon->read(null, $id);
         }
 
         $this->loadModel("Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
-        
+
         $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
+
         $this->set("banner_type", $banner_type);
-        $this->set("audio_type", 
-                $this->Attachment->AttachmentType->findByName("Audio"));
+        $this->set("audio_type", $this->Attachment->AttachmentType->findByName("Audio"));
+        
         $posts = $this->Sermon->Post->find('list');
         $this->data["Sermon"]["series_name"] = $this->data["Series"]["name"];
-        $banner = $this->Attachment->find("first", array("conditions"=>
-                array("Attachment.post_id"=>$this->data["Post"]["id"],
-                      "Attachment.attachment_type_id"=>$banner_type["AttachmentType"]["id"]
-                )
+        $banner = $this->Attachment->find("first", array(
+                "conditions"=>
+                        array("Attachment.post_id"=>$this->data["Post"]["id"],
+                              "Attachment.attachment_type_id"=>$banner_type["AttachmentType"]["id"]
+                        ),
+                "order" => "Attachment.created DESC"
             )
         );
 
@@ -498,11 +542,6 @@ class SermonsController extends UrgSermonAppController {
         $options = array("root" => $this->IMAGES);
         $target_folder = $this->Cuploadify->get_target_folder($options);
         $filename = $target_folder . $this->Cuploadify->get_filename();
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        $banner = $target_folder . "banner.$ext";
-
-        rename($filename, $banner); 
-        $this->log("uploading $filename as $banner", LOG_DEBUG);
     }
 
     /**

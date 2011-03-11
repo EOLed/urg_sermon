@@ -18,14 +18,12 @@
 
         bannerIndex = $("#SermonBannerAttachmentIndex").val();
 
-        banner_filename = "banner" + fileObj.name.substr(fileObj.name.lastIndexOf('.'));
-
         if ($("#Attachment" + bannerIndex + "Filename").length == 0) {
             $('<input>').attr({ 
                     type: 'hidden', 
                     id: 'Attachment' + bannerIndex + 'Filename', 
                     name: 'data[Attachment][' + bannerIndex + '][filename]' ,
-                    value: banner_filename,
+                    value: fileObj.name,
                     class: "attachment"
             }).appendTo('form');
             $('<input>').attr({ 
@@ -41,7 +39,7 @@
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
                 "<?php echo $this->Html->url("/urg_sermon/img/" . $this->data["Sermon"]["id"]); ?>" 
-                + "/" + banner_filename + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
+                + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
     function on_complete_attachments(event, ID, fileObj, response, data) {
@@ -70,7 +68,7 @@
                 target: "_blank"
         }).appendTo("#AttachmentQueueListItem" + attachmentCounter);
 
-        $("#AttachmentQueueAudioLink" + attachmentCounter).text(fileObj.name);
+        $("#AttachmentQueueAudioLink" + attachmentCounter).text(fileObj.name.substring(0, 40));
     }
 
     function image_upload_in_progress(event, ID, fileObj, data) {
@@ -177,7 +175,7 @@
         </fieldset>
     </div>
     <div class="grid_6 suffix_6">
-        <?php echo $this->Form->end(__('Upload Sermon', true));?>
+        <?php echo $this->Form->end(__('Save', true));?>
     </div>
     <?php 
         echo $this->Html->div("", $this->Html->image("/urg_sermon/img/loading.gif"), 

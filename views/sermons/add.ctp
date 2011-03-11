@@ -18,14 +18,12 @@
 
         bannerIndex = $("#SermonBannerAttachmentIndex").val();
 
-        banner_filename = "banner" + fileObj.name.substr(fileObj.name.lastIndexOf('.'));
-
         if ($("#Attachment" + bannerIndex + "Filename").length == 0) {
             $('<input>').attr({ 
                     type: 'hidden', 
                     id: 'Attachment' + bannerIndex + 'Filename', 
                     name: 'data[Attachment][' + bannerIndex + '][filename]' ,
-                    value: banner_filename,
+                    value: fileObj.name,
                     class: "attachment"
             }).appendTo('form');
             $('<input>').attr({ 
@@ -41,7 +39,7 @@
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
                 "<?php echo $this->Html->url("/urg_sermon/img/" . $this->data["Sermon"]["uuid"]); ?>" 
-                + "/" + banner_filename + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
+                + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
     function on_complete_attachments(event, ID, fileObj, response, data) {

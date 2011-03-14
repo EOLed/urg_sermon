@@ -111,6 +111,14 @@ class SermonsController extends UrgSermonAppController {
         $this->layout = "ajax";
         $passages = $this->Bible->get_passage($passage);
 
+        if ($passages == null) {
+            $this->log("No passages found for $passage", LOG_DEBUG);
+            $this->Session->setFlash(
+                    __("We're having problems retrieving Bible verses at the moment. Please try again later.", 
+                       true), 
+                    "flash_error");
+        }
+
         $this->set("passages", $passages);
     }
 
@@ -165,13 +173,6 @@ class SermonsController extends UrgSermonAppController {
         $this->prepare_attachments();
 
         $this->log("post belongsto: " . Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
-//        $this->Sermon->Post->bindModel(array("belongsTo" => array(
-//                "Series" => array(
-//                    "className" => "Urg.Group",
-//                    "foreignKey" => "group_id"
-//                )
-//            )
-//        ));
 
         if (isset($this->data["Series"]["id"])) {
             $this->data["Post"]["series_id"] = $this->data["Series"]["id"];
@@ -274,11 +275,18 @@ class SermonsController extends UrgSermonAppController {
             $sermon_ds->begin($this->Sermon);
 
             $this->Sermon->Post->create();
+            $this->Sermon->Post->bindModel(array("belongsTo" => array(
+                    "Series" => array(
+                        "className" => "Urg.Group",
+                        "foreignKey" => "group_id"
+                    )
+                )
+            ));
             $save_post_status = $this->save_post();
 
             // if post saved successfully
             if (!is_bool($save_post_status) || $save_post_status) {
-                $this->data["Series"]["id"] = $this->Sermon->Post->Series->id;
+                $this->data["Series"]["id"] = $this->Sermon->Series->id;
                 $this->data["Post"]["id"] = $this->Sermon->Post->id;
                 $this->log("Post successfully saved. Now saving sermon with series id as: " . 
                         $this->data["Series"]["id"] . " and post id as: " . 

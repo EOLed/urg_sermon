@@ -165,28 +165,50 @@ class SermonsController extends UrgSermonAppController {
         }
     }
 
-    function save_post() {
+    function save_post($id = null) {
+        $this->Sermon->Post->id = $id;
+
         $logged_user = $this->Auth->user();
         $this->data["User"] = $logged_user["User"];
 
         $this->populate_series();
         $this->prepare_attachments();
 
-        $this->log("post belongsto: " . Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
+        $this->log("post belongsto: " . 
+                Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
 
-        if (isset($this->data["Series"]["id"])) {
-            $this->data["Post"]["series_id"] = $this->data["Series"]["id"];
-        }
+//        if ($id == null) {
+//            $this->Sermon->Post->bindModel(array("belongsTo" => array(
+//                    "Series" => array(
+//                        "className" => "Urg.Group",
+//                        "foreignKey" => "group_id"
+//                    )
+//                )
+//            ));
+//        }
+
         unset($this->Sermon->Post->validate["group_id"]);
-        $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
+//        $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
+
+        $this->data["Group"] = $this->data["Series"];
 
         $this->log("Saving post: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
 
-        $this->log("updated post belongsto: " . Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
+        $this->log("updated post belongsto: " . 
+                Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
         $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
+        unset($this->data["Group"]);
 
-        $this->data["Series"]["id"] = $this->Sermon->Series->id;
+        if (isset($this->Sermon->Post->Group->id)) {
+            $this->data["Series"]["id"] = $this->Sermon->Post->Group->id;
+            $this->log("Saving post with group id: " . $this->data["Series"]["id"], LOG_DEBUG);
 
+//            if ($id != null) {
+//                $this->data["Post"]["group_id"] = $this->data["Series"]["id"];
+//                $this->data["Sermon"]["series_id"] = $this->data["Series"]["id"];
+//                $this->Sermon->Post->saveField("group_id", $this->data["Post"]["group_id"]);
+//            }
+        }
         $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
 
         return $status;
@@ -289,7 +311,7 @@ class SermonsController extends UrgSermonAppController {
                 $this->data["Series"]["id"] = $this->Sermon->Series->id;
                 $this->data["Post"]["id"] = $this->Sermon->Post->id;
                 $this->log("Post successfully saved. Now saving sermon with series id as: " . 
-                        $this->data["Series"]["id"] . " and post id as: " . 
+                        $this->data["Series"]["id"] . " group id as: " .
                         $this->data["Post"]["id"], LOG_DEBUG);
                 $this->Sermon->create();
 
@@ -341,6 +363,8 @@ class SermonsController extends UrgSermonAppController {
     }
 
     function edit($id = null) {
+        $this->Sermon->id = $id;
+
         if (!$id && empty($this->data)) {
             $this->Session->setFlash(__('Invalid sermon', true));
             $this->redirect(array('action' => 'index'));
@@ -354,8 +378,7 @@ class SermonsController extends UrgSermonAppController {
             $post_ds->begin($this->Sermon->Post);
             $sermon_ds->begin($this->Sermon);
 
-            $this->Sermon->Post->create();
-            $save_post_status = $this->save_post();
+            $save_post_status = $this->save_post($this->data["Post"]["id"]);
 
             // if post saved successfully
             if (!is_bool($save_post_status) || $save_post_status) {

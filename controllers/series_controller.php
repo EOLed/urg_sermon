@@ -28,9 +28,11 @@ class SeriesController extends UrgSermonAppController {
     function search($term) {
         $series_group = $this->Group->findByName("Series");
         return $this->Group->find("all", 
-                array("conditions" => 
-                        array("Group.name LIKE" => "%$term%", 
-                                "Group.group_id" => $series_group["Group"]["id"])));
+                array("conditions" => array("Group.name LIKE" => "%$term%", 
+                                            "Group.group_id" => $series_group["Group"]["id"]
+                                      )
+                )
+        );
     }
 
     function create($series_name) {

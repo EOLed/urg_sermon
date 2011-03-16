@@ -177,18 +177,7 @@ class SermonsController extends UrgSermonAppController {
         $this->log("post belongsto: " . 
                 Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
 
-//        if ($id == null) {
-//            $this->Sermon->Post->bindModel(array("belongsTo" => array(
-//                    "Series" => array(
-//                        "className" => "Urg.Group",
-//                        "foreignKey" => "group_id"
-//                    )
-//                )
-//            ));
-//        }
-
         unset($this->Sermon->Post->validate["group_id"]);
-//        $this->Sermon->Post->unbindModel(array("belongsTo" => array("Group")));
 
         $this->data["Group"] = $this->data["Series"];
 
@@ -202,13 +191,8 @@ class SermonsController extends UrgSermonAppController {
         if (isset($this->Sermon->Post->Group->id)) {
             $this->data["Series"]["id"] = $this->Sermon->Post->Group->id;
             $this->log("Saving post with group id: " . $this->data["Series"]["id"], LOG_DEBUG);
-
-//            if ($id != null) {
-//                $this->data["Post"]["group_id"] = $this->data["Series"]["id"];
-//                $this->data["Sermon"]["series_id"] = $this->data["Series"]["id"];
-//                $this->Sermon->Post->saveField("group_id", $this->data["Post"]["group_id"]);
-//            }
         }
+
         $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
 
         return $status;

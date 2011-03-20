@@ -30,7 +30,8 @@ class SeriesController extends UrgSermonAppController {
         return $this->Group->find("all", 
                 array("conditions" => array("Group.name LIKE" => "%$term%", 
                                             "Group.group_id" => $series_group["Group"]["id"]
-                                      )
+                                      ),
+                      "limit" => 5
                 )
         );
     }

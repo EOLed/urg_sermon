@@ -179,16 +179,22 @@ class SermonsController extends UrgSermonAppController {
 
         unset($this->Sermon->Post->validate["group_id"]);
 
-        $this->data["Group"] = $this->data["Series"];
+        if ($id != null)
+            $this->data["Group"] = $this->data["Series"];
 
         $this->log("Saving post: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
 
         $this->log("updated post belongsto: " . 
                 Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
-        $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
-        unset($this->data["Group"]);
 
-        if (isset($this->Sermon->Post->Group->id)) {
+        if ($this->data["Post"]["publish_timestamp"] == 0) {
+            $this->data["Post"]["publish_timestamp"] = null;
+        }
+
+        $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
+
+        if ($id != null && isset($this->Sermon->Post->Group->id)) {
+            unset($this->data["Group"]);
             $this->data["Series"]["id"] = $this->Sermon->Post->Group->id;
             $this->log("Saving post with group id: " . $this->data["Series"]["id"], LOG_DEBUG);
         }
@@ -196,6 +202,13 @@ class SermonsController extends UrgSermonAppController {
         $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
 
         return $status;
+    }
+
+    function delete_attachment($id) {
+        $dom_id = $this->params["url"]["domId"];
+        $success = $this->Sermon->Post->Attachment->delete($id);
+        $this->set("data", array("success"=>$success === true, "domId"=>$dom_id));
+        $this->render("json", "ajax");
     }
 
     function populate_speaker() {
@@ -398,6 +411,7 @@ class SermonsController extends UrgSermonAppController {
 
         if (empty($this->data)) {
             $this->data = $this->Sermon->read(null, $id);
+            $this->load_speaker();
         }
 
         $this->loadModel("Attachment");
@@ -439,13 +453,24 @@ class SermonsController extends UrgSermonAppController {
             $this->Session->setFlash(__('Invalid id for sermon', true));
             $this->redirect(array('action'=>'index'));
         }
-        if ($this->Sermon->delete($id)) {
+
+        $sermonToDelete = $this->Sermon->read(null, $id);
+        $this->log("Deleting sermon: " . Debugger::exportVar($sermonToDelete, 3), LOG_DEBUG);
+        if ($this->Sermon->delete($id) && 
+                $this->Sermon->Post->deleteAll(array("Post.id" => $sermonToDelete["Post"]["id"]))) {
+            $this->rrmdir($this->remove_trailing_slash(env("DOCUMENT_ROOT")) . 
+                    $this->AUDIO . "/" . $sermonToDelete["Sermon"]["id"]);
+            $this->rrmdir($this->remove_trailing_slash(env("DOCUMENT_ROOT")) . 
+                    $this->IMAGES . "/" . $sermonToDelete["Sermon"]["id"]);
+            $this->rrmdir($this->remove_trailing_slash(env("DOCUMENT_ROOT")) . 
+                    $this->FILES . "/" . $sermonToDelete["Sermon"]["id"]);
             $this->Session->setFlash(__('Sermon deleted', true));
             $this->redirect(array('action'=>'index'));
         }
         $this->Session->setFlash(__('Sermon was not deleted', true));
         $this->redirect(array('action' => 'index'));
     }
+
 
     function autocomplete_speaker() {
         $term = Sanitize::clean($this->params["url"]["term"]);
@@ -524,6 +549,12 @@ class SermonsController extends UrgSermonAppController {
                 "webroot_folder"=>$webroot_folder
         ));
         $this->render("json", "ajax");
+    }
+
+    function load_speaker() {
+        if (isset($this->data["Pastor"]["name"])) {
+            $this->data["Sermon"]["speaker_name"] = $this->data["Pastor"]["name"];
+        }
     }
 
     function get_webroot_folder($filename) {
@@ -653,5 +684,35 @@ class SermonsController extends UrgSermonAppController {
 
         return $doc_root;
     }
+    
+	/**
+	 * Function used to delete a folder.
+	 * @param $path full-path to folder
+	 * @return bool result of deletion
+	 */
+	function rrmdir($path) {
+	    if (is_dir($path)) {
+		    if (version_compare(PHP_VERSION, '5.0.0') < 0) {
+			    $entries = array();
+			    if ($handle = opendir($path)) {
+			        while (false !== ($file = readdir($handle))) $entries[] = $file;
+			        closedir($handle);
+			    }
+            } else {
+			    $entries = scandir($path);
+			    if ($entries === false) $entries = array();
+		    }
+	
+		    foreach ($entries as $entry) {
+		        if ($entry != '.' && $entry != '..') {
+			        $this->rrmdir($path.'/'.$entry);
+		        }
+		    }
+	
+		    return rmdir($path);
+	    } else {
+		    return unlink($path);
+	    }
+	}
 }
 ?>

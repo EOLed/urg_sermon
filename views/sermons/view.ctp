@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="grid_5">
+    <div class="grid_5 right-border">
         <?php if ($sermon["Sermon"]["description"] != "") { ?>
         <div class="sermon-description">
             <h2><?php __("Description") ?></h2>
@@ -122,26 +122,26 @@
         
         <?php if (isset($sermon["Series"]) && $sermon["Series"]["name"] != "No Series") { ?>
         <div class="series">
-        <h2><?php echo $sermon["Series"]["name"] ?></h2>
-        <ol class="series-sermon-list">
-        <?php foreach ($series_sermons as $series_sermon) { ?>
-            <li class="series-sermon-list-item">
-                <a href="<?php echo $this->Html->url("/urg_sermon/sermons/view/") . 
-                        $series_sermon["Sermon"]["id"] ?>"><?php echo $series_sermon["Post"]["title"]?></a>
-                <div class="series-sermon-details">
-                    <?php echo sprintf(__("by %s on %s", true),
-                            $this->element("speaker_name", array("plugin"=>"urg_sermon", 
-                                    "sermon"=> $series_sermon)),
-                            $this->Time->format("n/j/y", $sermon['Post']['publish_timestamp'])) ?>
-                </div>
-            </li>
-        <?php } ?>
-        </ol>
+            <h2><?php echo $sermon["Series"]["name"] ?></h2>
+            <ol class="series-sermon-list">
+            <?php foreach ($series_sermons as $series_sermon) { ?>
+                <li class="series-sermon-list-item">
+                    <a href="<?php echo $this->Html->url("/urg_sermon/sermons/view/") . 
+                            $series_sermon["Sermon"]["id"] ?>"><?php echo $series_sermon["Post"]["title"]?></a>
+                    <div class="series-sermon-details">
+                        <?php echo sprintf(__("by %s on %s", true),
+                                $this->element("speaker_name", array("plugin"=>"urg_sermon", 
+                                        "sermon"=> $series_sermon)),
+                                $this->Time->format("n/j/y", $sermon['Post']['publish_timestamp'])) ?>
+                    </div>
+                </li>
+            <?php } ?>
+            </ol>
         </div>
         <?php } ?>
     </div>
 
-    <div class="grid_7 left-border">
+    <div class="grid_7">
     <?php if (isset($attachments["Documents"])) { ?>
         <div id="sermon-docs" style="display: none">
             <iframe class="shadow sermon-attachment-viewer" id="sermon-doc-viewer"></iframe>

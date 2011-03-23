@@ -423,7 +423,6 @@
         $(".delete-attachment-link").click(function() {
             $.get($(this).attr("href"), {domId: $(this).attr("id")}, function(data) {
                 data = jQuery.parseJSON(data);
-                $.debug(data);
                 if (data.success) {
                     $("#" + data.domId).parent().hide();
                 }

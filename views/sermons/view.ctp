@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="grid_5 right-border">
+    <div id="sermon-meta" class="grid_5 right-border">
         <?php if ($sermon["Sermon"]["description"] != "") { ?>
         <div class="sermon-description">
             <h2><?php __("Description") ?></h2>

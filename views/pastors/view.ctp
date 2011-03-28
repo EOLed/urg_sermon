@@ -1,11 +1,12 @@
 <div class="pastors view">
     <?php foreach ($banners as $banner) { ?>
     <div id="banner" class="grid_9 right-border">
-        <?php //echo $this->Html->image($banner, array("class"=>"shadow")); ?>
+        <?php echo $this->Html->image($banner, array("class"=>"shadow")); ?>
     </div>
     <?php } ?>
     <div id="about-panel" class="grid_3">
         <h3><?php echo strtoupper(__("About us", true)); ?></h3>
+        <?php echo $about["Post"]["content"] ?>
     </div>
 
     <div id='pastor-name' class='grid_12 page-title'>
@@ -14,7 +15,7 @@
 
     <div id="about-pastor" class="grid_4 right-border">
         <h2><?php echo __("Bio", true) ?></h2>
-        <?php echo $about["Post"]["content"]; ?>
+        <?php echo $about_pastor["Post"]["content"]; ?>
     </div>
     <div id="pastor-feed" class="grid_4 right-border">
         <h2><?php echo __("Recent activity", true); ?></h2>

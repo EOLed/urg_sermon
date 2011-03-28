@@ -59,6 +59,8 @@ class PastorsController extends UrgSermonAppController {
             $banners = $this->get_banners($about);
         }
 
+        $this->set("title_for_layout", __("Pastors", true) . " &raquo; " . $pastor["Group"]["name"]);
+
         $this->set("banners", $banners);
     }
 

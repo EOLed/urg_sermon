@@ -98,6 +98,8 @@ class SermonsController extends UrgSermonAppController {
             $banner = $key;
         }
 
+        $this->set("title_for_layout", __("Sermons", true) . " &raquo; " . $sermon["Series"]["name"] . " &raquo; " . $sermon["Post"]["title"]);
+
         $this->set("banners", array($this->get_image_path($banner, $sermon, $this->BANNER_SIZE)));
     }
 

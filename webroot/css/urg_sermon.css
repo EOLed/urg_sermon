@@ -80,13 +80,13 @@ span.sermon-passage-translation {
     font-size: 12px;;
 }
 
-ul.playlist, #sermon-title div { 
+ul.playlist, #sermon-title div, .page-title { 
     list-style-type:none; 
     margin:0px; 
     padding:0px; 
 }
 
-ul.playlist li, #sermon-title div {
+ul.playlist li, #sermon-title div, .page-title {
     /* assume all items will be sounds rather than wait for onload etc. in this example.. may differ for your uses. */
     position:relative; 
     display:block; 
@@ -127,7 +127,7 @@ ul.playlist li .controls .statusbar .position {
     border-right-color: #aa1111;
 }
 
-div.sermon-audio, #sermon-title {
+div.sermon-audio, #sermon-title, .page-title {
     margin-top: 20px;
     margin-bottom: 10px;
 }
@@ -188,7 +188,7 @@ span.footnote {
 span.footnote-ref {
 }
 
-#sermon-title, ul.playlist li a { 
+#sermon-title, ul.playlist li a, .page-title { 
     display:block; 
     text-decoration:none; 
     font-weight:normal; 
@@ -199,8 +199,30 @@ span.footnote-ref {
     z-index:2; 
 }
 
+ul#activity_feed {
+    list-style-type: none;
+}
+
+ul#activity-feed li {
+    margin-bottom: 20px;
+}
+
+ul#activity-feed li div.feed-timestamp {
+    color: #acacac;
+    padding-top: 1px;
+}
+
+img.feed-icon {
+    width: 10px;
+}
+
 ul.playlist li a {
     
+}
+
+#about-pastor {
+    font-size: 13px;
+    line-height: 120%;
 }
 
 /** NOTICES & MESSAGES */

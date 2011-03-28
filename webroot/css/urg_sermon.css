@@ -199,17 +199,21 @@ span.footnote-ref {
     z-index:2; 
 }
 
-ul#activity_feed {
+ul#activity_feed, ul#upcoming-events {
     list-style-type: none;
 }
 
-ul#activity-feed li {
+ul#activity-feed li, ul#upcoming-events li {
     margin-bottom: 20px;
 }
 
-ul#activity-feed li div.feed-timestamp {
+ul#activity-feed li div.feed-timestamp, .upcoming-info {
     color: #acacac;
     padding-top: 1px;
+}
+
+div.upcoming-timestamp {
+    color: #aa1111;
 }
 
 img.feed-icon {

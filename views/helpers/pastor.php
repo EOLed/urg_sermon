@@ -30,4 +30,17 @@ class PastorHelper extends AppHelper {
         }
         return $icon; 
     }
+
+    function upcoming_events($pastor, $sermons) {
+        $upcoming_events = "";
+        foreach ($sermons as $sermon) {
+            $sermon_info = $this->Html->div("upcoming-info",
+                    $sermon["Series"]["name"] . " - " . $sermon["Sermon"]["passages"]);
+            $time = $this->Html->div("upcoming-timestamp",
+                    $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"]));
+            $upcoming_events .= $this->Html->tag("li", $time . $sermon["Post"]["title"] . $sermon_info);
+        }
+
+        return $this->Html->tag("ul", $upcoming_events, array("id" => "upcoming-events"));
+    }
 }

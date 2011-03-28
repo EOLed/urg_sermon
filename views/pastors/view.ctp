@@ -14,7 +14,7 @@
 
     <div id="about-pastor" class="grid_4 right-border">
         <h2><?php echo __("Bio", true) ?></h2>
-        <?php echo $pastor["Group"]["description"]; ?>
+        <?php echo $about["Post"]["content"]; ?>
     </div>
     <div id="pastor-feed" class="grid_4 right-border">
         <h2><?php echo __("Recent activity", true); ?></h2>
@@ -22,6 +22,7 @@
     </div>
     <div id="pastor-upcoming" class="grid_4">
         <h2><?php echo __("Upcoming events", true); ?></h2>
+        <?php echo $this->Pastor->upcoming_events($pastor, $upcoming_events); ?>
     </div>
 </div>
 <script type="text/javascript">

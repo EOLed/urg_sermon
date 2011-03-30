@@ -124,8 +124,11 @@
         <div class="series">
             <h2><?php echo $sermon["Series"]["name"] ?></h2>
             <ol class="series-sermon-list">
-            <?php foreach ($series_sermons as $series_sermon) { ?>
-                <li class="series-sermon-list-item">
+            <?php 
+                $counter = 0;
+                foreach ($series_sermons as $series_sermon) {
+            ?>
+                <li class="series-sermon-list-item <?php echo $counter++ % 2 ? "even" : ""?>">
                     <a href="<?php echo $this->Html->url("/urg_sermon/sermons/view/") . 
                             $series_sermon["Sermon"]["id"] ?>"><?php echo $series_sermon["Post"]["title"]?></a>
                     <div class="series-sermon-details">

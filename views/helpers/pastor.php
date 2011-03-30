@@ -8,7 +8,7 @@ class PastorHelper extends AppHelper {
             $feed_icon = $this->feed_icon($feed_item);
             $time = $this->Html->div("feed-timestamp",
                     $feed_icon . 
-                    $this->Time->timeAgoInWords($feed_item["Post"]["publish_timestamp"]));
+                    $this->Time->timeAgoInWords($feed_item["Post"]["publish_timestamp"], 'j/n/y', false, true));
             $feed .= $this->Html->tag("li", 
                     sprintf(__("%s preached a sermon called %s.", true),
                             $pastor["Group"]["name"],

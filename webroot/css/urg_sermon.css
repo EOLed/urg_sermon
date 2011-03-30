@@ -60,7 +60,7 @@ div.series-sermon-details {
 }
 
 li.series-sermon-list-item {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .sermon-attachment-viewer {
@@ -141,6 +141,7 @@ div.esv a {
 }
 
 div.esv-text {
+    font-size: 13px;
     line-height: 130%;
     margin-bottom: 20px;
 }

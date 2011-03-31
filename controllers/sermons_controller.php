@@ -13,6 +13,7 @@ class SermonsController extends UrgSermonAppController {
     var $AUDIO = "/app/plugins/urg_sermon/webroot/audio";
     var $IMAGES = "/app/plugins/urg_sermon/webroot/img";
     var $FILES = "/app/plugins/urg_sermon/webroot/files";
+    var $WEBROOT = "/app/plugins/urg_sermon/webroot";
 
     var $BANNER_SIZE = 700;
     var $PANEL_BANNER_SIZE = 460;
@@ -101,6 +102,10 @@ class SermonsController extends UrgSermonAppController {
         $this->set("title_for_layout", __("Sermons", true) . " &raquo; " . $sermon["Series"]["name"] . " &raquo; " . $sermon["Post"]["title"]);
 
         $this->set("banners", array($this->get_image_path($banner, $sermon, $this->BANNER_SIZE)));
+    }
+
+    function import() {
+        
     }
 
     function get_image_path($filename, $sermon, $width, $height = 0) {
@@ -515,6 +520,12 @@ class SermonsController extends UrgSermonAppController {
         return $prepared_matches;
     }
 
+    function upload_import_file() {
+        $filename = $this->upload($this->FILES);
+        $this->set("data", array("filename"=>$filename));
+        $this->render("json", "ajax");
+    }
+
     function upload_attachments() {
         $this->log("uploading attachments...", LOG_DEBUG);
 
@@ -553,6 +564,19 @@ class SermonsController extends UrgSermonAppController {
         $this->render("json", "ajax");
     }
 
+    function get_attachment_type($filename) {
+        $attachment_type = null;
+        if ($this->is_filetype($filename,  array(".jpg", ".jpeg", ".png", ".gif", ".bmp"))) {
+            $attachment_type = $this->Attachment->AttachmentType->findByName("Images");
+        } else if ($this->is_filetype($filename, array(".mp3"))) {
+            $attachment_type = $this->Attachment->AttachmentType->findByName("Audio");
+        } else if ($this->is_filetype($filename, array(".ppt", ".pptx", ".doc", ".docx"))) {
+            $attachment_type = $this->Attachment->AttachmentType->findByName("Documents");
+        }
+
+        return $attachment_type;
+    }
+
     function load_speaker() {
         if (isset($this->data["Pastor"]["name"])) {
             $this->data["Sermon"]["speaker_name"] = $this->data["Pastor"]["name"];
@@ -576,8 +600,10 @@ class SermonsController extends UrgSermonAppController {
     function upload($root) {
         $options = array("root" => $root);
         $this->log("uploading options: " . Debugger::exportVar($options), LOG_DEBUG);
-        $this->Cuploadify->upload($options);
-        $this->log("done uploading.", LOG_DEBUG);
+        $filename = $this->Cuploadify->upload($options);
+        $this->log("done uploading $filename.", LOG_DEBUG);
+
+        return $filename;
     }
 
     function upload_images() {
@@ -692,29 +718,146 @@ class SermonsController extends UrgSermonAppController {
 	 * @param $path full-path to folder
 	 * @return bool result of deletion
 	 */
-	function rrmdir($path) {
-	    if (is_dir($path)) {
-		    if (version_compare(PHP_VERSION, '5.0.0') < 0) {
-			    $entries = array();
-			    if ($handle = opendir($path)) {
-			        while (false !== ($file = readdir($handle))) $entries[] = $file;
-			        closedir($handle);
-			    }
-            } else {
-			    $entries = scandir($path);
-			    if ($entries === false) $entries = array();
-		    }
+    function rrmdir($path) {
+        if (is_dir($path)) {
+            if (version_compare(PHP_VERSION, '5.0.0') < 0) {
+                $entries = array();
+                if ($handle = opendir($path)) {
+                    while (false !== ($file = readdir($handle))) $entries[] = $file;
+                        closedir($handle);
+                    }
+                } else {
+                    $entries = scandir($path);
+                    if ($entries === false) $entries = array();
+                }
+
+                foreach ($entries as $entry) {
+                    if ($entry != '.' && $entry != '..') {
+                        $this->rrmdir($path.'/'.$entry);
+                    }
+                }
+            return rmdir($path);
+        } else {
+            return unlink($path);
+        }
+    }
+
+    function get_value($node, $tag_name) {
+        return $node->child($tag_name)->children[0]->value; 
+    }
 	
-		    foreach ($entries as $entry) {
-		        if ($entry != '.' && $entry != '..') {
-			        $this->rrmdir($path.'/'.$entry);
-		        }
-		    }
-	
-		    return rmdir($path);
-	    } else {
-		    return unlink($path);
-	    }
-	}
+    function process_import_file($filename) {
+        $this->loadModel("Attachment");
+        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
+        $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
+
+        App::import("Xml");
+        $import_file = new Xml(file_get_contents($this->get_doc_root() . $this->FILES . "/import/$filename"));
+        $data = array();
+        foreach ($import_file->children[0]->children as $sermon) {
+            $uuid = String::uuid();
+            $data["Sermon"]["uuid"] = $uuid;
+            $data["Post"]["title"] = $this->get_value($sermon, "title");
+            $this->ajax_log(sprintf(__("Importing sermon: %s", true), $data["Post"]["title"]));
+            $data["Sermon"]["series_name"] = $this->get_value($sermon, "series");
+            $data["Sermon"]["speaker_name"] = $this->get_value($sermon, "speaker");
+            $data["Sermon"]["passages"] = $this->get_value($sermon, "passages");
+            $data["Post"]["content"] = $this->get_value($sermon, "notes");
+            $data["Post"]["publish_timestamp"] = $this->get_value($sermon, "timestamp");
+            $data["Sermon"]["description"] = $this->get_value($sermon, "description");
+            $data["Attachment"] = array();
+
+            $attachment_counter = 0;
+
+            foreach ($sermon->child("banners")->children as $banner) {
+                $temp_folder = $this->get_doc_root() . $this->IMAGES . "/$uuid";
+                if (!file_exists($temp_folder))
+                    mkdir($temp_folder);
+
+                $attachment = array();
+                $attachment["attachment_type_id"] = $banner_type["AttachmentType"]["id"];
+                $file_path = $banner->attributes["src"];
+                $this->ajax_log(sprintf(__("Copying banner from %s...", true), $file_path));
+                $filename = $this->get_filename($this->copy_file($file_path, $temp_folder));
+                $attachment["filename"] = $filename;
+                $this->ajax_log(sprintf(__("Banner %s copied", true), $filename));
+
+                $data["Attachment"][$attachment_counter++] = $attachment;
+            }
+
+            foreach ($sermon->child("attachments")->children as $current_attachment) {
+                $file_path = $current_attachment->attributes["src"];
+                $temp_folder = $this->get_doc_root() . $this->WEBROOT . "/" .
+                        $this->get_webroot_folder($file_path) . "/$uuid";
+                if (!file_exists($temp_folder))
+                    mkdir($temp_folder);
+
+                $file_path = $current_attachment->attributes["src"];
+                $attachment = array();
+                $attachment_type = $this->get_attachment_type($file_path);
+                $attachment["attachment_type_id"] = $attachment_type["AttachmentType"]["id"];
+                $this->ajax_log(sprintf(__("Copying attachment from %s...", true), $file_path));
+                $filename = $this->get_filename($this->copy_file($file_path, $temp_folder));
+                $attachment["filename"] = $filename;
+                $this->ajax_log(sprintf(__("Attachment %s copied", true), $filename));
+
+                $data["Attachment"][$attachment_counter++] = $attachment;
+            }
+
+            $this->data = &$data;
+
+            $this->ajax_log(sprintf(__("Saving sermon %s...", true), $data["Post"]["title"]));
+            $this->add();
+            $this->ajax_log(sprintf(__("Sermon %s saved.", true), $data["Post"]["title"]));
+        }
+    }
+
+    function copy_file($uri, $folder) {
+        $filename = $this->get_filename($uri); 
+        $remote_file = fopen($uri, "r");
+        $destination_file_path = "$folder/$filename";
+        $local_file = fopen($destination_file_path, "w");
+
+        stream_copy_to_stream($remote_file, $local_file);
+
+        fclose($local_file);
+        fclose($remote_file);
+
+        return $destination_file_path;
+    }
+
+    function ajax_log($message) {
+        $this->log($message, LOG_DEBUG);
+        $log = $this->get_log();
+
+        array_push($log, $message);
+        $this->write_log($log);
+    }
+
+    function get_log() {
+        return explode("|", $this->Session->read("Sermon.importLog"));
+    }
+
+    function write_log($log) {
+        $this->Session->write("Sermon.importLog", implode("|", $log));
+    }
+
+    function get_status() {
+        $log = $this->get_log();
+        $this->write_log(array());
+
+        $this->set("data", array("log" => $log));
+        $this->render("json", "ajax");
+    }
+
+    function get_filename($full_path) {
+        $filename = $full_path;
+        $index = 0;
+        if (($index = strrpos($full_path, "/")) !== false) {
+            $filename = substr($full_path, $index + 1);
+        }
+
+        return $filename;
+    }
 }
 ?>

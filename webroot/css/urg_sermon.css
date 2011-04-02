@@ -230,6 +230,15 @@ ul.playlist li a {
     line-height: 120%;
 }
 
+#import-log {
+    height: 100px;
+    overflow: hidden;
+}
+
+#import-log .hover {
+    overflow: auto;
+}
+
 /** NOTICES & MESSAGES */
 div.validated {
     clear: both;

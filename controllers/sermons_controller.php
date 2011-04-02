@@ -3,6 +3,7 @@ App::import("Sanitize");
 App::import("Component", "Cuploadify.Cuploadify");
 App::import("Component", "ImgLib.ImgLib");
 App::import("Component", "Bible.Bible");
+App::import("Component", "TempFolder");
 App::import("Helper", "Bible.Bible");
 App::import("Helper", "Sm2.SoundManager2");
 class SermonsController extends UrgSermonAppController {
@@ -26,7 +27,7 @@ class SermonsController extends UrgSermonAppController {
                            "action" => "login",
                            "admin" => false
                    )
-           ), "Urg", "Cuploadify", "ImgLib", 
+           ), "Urg", "Cuploadify", "ImgLib", "TempFolder",
            "Bible" => array("Esv"=>array("key" => "bef9e04393f0f17f"))
     );
 
@@ -290,7 +291,7 @@ class SermonsController extends UrgSermonAppController {
         }
     }
 
-    function add() {
+    function add($render = true) {
         if (!empty($this->data)) {
             $logged_user = $this->Auth->user();
 
@@ -336,19 +337,28 @@ class SermonsController extends UrgSermonAppController {
                     $sermon_ds->commit($this->Sermon);
 
                     $this->log("Sermon successfully saved.", LOG_DEBUG);
-                    $this->Session->setFlash(__('The sermon has been saved', true));
-                    $this->redirect(array('action' => 'index'));
+
+                    if ($render) {
+                        $this->Session->setFlash(__('The sermon has been saved', true));
+                        $this->redirect(array('action' => 'index'));
+                    }
                 } else {
                     $sermon_ds->rollback($this->Sermon);
                     $post_ds->rollback($this->Sermon->Post);
                     $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
-                    $this->Session->setFlash(
-                            __('The sermon could not be saved. Please, try again.', true));
+
+                    if ($render) {
+                        $this->Session->setFlash(
+                                __('The sermon could not be saved. Please, try again.', true));
+                    }
                 } 
             } else {
                 $this->Sermon->saveAll($this->data, array("validate"=>"only"));
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
-                $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+
+                if ($render) {
+                    $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+                }
             }
         } else {
             $this->data["Sermon"]["uuid"] = String::uuid();
@@ -521,7 +531,13 @@ class SermonsController extends UrgSermonAppController {
     }
 
     function upload_import_file() {
-        $filename = $this->upload($this->FILES);
+        $filename = $this->get_filename($this->upload(
+                array(
+                    "root"=>$this->TempFolder->mkdir(), 
+                    "filename_prefix"=>time() . "-",
+                    "doc_root_relative" => false
+                )
+        ));
         $this->set("data", array("filename"=>$filename));
         $this->render("json", "ajax");
     }
@@ -554,7 +570,7 @@ class SermonsController extends UrgSermonAppController {
         $webroot_folder = $this->get_webroot_folder($this->Cuploadify->get_filename());
         $this->log("attachment type detected as: " . Debugger::exportVar($attachment_type, 3), 
                 LOG_DEBUG);
-        $this->upload($root);
+        $this->upload(array("root" => $root));
 
         //TODO cache id
         $this->set("data", array(
@@ -597,8 +613,7 @@ class SermonsController extends UrgSermonAppController {
         return $webroot_folder;
     }
 
-    function upload($root) {
-        $options = array("root" => $root);
+    function upload($options) {
         $this->log("uploading options: " . Debugger::exportVar($options), LOG_DEBUG);
         $filename = $this->Cuploadify->upload($options);
         $this->log("done uploading $filename.", LOG_DEBUG);
@@ -608,14 +623,28 @@ class SermonsController extends UrgSermonAppController {
 
     function upload_images() {
         $this->log("uploading images...", LOG_DEBUG);
-        $this->upload($this->IMAGES);
+        $this->upload(array("root"=>$this->IMAGES));
     }
 
     function upload_image() {
-        $this->upload($this->IMAGES);
         $options = array("root" => $this->IMAGES);
+        $this->upload($options);
         $target_folder = $this->Cuploadify->get_target_folder($options);
         $filename = $target_folder . $this->Cuploadify->get_filename();
+    }
+
+    function test() {
+        $this->autoRender = false;
+        $i = 0;
+        while ($i < 100) {
+            $i = $i + rand(0, 25); 
+            $this->ajax_log("loading" . $this->params["url"]["filename"], $i);
+            $this->ajax_log("additional information");
+            $this->ajax_log("more additional info");
+            sleep(1);
+        }
+
+        $this->log("done!", LOG_DEBUG);
     }
 
     /**
@@ -745,20 +774,34 @@ class SermonsController extends UrgSermonAppController {
     function get_value($node, $tag_name) {
         return $node->child($tag_name)->children[0]->value; 
     }
-	
-    function process_import_file($filename) {
+    
+    function get_percentage($stage, $total_stages) {
+        return $stage / $total_stages * 100;
+    }
+
+    function process_import_file($filename = null) {
+        if ($filename == null) {
+            $filename = $this->params["url"]["filename"];
+        }
+
         $this->loadModel("Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
 
         App::import("Xml");
-        $import_file = new Xml(file_get_contents($this->get_doc_root() . $this->FILES . "/import/$filename"));
-        $data = array();
+        $import_file = new Xml(file_get_contents($this->TempFolder->mkdir() . "/import/$filename"));
+
+        $stages = $this->get_num_stages($import_file);
+        $this->log("number of stages in $filename: $stages", LOG_DEBUG);
+        $current_stage = 0;
+
         foreach ($import_file->children[0]->children as $sermon) {
+            $data = array();
             $uuid = String::uuid();
             $data["Sermon"]["uuid"] = $uuid;
             $data["Post"]["title"] = $this->get_value($sermon, "title");
-            $this->ajax_log(sprintf(__("Importing sermon: %s", true), $data["Post"]["title"]));
+            $this->ajax_log(sprintf(__("Importing sermon: %s", true), $data["Post"]["title"]), 
+                    $this->get_percentage(++$current_stage, $stages));
             $data["Sermon"]["series_name"] = $this->get_value($sermon, "series");
             $data["Sermon"]["speaker_name"] = $this->get_value($sermon, "speaker");
             $data["Sermon"]["passages"] = $this->get_value($sermon, "passages");
@@ -780,7 +823,8 @@ class SermonsController extends UrgSermonAppController {
                 $this->ajax_log(sprintf(__("Copying banner from %s...", true), $file_path));
                 $filename = $this->get_filename($this->copy_file($file_path, $temp_folder));
                 $attachment["filename"] = $filename;
-                $this->ajax_log(sprintf(__("Banner %s copied", true), $filename));
+                $this->ajax_log(sprintf(__("Banner %s copied", true), $filename),
+                        $this->get_percentage(++$current_stage, $stages));
 
                 $data["Attachment"][$attachment_counter++] = $attachment;
             }
@@ -799,17 +843,31 @@ class SermonsController extends UrgSermonAppController {
                 $this->ajax_log(sprintf(__("Copying attachment from %s...", true), $file_path));
                 $filename = $this->get_filename($this->copy_file($file_path, $temp_folder));
                 $attachment["filename"] = $filename;
-                $this->ajax_log(sprintf(__("Attachment %s copied", true), $filename));
+                $this->ajax_log(sprintf(__("Attachment %s copied", true), $filename),
+                        $this->get_percentage(++$current_stage, $stages));
 
                 $data["Attachment"][$attachment_counter++] = $attachment;
             }
 
             $this->data = &$data;
 
+            $this->autoRender = false;
             $this->ajax_log(sprintf(__("Saving sermon %s...", true), $data["Post"]["title"]));
-            $this->add();
-            $this->ajax_log(sprintf(__("Sermon %s saved.", true), $data["Post"]["title"]));
+            $this->add(false);
+            $this->ajax_log(sprintf(__("Sermon %s saved.", true), $data["Post"]["title"]),
+                        $this->get_percentage(++$current_stage, $stages));
         }
+    }
+
+    function get_num_stages($import_file) {
+        $stages = 0;
+        foreach ($import_file->children[0]->children as $sermon) {
+            $stages += sizeof($sermon->child("banners")->children);
+            $stages += sizeof($sermon->child("attachments")->children);
+            $stages++;
+        }
+
+        return $stages;
     }
 
     function copy_file($uri, $folder) {
@@ -826,27 +884,33 @@ class SermonsController extends UrgSermonAppController {
         return $destination_file_path;
     }
 
-    function ajax_log($message) {
-        $this->log($message, LOG_DEBUG);
+    function ajax_log($message, $pct = false) {
+        $this->log("[" . $this->Session->id() . "] " . $message, LOG_DEBUG);
         $log = $this->get_log();
+
+        if ($pct !== false) {
+            $log[0] = $pct;
+        }
 
         array_push($log, $message);
         $this->write_log($log);
     }
 
     function get_log() {
-        return explode("|", $this->Session->read("Sermon.importLog"));
+        return explode("|", file_get_contents($this->TempFolder->mkdir() . "/sermon.import.log"));
     }
 
     function write_log($log) {
-        $this->Session->write("Sermon.importLog", implode("|", $log));
+        $log_handle = fopen($this->TempFolder->mkdir() . "/sermon.import.log", "w");
+        fwrite($log_handle, implode("|", $log));
+        fclose($log_handle);
     }
 
     function get_status() {
         $log = $this->get_log();
-        $this->write_log(array());
+        $this->write_log(array($log[0]));
 
-        $this->set("data", array("log" => $log));
+        $this->set("data", array("pct" => array_shift($log), "log" => $log));
         $this->render("json", "ajax");
     }
 

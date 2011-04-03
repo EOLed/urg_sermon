@@ -235,7 +235,7 @@ ul.playlist li a {
     overflow: hidden;
 }
 
-#import-log .hover {
+#import-log.hover {
     overflow: auto;
 }
 

@@ -42,6 +42,10 @@
         keep_loading = false;
     }
 
+    function on_open(event,ID,fileObj) {
+        keep_loading = true;
+    }
+
     function upload_in_progress(event, ID, fileObj, data) {
     }
 
@@ -66,7 +70,7 @@
                             "folder" => "/import",
                             "script" => $this->Html->url("/urg_sermon/sermons/upload_import_file"),
                             "buttonText" => strtoupper(__("Import", true)), 
-                            "multi" => true,
+                            "multi" => false,
                             //"queueID" => "upload_queue",
                             "removeCompleted" => true,
                             "fileExt" => "*.xml;*.asc",
@@ -74,14 +78,15 @@
                             "fileDesc" => "Churchie Files",
                             "onComplete" => "on_complete",
                             "onProgress" => "upload_in_progress",
-                            "onAllComplete" => "uploads_completed"
+                            "onAllComplete" => "uploads_completed",
+                            "onOpen" => "on_open"
                             )))); 
     echo $this->Html->div("", $this->Html->tag("ul", "", array("id"=>"attachment-queue")));
     ?>
         <div id="import-progress" style="display: none">
             <div id="import-progress-bar"></div>
             <div id="import-log">
-                <ul id="import-log-list"> </ul>
+                <ul id="import-log-list"></ul>
             </div>
         </div>
     </div>

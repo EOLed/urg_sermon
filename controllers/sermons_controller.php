@@ -857,6 +857,9 @@ class SermonsController extends UrgSermonAppController {
             $this->ajax_log(sprintf(__("Sermon %s saved.", true), $data["Post"]["title"]),
                         $this->get_percentage(++$current_stage, $stages));
         }
+
+        $this->ajax_log(__("Sermon import completed.", true), 
+                $this->get_percentage(++$current_stage, $stages));
     }
 
     function get_num_stages($import_file) {
@@ -867,7 +870,7 @@ class SermonsController extends UrgSermonAppController {
             $stages++;
         }
 
-        return $stages;
+        return ++$stages;
     }
 
     function copy_file($uri, $folder) {

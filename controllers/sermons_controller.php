@@ -789,7 +789,15 @@ class SermonsController extends UrgSermonAppController {
         $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
 
         App::import("Xml");
-        $import_file = new Xml(file_get_contents($this->TempFolder->mkdir() . "/import/$filename"));
+
+        $temp_import_dir = $this->TempFolder->mkdir() . "/import";
+        if (!file_exists($temp_import_dir)) {
+            mkdir($temp_import_dir, 0777, true); 
+        }
+
+        $full_path = "$temp_import_dir/$filename";
+        $this->log("Processing import file: '$full_path'", LOG_DEBUG);
+        $import_file = new Xml(file_get_contents($full_path));
 
         $stages = $this->get_num_stages($import_file);
         $this->log("number of stages in $filename: $stages", LOG_DEBUG);

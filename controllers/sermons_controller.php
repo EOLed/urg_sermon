@@ -137,7 +137,7 @@ class SermonsController extends UrgSermonAppController {
             $existing_series = $this->Sermon->Series->find("first", 
                     array("conditions" => 
                             array(
-                                    "Series.group_id" => $series_group["Series"]["id"], 
+                                    "Series.parent_id" => $series_group["Series"]["id"], 
                                     "Series.name" => $series_name
                             )
                     )
@@ -145,7 +145,7 @@ class SermonsController extends UrgSermonAppController {
 
             if ($existing_series === false) {
                 $this->Sermon->Series->create();
-                $this->data["Series"]["group_id"] = $series_group["Series"]["id"];
+                $this->data["Series"]["parent_id"] = $series_group["Series"]["id"];
                 $this->data["Series"]["name"] = $this->data["Sermon"]["series_name"];
                 $this->log("New Series for: " . $series_name, LOG_DEBUG);
             } else {
@@ -226,7 +226,7 @@ class SermonsController extends UrgSermonAppController {
             $existing_pastor = $this->Sermon->Pastor->find("first", 
                     array("conditions" => 
                             array(
-                                    "Pastor.group_id" => $pastors_group["Pastor"]["id"], 
+                                    "Pastor.parent_id" => $pastors_group["Pastor"]["id"], 
                                     "Pastor.name" => $speaker_name
                             )
                     )
@@ -503,7 +503,7 @@ class SermonsController extends UrgSermonAppController {
         foreach ($pastors as $pastor) {
             array_push($prepared_matches,
                     array("label"=> $pastor["Group"]["name"], "belongsToChurch"=>true,
-                            "value"=>$pastor["Group"]["name"], "group_id"=>$pastor["Group"]["id"]));
+                            "value"=>$pastor["Group"]["name"], "parent_id"=>$pastor["Group"]["id"]));
         }
 
         $matches = $this->Sermon->query("SELECT DISTINCT speaker_name speaker_name " .
@@ -524,7 +524,7 @@ class SermonsController extends UrgSermonAppController {
         foreach ($pastors as $pastor) {
             array_push($prepared_matches,
                     array("label"=> $pastor["Group"]["name"], "belongsToChurch"=>true,
-                            "value"=>$pastor["Group"]["name"], "group_id"=>$pastor["Group"]["id"]));
+                            "value"=>$pastor["Group"]["name"], "parent_id"=>$pastor["Group"]["id"]));
         }
         
         return $prepared_matches;

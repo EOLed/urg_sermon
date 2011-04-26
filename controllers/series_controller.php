@@ -20,7 +20,7 @@ class SeriesController extends UrgSermonAppController {
     function suggest() {
         $series_group = $this->Group->findByName("Series");
         $no_series = $this->Group->findByName("No Series");
-        $suggestions = $this->Group->find("all", array("conditions" => array("Group.id !=" => $no_series["Group"]["id"], "Group.group_id" => $series_group["Group"]["id"]), "order" => array("Group.modified DESC"), "limit" => 3));
+        $suggestions = $this->Group->find("all", array("conditions" => array("Group.id !=" => $no_series["Group"]["id"], "Group.parent_id" => $series_group["Group"]["id"]), "order" => array("Group.modified DESC"), "limit" => 3));
         array_push($suggestions, $no_series);
         return $suggestions;
     }
@@ -29,7 +29,7 @@ class SeriesController extends UrgSermonAppController {
         $series_group = $this->Group->findByName("Series");
         return $this->Group->find("all", 
                 array("conditions" => array("Group.name LIKE" => "%$term%", 
-                                            "Group.group_id" => $series_group["Group"]["id"]
+                                            "Group.parent_id" => $series_group["Group"]["id"]
                                       ),
                       "limit" => 5
                 )
@@ -38,13 +38,13 @@ class SeriesController extends UrgSermonAppController {
 
     function create($series_name) {
         $series_group = $this->Group->findByName("Series");
-        $existing_group = $this->Group->find("first", array("conditions" => array("group_id" => $series_group["Group"]["id"], "name" => $series_name)));
+        $existing_group = $this->Group->find("first", array("conditions" => array("parent_id" => $series_group["Group"]["id"], "name" => $series_name)));
         $series_id = null;
 
         if ($existing_group === false) {
             $this->Group->create();
             $series = array();
-            $series["group_id"] = $series_group["Group"]["id"];
+            $series["parent_id"] = $series_group["Group"]["id"];
             $series["name"] = $series_name;
 
             $group = array("Group" => $series);

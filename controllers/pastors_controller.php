@@ -1,6 +1,7 @@
 <?php
 App::import("Sanitize");
 App::import("Component", "ImgLib.ImgLib");
+App::import("Controller", "Urg.Group");
 App::import("Helper", "UrgSermon.Pastor");
 class PastorsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
@@ -27,7 +28,7 @@ class PastorsController extends UrgSermonAppController {
         $pastors_group = $this->Group->findByName("Pastors");
 
         $conditions = array();
-        $conditions["Group.group_id"] = $pastors_group["Group"]["id"];
+        $conditions["Group.parent_id"] = $pastors_group["Group"]["id"];
 
         if (strlen($term) >= 2) {
             $conditions["Group.name LIKE"] = "%$term%";
@@ -95,7 +96,7 @@ class PastorsController extends UrgSermonAppController {
                 array("conditions" => 
                         array("OR" => array(
                                 "Group.name" => "About", 
-                                "Group.group_id" => $about_group["Group"]["id"]),
+                                "Group.parent_id" => $about_group["Group"]["id"]),
                               "AND" => array("Post.title" => $name)
                         ),
                       "order" => "Post.id DESC"
@@ -129,13 +130,41 @@ class PastorsController extends UrgSermonAppController {
                       "limit" => 10,
                       "order" => "Post.publish_timestamp DESC"));
         $activity = array();
+
+        $unsorted_activity = array();
         foreach ($sermons as $sermon) {
-            array_push($activity, $sermon);
+            $unsorted_activity[$sermon["Post"]["publish_timestamp"]] = $sermon;
         }
+
+        $article_group = $this->get_article_group($pastor);
+        $this->log("article group for pastor: " . Debugger::exportVar($article_group, 3), LOG_DEBUG);
+        $this->loadModel("Post");
+        $this->Post->bindModel(array("belongsTo" => array("Group")));
+        $this->Post->bindModel(array("hasMany" => array("Attachment")));
         
+        $articles = $this->Post->find("all",
+                array("conditions" => array("Post.group_id" => $article_group["Group"]["id"],
+                                            "Post.publish_timestamp < NOW()"),
+                      "limit" => 10,
+                      "order" => "Post.publish_timestamp DESC"));
+
+        foreach ($articles as $article) {
+            $unsorted_activity[$article["Post"]["publish_timestamp"]] = $article;
+        }
+
+        krsort($unsorted_activity);
+
+        $activity = array_values($unsorted_activity);
+
         $this->log("pastor activity: " . Debugger::exportVar($activity, 3), LOG_DEBUG);
 
         return $activity;
+    }
+
+    function get_article_group($pastor) {
+        return $this->Group->find("first", array("conditions" => 
+                array("Group.name" => "Articles",
+                      "Group.parent_id" => $pastor["Group"]["id"])));
     }
 
     function get_upcoming_sermons($pastor) {

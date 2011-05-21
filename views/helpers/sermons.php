@@ -4,6 +4,7 @@ class SermonsHelper extends AppHelper {
     var $widget_options = array("upcoming_sermons", "past_sermons");
 
     function build($options = array()) {
+        $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
         $title = $this->Html->tag("h2", __("Sermon Schedule", true));
         return $this->Html->div("upcoming-events", $title . 
                 $this->upcoming_sermons($options["upcoming_sermons"]) .

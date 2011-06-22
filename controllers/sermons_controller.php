@@ -6,6 +6,8 @@ App::import("Component", "Bible.Bible");
 App::import("Component", "TempFolder");
 App::import("Helper", "Bible.Bible");
 App::import("Helper", "Sm2.SoundManager2");
+
+App::import("Component", "Urg.WidgetUtil");
 class SermonsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";

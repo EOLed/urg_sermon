@@ -27,17 +27,20 @@ class PastorFeedHelper extends AppHelper {
     function get_feed_message($pastor, $feed_item) {
         $feed_message = "";
 
+        $post_url = array("plugin" => "urg_post",
+                          "controller" => "posts",
+                          "action" => "view",
+                          $feed_item["Post"]["id"],
+                          $feed_item["Post"]["slug"]);
+
         if (isset($feed_item["Sermon"])) {
             $feed_message = sprintf(__("%s preached a sermon called %s.", true),
                     $pastor["Group"]["name"],
-                    $this->Html->link($feed_item["Post"]["title"], 
-                            "/urg_sermon/sermons/view/" . $feed_item["Sermon"]["id"]));
+                    $this->Html->link($feed_item["Post"]["title"], $post_url));
         } else {
             $feed_message = sprintf(__("%s wrote an article called %s.", true),
                     $pastor["Group"]["name"],
-                    $this->Html->link($feed_item["Post"]["title"], 
-                            "/urg_post/posts/view/" . $feed_item["Post"]["id"] . "/" .
-                            $feed_item["Post"]["slug"]));
+                    $this->Html->link($feed_item["Post"]["title"], $post_url));
         }
 
         return $feed_message;

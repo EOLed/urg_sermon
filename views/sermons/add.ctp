@@ -38,7 +38,7 @@
 
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
-                "<?php echo $this->Html->url("/urg_sermon/img/" . $this->data["Sermon"]["uuid"]); ?>" 
+                "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Sermon"]["uuid"]); ?>" 
                 + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 

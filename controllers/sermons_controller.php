@@ -14,7 +14,7 @@ class SermonsController extends UrgSermonAppController {
     var $FILES_WEBROOT = "files";
 
     var $AUDIO = "/app/plugins/urg_sermon/webroot/audio";
-    var $IMAGES = "/app/plugins/urg_sermon/webroot/img";
+    var $IMAGES = "/app/plugins/urg_post/webroot/img";
     var $FILES = "/app/plugins/urg_sermon/webroot/files";
     var $WEBROOT = "/app/plugins/urg_sermon/webroot";
 
@@ -112,9 +112,9 @@ class SermonsController extends UrgSermonAppController {
     }
 
     function get_image_path($filename, $sermon, $width, $height = 0) {
-        $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon["Sermon"]["id"];
+        $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon["Post"]["id"];
         $image = $this->ImgLib->get_image("$full_image_path/$filename", $width, $height, 'landscape'); 
-        return "/urg_sermon/img/" . $sermon["Sermon"]["id"] . "/" . $image["filename"];
+        return "/urg_post/img/" . $sermon["Post"]["id"] . "/" . $image["filename"];
     }
 
     function passages($passage) {
@@ -256,7 +256,7 @@ class SermonsController extends UrgSermonAppController {
             $temp_webroot = "$webroot_dir/$temp_dir";
 
             if (file_exists($doc_root . $temp_webroot)) {
-                $perm_dir = $webroot_dir . "/" . $this->Sermon->id;
+                $perm_dir = $webroot_dir . "/" . $this->data["Post"]["id"];
                 $this->rename_dir($doc_root . $temp_webroot, $doc_root . $perm_dir);
                 $this->log("moved attachments to permanent folder: $doc_root$perm_dir", LOG_DEBUG);
             } else {

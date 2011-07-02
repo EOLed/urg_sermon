@@ -26,7 +26,7 @@ class SermonMetaHelper extends AppHelper {
 
         $resources = $this->Html->div("omega grid_3 top-border bottom-border left-border " .
                 "sermon-details", $this->item(__("Resources", true), 
-                $this->resource_list($attachments)),
+                $this->resource_list($sermon, $attachments)),
                 array("id" => "sermon-resources", "style" => "border-right-width: 0px"));
         
         return $this->Html->div("grid_12", 
@@ -50,7 +50,7 @@ EOT;
         return $this->Html->scriptBlock($js);
     }
 
-    function resource_list($attachments) {
+    function resource_list($sermon, $attachments) {
         $list = "";
 
         if (isset($attachments["Documents"])) {

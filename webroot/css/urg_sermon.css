@@ -68,7 +68,7 @@ li.series-sermon-list-item {
 }
 
 .sermon-description, .sermon-passage, .series {
-    padding-bottom: 20px;
+    /**padding-bottom: 20px;*/
 }
 
 #sermon-passage-text {

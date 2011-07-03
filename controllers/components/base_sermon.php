@@ -64,6 +64,20 @@ class BaseSermonComponent extends Object {
                                 Debugger::exportVar($attachments, 3));
     }
 
+    function set_sermon_series($sermon) {
+        $this->bindModels();
+
+        $series = $this->controller->Sermon->find("all",
+                array(  "conditions" => array("Sermon.series_id" => $sermon["Series"]["id"]),
+                        "order" => array("Post.publish_timestamp")
+                )
+        );
+
+        CakeLog::write(LOG_DEBUG, "Related sermons: " . Debugger::exportVar($series, 3));
+
+        $this->controller->set("series_sermons_" . $this->widget_id, $series);
+    }
+
     function bind_attachments() {
         $this->controller->loadModel("Attachment");
     }

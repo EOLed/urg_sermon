@@ -62,11 +62,6 @@ li.series-sermon-list-item {
     margin-bottom: 10px;
 }
 
-.sermon-attachment-viewer {
-    width: 100%;
-    height: 400px;
-}
-
 .sermon-description, .sermon-passage, .series {
     /**padding-bottom: 20px;*/
 }

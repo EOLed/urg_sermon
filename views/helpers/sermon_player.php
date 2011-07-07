@@ -17,8 +17,8 @@ class SermonPlayerHelper extends AppHelper {
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
                 array_push($playlist, array(
                         "title" => $sermon["Post"]["title"],
-                        "link" => "/urg_sermon/audio/" . $sermon["Sermon"]["id"] . "/" . $filename,
-                        "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"] . "-player"
+                        "link" => "/urg_sermon/audio/" . $sermon["Post"]["id"] . "/" . $filename,
+                        "id" => "sermon-audio-link-" . $sermon["Post"]["id"] . "-player"
                 ));
             }
             $player .=  $this->SoundManager2->build_page_player($playlist);

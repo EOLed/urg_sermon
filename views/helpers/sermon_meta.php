@@ -80,7 +80,7 @@ EOT;
                             strtolower(substr($filename, strrpos($filename, ".") + 1, 
                             strlen($filename))) . ".png", $image_options), $url,
                             array("escape" => false, "class" => "exclude sermon-audio",
-                            "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"])));
+                            "id" => "sermon-audio-link-" . $sermon["Post"]["id"])));
             }
         }
 

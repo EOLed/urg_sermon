@@ -1,8 +1,8 @@
 <?php
 App::import("Component", "UrgSermon.BaseSermonComponent");
 class SermonPlayerComponent extends BaseSermonComponent {
-    function build($widget_id) {
-        parent::build($widget_id);
+    function build_widget() {
+        parent::build_widget();
         $this->set_attachments($this->sermon);
     }
 

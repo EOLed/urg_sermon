@@ -1,22 +1,12 @@
 <?php
-class BaseSermonComponent extends Object {
-    var $controller = null;
-    var $settings = null;
+class BaseSermonComponent extends AbstractWidgetComponent {
     var $sermon = null;
-    var $widget_id = null;
 
-    function initialize(&$controller, $settings = array()) {
-        $this->controller =& $controller;
-        $this->settings = $settings;
-    }
-
-    function build($widget_id) {
-        $this->widget_id = $widget_id;
-        $settings = $this->settings[$widget_id];
+    function build_widget() {
         $this->bindModels();
 
-        $this->sermon = $this->controller->Sermon->findByPostId($settings["post_id"]);
-        $this->controller->set("sermon_$widget_id", $this->sermon);
+        $this->sermon = $this->controller->Sermon->findByPostId($this->widget_settings["post_id"]);
+        $this->set("sermon", $this->sermon);
 
         CakeLog::write("debug", "sermon for sermon widget: " . Debugger::exportVar($this->sermon, 3));
     }

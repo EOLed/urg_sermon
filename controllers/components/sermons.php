@@ -1,21 +1,14 @@
 <?php
-class SermonsComponent extends Object {
-    var $controller = null;
-    var $settings = null;
-
-    function initialize(&$controller, $settings = array()) {
-        $this->controller =& $controller;
-        $this->settings = $settings;
-    }
-
-    function build($widget_id) {
-        $settings = $this->settings[$widget_id];
+App::import("Lib", "Urg.AbstractWidgetComponent");
+class SermonsComponent extends AbstractWidgetComponent {
+    function build_widget() {
+        $settings = $this->widget_settings;
         $upcoming = $this->get_upcoming_sermons(
                 isset($settings["pastor_id"]) ? $settings["pastor_id"] : null);
         $past = $this->get_past_sermons(
                 isset($settings["pastor_id"]) ? $settings["pastor_id"] : null);
-        $this->controller->set("upcoming_sermons_$widget_id", $upcoming);
-        $this->controller->set("past_sermons_$widget_id", $past);
+        $this->set("upcoming_sermons", $upcoming);
+        $this->set("past_sermons", $past);
     }
 
     function bindModels() {

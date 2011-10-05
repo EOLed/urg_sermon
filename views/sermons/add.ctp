@@ -38,7 +38,7 @@
 
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
-                "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Sermon"]["uuid"]); ?>" 
+                "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Sermon"]["id"]); ?>" 
                 + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
@@ -63,7 +63,7 @@
 
         $("<a>").attr({
                 href: "<?php echo $this->Html->url("/urg_sermon/") ?>" + response.webroot_folder + 
-                        "/<?php echo $this->data["Sermon"]["uuid"] ?>/" + fileObj.name,
+                        "/<?php echo $this->data["Sermon"]["id"] ?>/" + fileObj.name,
                 id: "AttachmentQueueAudioLink" + attachmentCounter ,
                 target: "_blank"
         }).appendTo("#AttachmentQueueListItem" + attachmentCounter);
@@ -86,7 +86,7 @@
         <fieldset>
             <legend> <div> <h2><?php __('Add Sermon'); ?></h2> </div> </legend>
             <?php
-            echo $this->Form->hidden("uuid");
+            echo $this->Form->hidden("id");
             echo $this->Form->hidden("bannerAttachmentIndex");
             echo $this->Form->input("series_name", array("label"=>__("Series", true)));
             echo $this->Html->div("error-message", "", 
@@ -125,7 +125,7 @@
                             "session_id" => $this->Session->id(),
                             "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
                             "options" => array("auto" => true, 
-                                    "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                    "folder" => "/" . $this->data["Sermon"]["id"],
                                     "script" => $this->Html->url("/urg_sermon/sermons/upload_image"),
                                     "buttonText" => strtoupper(__("Add Banner", true)), 
                                     //"multi" => true,
@@ -143,7 +143,7 @@
                             "dom_id" => "attachment_upload", 
                             "session_id" => $this->Session->id(),
                             "options" => array("auto" => true, 
-                                    "folder" => "/" . $this->data["Sermon"]["uuid"],
+                                    "folder" => "/" . $this->data["Sermon"]["id"],
                                     "script" => $this->Html->url("/urg_sermon/sermons/upload_attachments"),
                                     "buttonText" => strtoupper(__("Attachments", true)), 
                                     "removeCompleted" => true,

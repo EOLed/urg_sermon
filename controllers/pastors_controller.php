@@ -25,13 +25,13 @@ class PastorsController extends UrgSermonAppController {
 
     function search($term = "") {
         $term = Sanitize::clean($term);
-        $pastors_group = $this->Group->findByName("Pastors");
+        $pastors_group = $this->Group->find("first", array("conditions" => array("I18n__name.content" => "Pastors")));
 
         $conditions = array();
         $conditions["Group.parent_id"] = $pastors_group["Group"]["id"];
 
         if (strlen($term) >= 2) {
-            $conditions["Group.name LIKE"] = "%$term%";
+            $conditions["I18n__name.content LIKE"] = "%$term%";
         }
 
         return $this->Group->find("all", array("conditions" => $conditions));
@@ -47,42 +47,11 @@ class PastorsController extends UrgSermonAppController {
 
         $this->log("Viewing pastor: " . Debugger::exportVar($pastor, 3), 
                 LOG_DEBUG);
-        $about_pastor = $this->get_about($pastor["Group"]["name"]);
-        $about = $this->get_about("Montreal Chinese Alliance Church");
         $this->set('pastor', $pastor);
-        $this->set("about_pastor", $about_pastor);
         $this->set("activity", $this->get_recent_activity($pastor));
         $this->set("upcoming_events", $this->get_upcoming_sermons($pastor));
-        $this->set("about", $about);
-
-        $banners = $this->get_banners($about_pastor);
-        if (empty($banners)) {
-            $banners = $this->get_banners($about);
-        }
 
         $this->set("title_for_layout", __("Pastors", true) . " &raquo; " . $pastor["Group"]["name"]);
-
-        $this->set("banners", $banners);
-    }
-
-    function get_banners($about) {
-        $this->loadModel("Attachment");
-        $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
-
-        $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
-
-        $banners = array();
-
-        if (isset($about["Attachment"])) {
-            foreach ($about["Attachment"] as $attachment) {
-                if ($attachment["attachment_type_id"] == $banner_type["AttachmentType"]["id"])
-                    array_push($banners, $this->get_image_path($attachment["filename"],
-                                                               $about,
-                                                               $this->BANNER_SIZE));
-            }
-        }
-
-        return $banners;
     }
 
     function get_about($name) {
@@ -95,9 +64,9 @@ class PastorsController extends UrgSermonAppController {
         $about = $this->Post->find("first", 
                 array("conditions" => 
                         array("OR" => array(
-                                "Group.name" => "About", 
+                                "I18n__title.content" => "About", 
                                 "Group.parent_id" => $about_group["Group"]["id"]),
-                              "AND" => array("Post.title" => $name)
+                              "AND" => array("I18n_title.content" => $name)
                         ),
                       "order" => "Post.id DESC"
                 )

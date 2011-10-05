@@ -1,6 +1,7 @@
 <?php
 class Sermon extends UrgSermonAppModel {
     var $name = 'Sermon';
+    var $actsAs = array("Translate"=>array("speaker_name"=>"i18nSpeakerName", "description"=>"i18nDescription"));
     var $validate = array(
 		'series_name' => array(
 			'notempty' => array(

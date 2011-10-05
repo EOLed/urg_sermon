@@ -6,9 +6,10 @@ App::import("Component", "Bible.Bible");
 App::import("Component", "TempFolder");
 App::import("Helper", "Bible.Bible");
 App::import("Helper", "Sm2.SoundManager2");
+App::import("Lib", "Urg.TranslatableController");
 
 App::import("Component", "Urg.WidgetUtil");
-class SermonsController extends UrgSermonAppController {
+class SermonsController extends TranslatableController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
     var $FILES_WEBROOT = "files";
@@ -135,12 +136,12 @@ class SermonsController extends UrgSermonAppController {
     function populate_series() {
         if ($this->data["Sermon"]["series_name"] != "") {
             $series_name = $this->data["Sermon"]["series_name"];
-            $series_group = $this->Sermon->Series->findByName("Series");
+            $series_group = $this->Sermon->Series->find("first", array("conditions"=>array("I18n__name.content"=>"Series")));
             $existing_series = $this->Sermon->Series->find("first", 
                     array("conditions" => 
                             array(
                                     "Series.parent_id" => $series_group["Series"]["id"], 
-                                    "Series.name" => $series_name
+                                    "I18n__name.content" => $series_name
                             )
                     )
             );
@@ -176,8 +177,6 @@ class SermonsController extends UrgSermonAppController {
     }
 
     function save_post($id = null) {
-        $this->Sermon->Post->id = $id;
-
         $logged_user = $this->Auth->user();
         $this->data["User"] = $logged_user["User"];
 
@@ -189,8 +188,12 @@ class SermonsController extends UrgSermonAppController {
 
         unset($this->Sermon->Post->validate["group_id"]);
 
-        if ($id != null)
+        if ($id != null) {
             $this->data["Group"] = $this->data["Series"];
+        } else {
+            $this->loadModel("Urg.SequenceId");
+            $this->data["Post"]["id"] = $this->SequenceId->next($this->Sermon->Post->useTable);
+        }
 
         $this->log("Saving post: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
 
@@ -200,6 +203,14 @@ class SermonsController extends UrgSermonAppController {
         if ($this->data["Post"]["publish_timestamp"] == 0) {
             $this->data["Post"]["publish_timestamp"] = null;
         }
+
+        $this->Sermon->Post->bindModel(array("belongsTo" => array(
+                "Series" => array(
+                    "className" => "Urg.Group",
+                    "foreignKey" => "group_id"
+                )
+            )
+        ));
 
         $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
 
@@ -224,12 +235,13 @@ class SermonsController extends UrgSermonAppController {
     function populate_speaker() {
         if ($this->data["Sermon"]["speaker_name"] != "") {
             $speaker_name = $this->data["Sermon"]["speaker_name"];
-            $pastors_group = $this->Sermon->Pastor->findByName("Pastors");
+            $pastors_group = $this->Sermon->Series->find("first", array("conditions"=>array("I18n__name.content"=>"Pastors")));
+            CakeLog::write(LOG_DEBUG, "pastors group for populate: " . Debugger::exportVar($pastors_group, 3));
             $existing_pastor = $this->Sermon->Pastor->find("first", 
                     array("conditions" => 
                             array(
-                                    "Pastor.parent_id" => $pastors_group["Pastor"]["id"], 
-                                    "Pastor.name" => $speaker_name
+                                    "Pastor.parent_id" => $pastors_group["Series"]["id"], 
+                                    "I18n__name.content" => $speaker_name
                             )
                     )
             );
@@ -326,7 +338,7 @@ class SermonsController extends UrgSermonAppController {
 
                 $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
                 if ($this->Sermon->saveAll($this->data, array("atomic"=>false))) {
-                    $temp_dir = $this->data["Sermon"]["uuid"];
+                    $temp_dir = $this->data["Sermon"]["id"];
 
                     $this->consolidate_attachments(
                             array($this->AUDIO, $this->FILES, $this->IMAGES), 
@@ -363,7 +375,8 @@ class SermonsController extends UrgSermonAppController {
                 }
             }
         } else {
-            $this->data["Sermon"]["uuid"] = String::uuid();
+            $this->loadModel("Urg.SequenceId");
+            $this->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->useTable);
         }
 
         $this->loadModel("Attachment");
@@ -508,8 +521,8 @@ class SermonsController extends UrgSermonAppController {
                             "value"=>$pastor["Group"]["name"], "parent_id"=>$pastor["Group"]["id"]));
         }
 
-        $matches = $this->Sermon->query("SELECT DISTINCT speaker_name speaker_name " .
-                "FROM sermons Sermon WHERE speaker_name LIKE '%$term%' ORDER BY speaker_name LIMIT 3");
+        $matches = $this->Sermon->find("all", array("conditions"=>array("I18n__speaker_name.content LIKE"=>"%$term%"),
+                                                    "limit" => 3));
         foreach ($matches as $match) {
             array_push($prepared_matches, 
                     array("label"=>$match["Sermon"]["speaker_name"], 
@@ -696,7 +709,11 @@ class SermonsController extends UrgSermonAppController {
         if (file_exists($old_name)) {
             $this->log("creating dir: $new_name", LOG_DEBUG);
             $old = umask(0);
-            mkdir($new_name, 0777, true); 
+
+            if (file_exists($new_name)) {
+                mkdir($new_name, 0777, true); 
+            }
+
             umask($old);
             if ($handle = opendir($old_name)) {
                 while (false !== ($file = readdir($handle))) {
@@ -807,8 +824,8 @@ class SermonsController extends UrgSermonAppController {
 
         foreach ($import_file->children[0]->children as $sermon) {
             $data = array();
-            $uuid = String::uuid();
-            $data["Sermon"]["uuid"] = $uuid;
+            $this->loadModel("Urg.SequenceId");
+            $this->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->useTable);
             $data["Post"]["title"] = $this->get_value($sermon, "title");
             $this->ajax_log(sprintf(__("Importing sermon: %s", true), $data["Post"]["title"]), 
                     $this->get_percentage(++$current_stage, $stages));
@@ -823,7 +840,7 @@ class SermonsController extends UrgSermonAppController {
             $attachment_counter = 0;
 
             foreach ($sermon->child("banners")->children as $banner) {
-                $temp_folder = $this->get_doc_root() . $this->IMAGES . "/$uuid";
+                $temp_folder = $this->get_doc_root() . $this->IMAGES . "/" . $data["Sermon"]["id"];
                 if (!file_exists($temp_folder))
                     mkdir($temp_folder);
 
@@ -842,7 +859,7 @@ class SermonsController extends UrgSermonAppController {
             foreach ($sermon->child("attachments")->children as $current_attachment) {
                 $file_path = $current_attachment->attributes["src"];
                 $temp_folder = $this->get_doc_root() . $this->WEBROOT . "/" .
-                        $this->get_webroot_folder($file_path) . "/$uuid";
+                        $this->get_webroot_folder($file_path) . "/" . $data["Sermon"]["id"];
                 if (!file_exists($temp_folder))
                     mkdir($temp_folder);
 

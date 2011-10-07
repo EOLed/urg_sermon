@@ -25,13 +25,13 @@ class PastorsController extends UrgSermonAppController {
 
     function search($term = "") {
         $term = Sanitize::clean($term);
-        $pastors_group = $this->Group->find("first", array("conditions" => array("I18n__name.content" => "Pastors")));
+        $pastors_group = $this->Group->find("first", array("conditions" => array("Group.name" => "Pastors")));
 
         $conditions = array();
         $conditions["Group.parent_id"] = $pastors_group["Group"]["id"];
 
         if (strlen($term) >= 2) {
-            $conditions["I18n__name.content LIKE"] = "%$term%";
+            $conditions["Group.name LIKE"] = "%$term%";
         }
 
         return $this->Group->find("all", array("conditions" => $conditions));
@@ -64,9 +64,9 @@ class PastorsController extends UrgSermonAppController {
         $about = $this->Post->find("first", 
                 array("conditions" => 
                         array("OR" => array(
-                                "I18n__title.content" => "About", 
+                                "Post.title" => "About", 
                                 "Group.parent_id" => $about_group["Group"]["id"]),
-                              "AND" => array("I18n_title.content" => $name)
+                              "AND" => array("Post.title" => $name)
                         ),
                       "order" => "Post.id DESC"
                 )

@@ -18,17 +18,17 @@ class SeriesController extends UrgSermonAppController {
     }
 
     function suggest() {
-        $series_group = $this->Group->find("first", array("conditions" => array("I18n__name.content" => "Series")));
-        $no_series = $this->Group->find("first", array("conditions" => array("I18n__name.content" => "No Series")));
+        $series_group = $this->Group->find("first", array("conditions" => array("Group.name" => "Series")));
+        $no_series = $this->Group->find("first", array("conditions" => array("Group.name" => "No Series")));
         $suggestions = $this->Group->find("all", array("conditions" => array("Group.id !=" => $no_series["Group"]["id"], "Group.parent_id" => $series_group["Group"]["id"]), "order" => array("Group.modified DESC"), "limit" => 3));
         array_push($suggestions, $no_series);
         return $suggestions;
     }
 
     function search($term) {
-        $series_group = $this->Group->find("first", array("conditions" => array("I18n__name.content" => "Series")));
+        $series_group = $this->Group->find("first", array("conditions" => array("Group.name" => "Series")));
         return $this->Group->find("all", 
-                array("conditions" => array("I18n__name.content LIKE" => "%$term%", 
+                array("conditions" => array("Group.name LIKE" => "%$term%", 
                                             "Group.parent_id" => $series_group["Group"]["id"]
                                       ),
                       "limit" => 5
@@ -37,8 +37,8 @@ class SeriesController extends UrgSermonAppController {
     }
 
     function create($series_name) {
-        $series_group = $this->Group->find("first", array("conditions" => array("I18n__name.content" => "Series")));
-        $existing_group = $this->Group->find("first", array("conditions" => array("parent_id" => $series_group["Group"]["id"], "I18n__name.content" => $series_name)));
+        $series_group = $this->Group->find("first", array("conditions" => array("Group.name" => "Series")));
+        $existing_group = $this->Group->find("first", array("conditions" => array("parent_id" => $series_group["Group"]["id"], "Group.name" => $series_name)));
         $series_id = null;
 
         if ($existing_group === false) {

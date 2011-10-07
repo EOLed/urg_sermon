@@ -136,12 +136,12 @@ class SermonsController extends TranslatableController {
     function populate_series() {
         if ($this->data["Sermon"]["series_name"] != "") {
             $series_name = $this->data["Sermon"]["series_name"];
-            $series_group = $this->Sermon->Series->find("first", array("conditions"=>array("I18n__name.content"=>"Series")));
+            $series_group = $this->Sermon->Series->find("first", array("conditions"=>array("Series.name"=>"Series")));
             $existing_series = $this->Sermon->Series->find("first", 
                     array("conditions" => 
                             array(
                                     "Series.parent_id" => $series_group["Series"]["id"], 
-                                    "I18n__name.content" => $series_name
+                                    "Series.name" => $series_name
                             )
                     )
             );
@@ -235,13 +235,13 @@ class SermonsController extends TranslatableController {
     function populate_speaker() {
         if ($this->data["Sermon"]["speaker_name"] != "") {
             $speaker_name = $this->data["Sermon"]["speaker_name"];
-            $pastors_group = $this->Sermon->Series->find("first", array("conditions"=>array("I18n__name.content"=>"Pastors")));
+            $pastors_group = $this->Sermon->Series->find("first", array("conditions"=>array("Series.name"=>"Pastors")));
             CakeLog::write(LOG_DEBUG, "pastors group for populate: " . Debugger::exportVar($pastors_group, 3));
             $existing_pastor = $this->Sermon->Pastor->find("first", 
                     array("conditions" => 
                             array(
                                     "Pastor.parent_id" => $pastors_group["Series"]["id"], 
-                                    "I18n__name.content" => $speaker_name
+                                    "Pastor.name" => $speaker_name
                             )
                     )
             );
@@ -521,7 +521,7 @@ class SermonsController extends TranslatableController {
                             "value"=>$pastor["Group"]["name"], "parent_id"=>$pastor["Group"]["id"]));
         }
 
-        $matches = $this->Sermon->find("all", array("conditions"=>array("I18n__speaker_name.content LIKE"=>"%$term%"),
+        $matches = $this->Sermon->find("all", array("conditions"=>array("Sermon.speaker_name LIKE"=>"%$term%"),
                                                     "limit" => 3));
         foreach ($matches as $match) {
             array_push($prepared_matches, 

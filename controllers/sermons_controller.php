@@ -136,24 +136,26 @@ class SermonsController extends TranslatableController {
     function populate_series() {
         if ($this->data["Sermon"]["series_name"] != "") {
             $series_name = $this->data["Sermon"]["series_name"];
-            $series_group = $this->Sermon->Series->find("first", array("conditions"=>array("Series.name"=>"Series")));
-            $existing_series = $this->Sermon->Series->find("first", 
+            $series_group = $this->Sermon->Post->Group->find("first", array("conditions"=>array("Group.name"=>"Series")));
+            $existing_series = $this->Sermon->Post->Group->find("first", 
                     array("conditions" => 
                             array(
-                                    "Series.parent_id" => $series_group["Series"]["id"], 
-                                    "Series.name" => $series_name
+                                    "Group.parent_id" => $series_group["Group"]["id"], 
+                                    "Group.name" => $series_name
                             )
                     )
             );
 
             if ($existing_series === false) {
-                $this->Sermon->Series->create();
-                $this->data["Series"]["parent_id"] = $series_group["Series"]["id"];
-                $this->data["Series"]["name"] = $this->data["Sermon"]["series_name"];
+                $this->Sermon->Post->Group->create();
+                $this->data["Group"]["parent_id"] = $series_group["Group"]["id"];
+                $this->data["Group"]["name"] = $this->data["Sermon"]["series_name"];
+                $this->Sermon->Post->Group->save($this->data);
+                $this->data["Group"]["id"] = $this->Sermon->Post->Group->id;
                 $this->log("New Series for: " . $series_name, LOG_DEBUG);
             } else {
-                $this->data["Series"] = $existing_series["Series"];
-                $this->log("Series exists: " . Debugger::exportVar($this->data["Series"], 3), 
+                $this->data["Group"] = $existing_series["Group"];
+                $this->log("Series exists: " . Debugger::exportVar($this->data["Group"], 3), 
                         LOG_DEBUG);
             }
         } else {
@@ -186,15 +188,17 @@ class SermonsController extends TranslatableController {
         $this->log("post belongsto: " . 
                 Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
 
-        unset($this->Sermon->Post->validate["group_id"]);
+        $this->data["Post"]["id"] = $this->data["Sermon"]["id"];
 
+        //unset($this->Sermon->Post->validate["group_id"]);
+/*
         if ($id != null) {
             $this->data["Group"] = $this->data["Series"];
         } else {
-            $this->loadModel("Urg.SequenceId");
-            $this->data["Post"]["id"] = $this->SequenceId->next($this->Sermon->Post->useTable);
+            //$this->loadModel("Urg.SequenceId");
+            $this->data["Post"]["id"] = $this->data["Sermon"]["id"];//$this->SequenceId->next($this->Sermon->Post->useTable);
         }
-
+*/
         $this->log("Saving post: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
 
         $this->log("updated post belongsto: " . 
@@ -203,7 +207,7 @@ class SermonsController extends TranslatableController {
         if ($this->data["Post"]["publish_timestamp"] == 0) {
             $this->data["Post"]["publish_timestamp"] = null;
         }
-
+/*
         $this->Sermon->Post->bindModel(array("belongsTo" => array(
                 "Series" => array(
                     "className" => "Urg.Group",
@@ -212,6 +216,7 @@ class SermonsController extends TranslatableController {
             )
         ));
 
+        $this->log("binded model", LOG_DEBUG);
         $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
 
         if ($id != null && isset($this->Sermon->Post->Group->id)) {
@@ -221,7 +226,8 @@ class SermonsController extends TranslatableController {
         }
 
         $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
-
+*/
+        $status = $this->Sermon->Post->saveAll($this->data);
         return $status;
     }
 
@@ -235,12 +241,12 @@ class SermonsController extends TranslatableController {
     function populate_speaker() {
         if ($this->data["Sermon"]["speaker_name"] != "") {
             $speaker_name = $this->data["Sermon"]["speaker_name"];
-            $pastors_group = $this->Sermon->Series->find("first", array("conditions"=>array("Series.name"=>"Pastors")));
+            $pastors_group = $this->Sermon->Post->Group->find("first", array("conditions"=>array("Group.name"=>"Pastors")));
             CakeLog::write(LOG_DEBUG, "pastors group for populate: " . Debugger::exportVar($pastors_group, 3));
             $existing_pastor = $this->Sermon->Pastor->find("first", 
                     array("conditions" => 
                             array(
-                                    "Pastor.parent_id" => $pastors_group["Series"]["id"], 
+                                    "Pastor.parent_id" => $pastors_group["Group"]["id"], 
                                     "Pastor.name" => $speaker_name
                             )
                     )
@@ -316,34 +322,27 @@ class SermonsController extends TranslatableController {
             $sermon_ds->begin($this->Sermon);
 
             $this->Sermon->Post->create();
-            $this->Sermon->Post->bindModel(array("belongsTo" => array(
-                    "Series" => array(
-                        "className" => "Urg.Group",
-                        "foreignKey" => "group_id"
-                    )
-                )
-            ));
             $save_post_status = $this->save_post();
 
             // if post saved successfully
-            if (!is_bool($save_post_status) || $save_post_status) {
-                $this->data["Series"]["id"] = $this->Sermon->Series->id;
-                $this->data["Post"]["id"] = $this->Sermon->Post->id;
-                $this->log("Post successfully saved. Now saving sermon with series id as: " . 
+            //if (!is_bool($save_post_status) || $save_post_status) {
+                //$this->data["Series"]["id"] = $this->Sermon->Series->id;
+                //$this->data["Post"]["id"] = $this->Sermon->Post->id;
+                /*$this->log("Post successfully saved. Now saving sermon with series id as: " . 
                         $this->data["Series"]["id"] . " group id as: " .
-                        $this->data["Post"]["id"], LOG_DEBUG);
+                        $this->data["Post"]["id"], LOG_DEBUG);*/
                 $this->Sermon->create();
 
                 $this->populate_speaker();
 
                 $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
-                if ($this->Sermon->saveAll($this->data, array("atomic"=>false))) {
-                    $temp_dir = $this->data["Sermon"]["id"];
+                if ($this->Sermon->saveAll($this->data)) { //, array("atomic"=>false))) {
+                    /*$temp_dir = $this->data["Sermon"]["id"];
 
                     $this->consolidate_attachments(
                             array($this->AUDIO, $this->FILES, $this->IMAGES), 
                             $temp_dir
-                    );
+                    );*/
 
                     $this->resize_banner($this->Sermon->id);
 
@@ -366,17 +365,17 @@ class SermonsController extends TranslatableController {
                                 __('The sermon could not be saved. Please, try again.', true));
                     }
                 } 
-            } else {
+          /*  } else {
                 $this->Sermon->saveAll($this->data, array("validate"=>"only"));
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
 
                 if ($render) {
                     $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
                 }
-            }
+            }*/
         } else {
             $this->loadModel("Urg.SequenceId");
-            $this->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->useTable);
+            $this->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->Post->useTable);
         }
 
         $this->loadModel("Attachment");
@@ -387,8 +386,8 @@ class SermonsController extends TranslatableController {
         $this->set("audio_type", 
                 $this->Attachment->AttachmentType->findByName("Audio"));
 
-        $posts = $this->Sermon->Post->find('list');
-        $this->set(compact('posts'));
+        /*$posts = $this->Sermon->Post->find('list');
+        $this->set(compact('posts'));*/
     }
 
     function edit($id = null) {
@@ -412,7 +411,7 @@ class SermonsController extends TranslatableController {
             // if post saved successfully
             if (!is_bool($save_post_status) || $save_post_status) {
                 $this->log("Post successfully saved. Now saving sermon with series id as: " . 
-                        $this->data["Series"]["id"] . " and post id as: " . 
+                        $this->data["Group"]["id"] . " and post id as: " . 
                         $this->data["Post"]["id"], LOG_DEBUG);
 
                 $this->populate_speaker();

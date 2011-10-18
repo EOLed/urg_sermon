@@ -1,15 +1,16 @@
 <?php
-class SermonDescriptionHelper extends AppHelper {
+App::import("Lib", "Urg.AbstractWidgetHelper");
+class SermonDescriptionHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time");
-    var $widget_options = array("sermon");
 
-    function build($options = array()) {
+    function build_widget() {
         CakeLog::write("debug", "building sermon description widget");
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
-        return $this->description($options["sermon"]);
+        return $this->description();
     }
 
-    function description($sermon) {
+    function description() {
+        $sermon = $this->options["sermon"];
         $description = "";
         if (trim($sermon["Sermon"]["description"]) != "") {
             $description = $this->Html->div("sermon-description", 

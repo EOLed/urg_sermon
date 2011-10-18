@@ -1,11 +1,14 @@
 <?php
+App::import("Lib", "Urg.AbstractWidgetComponent");
 class BaseSermonComponent extends AbstractWidgetComponent {
     var $sermon = null;
 
     function build_widget() {
         $this->bindModels();
 
-        $this->sermon = $this->controller->Sermon->findByPostId($this->widget_settings["post_id"]);
+        $this->sermon = $this->controller->Sermon->find("first", 
+                array("conditions" => array("Post.id" => $this->widget_settings["post_id"]),
+                      "recursive" => 2));
         $this->set("sermon", $this->sermon);
 
         CakeLog::write("debug", "sermon for sermon widget: " . Debugger::exportVar($this->sermon, 3));
@@ -19,8 +22,6 @@ class BaseSermonComponent extends AbstractWidgetComponent {
                                                      'conditions' => '',
                                                      'fields' => '',
                                                      'order' => ''),
-                                     'Series' => array('className' => 'Urg.Group',
-                                                       'foreignKey' => 'series_id'),
                                      'Pastor' => array('className' => 'Urg.Group',
                                                        'foreignKey' => 'pastor_id')
         )));
@@ -48,24 +49,24 @@ class BaseSermonComponent extends AbstractWidgetComponent {
                )
         );
 
-        $this->controller->set("attachments_" . $this->widget_id, $attachments);
+        $this->set("attachments", $attachments);
 
-        CakeLog::write("debug", "attachments for sermon meta widget: " . 
-                                Debugger::exportVar($attachments, 3));
+        CakeLog::write("debug", "attachments for sermon widget: " . Debugger::exportVar($attachments, 3));
     }
 
     function set_sermon_series($sermon) {
         $this->bindModels();
 
         $series = $this->controller->Sermon->find("all",
-                array(  "conditions" => array("Sermon.series_id" => $sermon["Series"]["id"]),
-                        "order" => array("Post.publish_timestamp")
+                array(  "conditions" => array("Post.group_id" => $sermon["Post"]["Group"]["id"]),
+                        "order" => array("Post.publish_timestamp"),
+                        "recursive" => 2
                 )
         );
 
         CakeLog::write(LOG_DEBUG, "Related sermons: " . Debugger::exportVar($series, 3));
 
-        $this->controller->set("series_sermons_" . $this->widget_id, $series);
+        $this->set("series_sermons", $series);
     }
 
     function bind_attachments() {

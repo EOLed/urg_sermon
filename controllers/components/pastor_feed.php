@@ -1,19 +1,12 @@
 <?php
-class PastorFeedComponent extends Object {
-    var $controller = null;
-    var $settings = null;
-
-    function initialize(&$controller, $settings = array()) {
-        $this->controller =& $controller;
-        $this->settings = $settings;
-    }
-
-    function build($widget_id) {
-        $settings = $this->settings[$widget_id];
-        $feed = $this->get_pastor_feed(isset($settings["pastor_id"]) ? $settings["pastor_id"] : null);
-        $pastor = $this->controller->Group->findById($settings["pastor_id"]);
-        $this->controller->set("pastor_feed_$widget_id", $feed);
-        $this->controller->set("pastor_$widget_id", $pastor);
+App::import("Lib", "Urg.AbstractWidgetComponent");
+class PastorFeedComponent extends AbstractWidgetComponent {
+    function build_widget() {
+        $settings = $this->settings[$this->widget_id];
+        $feed = $this->get_pastor_feed(isset($settings["group_id"]) ? $settings["group_id"] : null);
+        $pastor = $this->controller->Group->findById($settings["group_id"]);
+        $this->set("pastor_feed", $feed);
+        $this->set("pastor", $pastor);
     }
 
     function bindModels() {
@@ -24,8 +17,6 @@ class PastorFeedComponent extends Object {
                                                      'conditions' => '',
                                                      'fields' => '',
                                                      'order' => ''),
-                                     'Series' => array('className' => 'Urg.Group',
-                                                       'foreignKey' => 'series_id'),
                                      'Pastor' => array('className' => 'Urg.Group',
                                                        'foreignKey' => 'pastor_id')
         )));
@@ -50,7 +41,7 @@ class PastorFeedComponent extends Object {
 
         $unsorted_activity = array();
         foreach ($sermons as $sermon) {
-            $unsorted_activity[$sermon["Post"]["publish_timestamp"]] = $sermon;
+            $unsorted_activity[$sermon["Post"]["created"]] = $sermon;
         }
 
         $article_group = $this->get_article_group($pastor);

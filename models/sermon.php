@@ -43,10 +43,6 @@ class Sermon extends UrgSermonAppModel {
             'fields' => '',
             'order' => ''
         ),
-        'Series' => array(
-            'className' => 'Urg.Group',
-            'foreignKey' => 'series_id'
-        ),
         'Pastor' => array(
             'className' => 'Urg.Group',
             'foreignKey' => 'pastor_id'

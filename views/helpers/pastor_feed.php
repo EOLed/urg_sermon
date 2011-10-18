@@ -1,14 +1,15 @@
 <?php
-class PastorFeedHelper extends AppHelper {
+App::import("Lib", "Urg.AbstractWidgetHelper");
+class PastorFeedHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time");
     var $widget_options = array("pastor", "pastor_feed");
 
-    function build($options = array()) {
+    function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
         $title = $this->Html->tag("h2", 
-                __(isset($options["title"]) ? $options["title"] : "Recent Activity", true));
+                __(isset($this->options["title"]) ? $this->options["title"] : "Recent Activity", true));
 
-        return $title . $this->activity_feed($options["pastor"], $options["pastor_feed"]);
+        return $title . $this->activity_feed($this->options["pastor"], $this->options["pastor_feed"]);
     }
 
     function activity_feed($pastor, $activity) {

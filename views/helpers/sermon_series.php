@@ -1,25 +1,27 @@
 <?php
-class SermonSeriesHelper extends AppHelper {
+App::import("Lib", "Urg.AbstractWidgetHelper");
+class SermonSeriesHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time");
-    var $widget_options = array("sermon", "series_sermons");
 
-    function build($options = array()) {
+    function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
-        return $this->series($options["sermon"], $options["series_sermons"]);
+        return $this->series();
     }
 
-    function series($sermon, $series_sermons) {
+    function series() {
+        $sermon = $this->options["sermon"];
+        $series_sermons = $this->options["series_sermons"];
         $sermon_list = "";
         $counter = 0;
-        if (isset($sermon["Series"]) && $sermon["Series"]["name"] != "No Series") {
+        if (isset($sermon["Post"]["Group"]) && $sermon["Post"]["Group"]["name"] != "No Series") {
             $counter++;
             foreach ($series_sermons as $series_sermon) {
                 $item = "";
                 $item .= $this->Html->link($series_sermon["Post"]["title"], 
-                                           array("plugin" => "urg_sermon",
-                                                 "controller" => "sermons",
+                                           array("plugin" => "urg_post",
+                                                 "controller" => "posts",
                                                  "action" => "view", 
-                                                 $series_sermon["Sermon"]["id"]));
+                                                 $series_sermon["Post"]["id"]));
                 $item .= $this->Html->div("series-sermon-details",
                         sprintf(__("by %s on %s", true),
                                 $this->speaker_name($series_sermon),
@@ -30,7 +32,7 @@ class SermonSeriesHelper extends AppHelper {
             }
 
             $sermon_list = $this->Html->tag("ol", $sermon_list, array("class" => "series-sermon-list"));
-            $title = $this->Html->tag("h2", $sermon["Series"]["name"]);
+            $title = $this->Html->tag("h2", $sermon["Post"]["Group"]["name"]);
             $sermon_list = $this->Html->div("series", $title . $sermon_list);
         }
 

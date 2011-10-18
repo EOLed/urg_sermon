@@ -1,15 +1,16 @@
 <?php
 App::import("Helper", "Bible.Bible");
-class SermonPassagesHelper extends AppHelper {
+App::import("Lib", "Urg.AbstractWidgetHelper");
+class SermonPassagesHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time", "Bible");
-    var $widget_options = array("sermon");
 
-    function build($options = array()) {
+    function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
-        return $this->passages($options["sermon"]);
+        return $this->passages();
     }
 
-    function passages($sermon) {
+    function passages() {
+        $sermon = $this->options["sermon"];
         $passages = "";
         if (trim($sermon["Sermon"]["passages"]) != "") {
             $passage_placeholder = $this->Html->div("", "", array("id" => "sermon-passages-text",

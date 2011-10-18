@@ -1,16 +1,18 @@
 <?php
-class SermonMetaHelper extends AppHelper {
+App::import("Lib", "Urg.AbstractWidgetHelper");
+class SermonMetaHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time", "EqualHeight");
-    var $widget_options = array("sermon", "attachments");
 
-    function build($options = array()) {
+    function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
-        return $this->meta($options["sermon"], $options["attachments"]);
+        return $this->meta();
     }
 
-    function meta($sermon, $attachments) {
+    function meta() {
+        $sermon = $this->options["sermon"];
+        $attachments = $this->options["attachments"];
         $series = $this->Html->div("alpha grid_3 top-border bottom-border right-border " .
-                "sermon-details", $this->item(__("From the series", true), $sermon["Series"]["name"]),
+                "sermon-details", $this->item(__("From the series", true), $sermon["Post"]["Group"]["name"]),
                 array("id" => "sermon-series", "style" => "border-right-width: 0px"));
 
         $time = $this->Html->div("grid_3 top-border bottom-border left-border right-border " .

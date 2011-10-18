@@ -1,19 +1,23 @@
 <?php
 App::import("Helper", "Sm2.SoundManager2");
-class SermonPlayerHelper extends AppHelper {
+App::import("Lib", "Urg.AbstractWidgetHelper");
+class SermonPlayerHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time", "Sm2.SoundManager2");
-    var $widget_options = array("sermon", "attachments");
 
-    function build($options = array()) {
+    function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
-        return $this->player($options["sermon"], $options["attachments"]);
+        return $this->player();
     }
 
-    function player($sermon, $attachments) {
+    function player() {
+        $sermon = $this->options["sermon"];
+        $attachments = $this->options["attachments"];
+
         $player = "";
         if (isset($attachments["Audio"])) {
             $player .= "<div class='grid_12 sermon-audio'>";
             $playlist = array();
+            CakeLog::write("debug", "Sermon attachments " . Debugger::exportVar($this->options["attachments"], 3));
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
                 array_push($playlist, array(
                         "title" => $sermon["Post"]["title"],

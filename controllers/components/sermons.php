@@ -19,8 +19,6 @@ class SermonsComponent extends AbstractWidgetComponent {
                                                      'conditions' => '',
                                                      'fields' => '',
                                                      'order' => ''),
-                                     'Series' => array('className' => 'Urg.Group',
-                                                       'foreignKey' => 'series_id'),
                                      'Pastor' => array('className' => 'Urg.Group',
                                                        'foreignKey' => 'pastor_id')
         )));
@@ -42,6 +40,7 @@ class SermonsComponent extends AbstractWidgetComponent {
     function get_past_sermons($pastor_id = null) {
         $options = array("order" => "Post.publish_timestamp DESC",
                          "conditions" => array("Post.publish_timestamp < NOW()"),
+                         "recursive" => 2,
                          "limit" => 5);
         return $this->get_sermons($options, $pastor_id);
     }
@@ -49,6 +48,7 @@ class SermonsComponent extends AbstractWidgetComponent {
     function get_upcoming_sermons($pastor_id = null) {
         $options = array("order" => "Post.publish_timestamp ASC",
                          "conditions" => array("Post.publish_timestamp > NOW()"),
+                         "recursive" => 2,
                          "limit" => 5);
         return array_reverse($this->get_sermons($options, $pastor_id));
     }

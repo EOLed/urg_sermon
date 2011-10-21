@@ -53,7 +53,7 @@ class PastorFeedHelper extends AbstractWidgetHelper {
            $icon = $this->Html->image("/urg_sermon/img/icons/feed/media-microphone-alt.png",
                                       array("class" => "feed-icon")); 
         } else {
-           $icon = $this->Html->image("/urg_sermon/img/icons/feed/cloud-alt.png",
+           $icon = $this->Html->image("/urg_sermon/img/icons/feed/cloud.png",
                                       array("class" => "feed-icon")); 
         }
         return $icon; 

@@ -17,11 +17,25 @@ class SermonsHelper extends AbstractWidgetHelper {
             $series = $sermon["Post"]["Group"]["name"];
             $sermon_info = $this->Html->div("upcoming-info",
                     ($series == "No Series" ? "" : ($sermon["Post"]["Group"]["name"] . " - ")) . $sermon["Sermon"]["passages"]);
+            $post_title = $this->Html->link($sermon["Post"]["title"], array("plugin" => "urg_post",
+                                                                            "controller" => "posts",
+                                                                            "action" => "view",
+                                                                            $sermon["Post"]["id"],
+                                                                            $sermon["Post"]["slug"]));
             $time = $this->Html->div("upcoming-timestamp",
                     $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"]));
-            $upcoming_events .= $this->Html->tag("li", $time . $sermon["Post"]["title"] . $sermon_info);
+            $upcoming_events .= $this->Html->tag("li", $time . $post_title . $sermon_info);
         }
 
-        return $this->Html->tag("ul", $upcoming_events, array("id" => "upcoming-events"));
+        return $this->Html->tag("ul", $upcoming_events, array("id" => "upcoming-events")) . 
+               $this->Html->scriptBlock($this->js());
+    }
+
+    function js() {
+        return '
+            $("#upcoming-events li").click(function() {
+                window.location = $(this).find("a").attr("href");
+            });
+        ';
     }
 }

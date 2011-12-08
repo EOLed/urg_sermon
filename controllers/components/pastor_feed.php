@@ -7,6 +7,26 @@ class PastorFeedComponent extends AbstractWidgetComponent {
         $pastor = $this->controller->Group->findById($settings["group_id"]);
         $this->set("pastor_feed", $feed);
         $this->set("pastor", $pastor);
+        $this->set("add_sermon", $this->can_add_sermon());
+        $this->set("add_article", $this->can_add_article());
+    }
+
+    function can_add_sermon() {
+        $series_group = $this->controller->Group->findByName("Series");
+        return $this->controller->Urg->has_access(array("plugin"=>"urg_sermon", 
+                                                        "controller"=>"sermons", 
+                                                        "action"=>"add"), 
+                                                  $series_group["Group"]["id"]);
+    }
+
+    function can_add_article() {
+        $pastor = $this->controller->Group->findById($this->widget_settings["group_id"]);
+        $article_group = $this->get_article_group($pastor);
+        $this->set("article_group_slug", $article_group["Group"]["slug"]);
+        return $this->controller->Urg->has_access(array("plugin"=>"urg_post", 
+                                                        "controller"=>"posts", 
+                                                        "action"=>"add"), 
+                                                  $article_group["Group"]["id"]);
     }
 
     function bindModels() {

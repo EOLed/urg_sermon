@@ -14,6 +14,20 @@ class PastorFeedHelper extends AbstractWidgetHelper {
 
     function activity_feed($pastor, $activity) {
         $feed = "";
+
+        if ($this->options["add_sermon"]) {
+            $feed .= $this->Html->link(__("Add a new sermon...", true), array("plugin" => "urg_sermon",
+                                                                            "controller" => "sermons",
+                                                                            "action" => "add"));
+        }
+
+        if ($this->options["add_article"]) {
+            $feed .= $this->Html->link(__("Add a new article...", true), array("plugin" => "urg_post",
+                                                                               "controller" => "posts",
+                                                                               "action" => "add",
+                                                                               $this->options["article_group_slug"]));
+        }
+
         foreach ($activity as $feed_item) {
             $feed_icon = $this->feed_icon($feed_item);
             $time = $this->Html->div("feed-timestamp",

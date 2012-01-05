@@ -13,19 +13,5 @@ class SermonDescriptionComponent extends BaseSermonComponent {
         $group = $this->controller->Group->findById($this->post["Post"]["group_id"]);
         return $group["Group"]["slug"];
     }
-
-    function can_edit() {
-        return $this->controller->Urg->has_access(array("plugin"=>"urg_sermon", 
-                                                        "controller"=>"sermons", 
-                                                        "action"=>"edit"), 
-                                                  $this->post["Post"]["group_id"]);
-    }
-
-    function can_delete() {
-        return $this->controller->Urg->has_access(array("plugin"=>"urg_sermon", 
-                                                        "controller"=>"sermons", 
-                                                        "action"=>"delete"), 
-                                                  $this->post["Post"]["group_id"]);
-    }
 }
 

@@ -441,7 +441,9 @@ class SermonsController extends TranslatableController {
         }
 
         if (empty($this->data)) {
-            $this->data = $this->Sermon->read(null, $id);
+            $this->data = $this->Sermon->find("first", array("conditions" => array("Sermon.id" => $id),
+                                                             "recursive" => 2));
+            $this->log("form data: " . Debugger::exportVar($this->data, 2), LOG_DEBUG);
             $this->load_speaker();
         }
 
@@ -454,7 +456,7 @@ class SermonsController extends TranslatableController {
         $this->set("audio_type", $this->Attachment->AttachmentType->findByName("Audio"));
         
         $posts = $this->Sermon->Post->find('list');
-        $this->data["Sermon"]["series_name"] = $this->data["Series"]["name"];
+        $this->data["Sermon"]["series_name"] = $this->data["Post"]["Group"]["name"];
         $banner = $this->Attachment->find("first", array(
                 "conditions"=>
                         array("Attachment.post_id"=>$this->data["Post"]["id"],

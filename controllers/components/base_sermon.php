@@ -10,8 +10,24 @@ class BaseSermonComponent extends AbstractWidgetComponent {
                 array("conditions" => array("Post.id" => $this->widget_settings["post_id"]),
                       "recursive" => 2));
         $this->set("sermon", $this->sermon);
+        $this->set("can_edit", $this->can_edit());
+        $this->set("can_delete", $this->can_delete());
 
         CakeLog::write("debug", "sermon for sermon widget: " . Debugger::exportVar($this->sermon, 3));
+    }
+
+    function can_edit() {
+        return $this->controller->Urg->has_access(array("plugin"=>"urg_sermon", 
+                                                        "controller"=>"sermons", 
+                                                        "action"=>"edit"), 
+                                                  $this->sermon["Post"]["group_id"]);
+    }
+
+    function can_delete() {
+        return $this->controller->Urg->has_access(array("plugin"=>"urg_sermon", 
+                                                        "controller"=>"sermons", 
+                                                        "action"=>"delete"), 
+                                                  $this->sermon["Post"]["group_id"]);
     }
 
     function bindModels() {

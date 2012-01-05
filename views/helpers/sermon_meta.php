@@ -30,10 +30,26 @@ class SermonMetaHelper extends AbstractWidgetHelper {
                 "sermon-details", $this->item(__("Resources", true), 
                 $this->resource_list($sermon, $attachments)),
                 array("id" => "sermon-resources", "style" => "border-right-width: 0px"));
+
+        $admin_links = "";
+
+        if ($this->options["can_edit"]) {
+            $admin_links .= $this->Html->link(__("Edit", true), array("plugin" => "urg_sermon",
+                                                                              "controller" => "sermons",
+                                                                              "action" => "edit",
+                                                                              $this->options["sermon"]["Sermon"]["id"]));
+        }
+
+        if ($this->options["can_delete"]) {
+            $admin_links .= $this->Html->link(__("Delete", true), array("plugin" => "urg_sermon",
+                                                                              "controller" => "sermons",
+                                                                              "action" => "delete",
+                                                                              $this->options["sermon"]["Sermon"]["id"]));
+        }
         
         return $this->Html->div("grid_12", 
                                 $series . $time . $speaker . $resources, 
-                                array("id" => "sermon-info")) . $this->js();
+                                array("id" => "sermon-info")) . $this->Html->div("grid_12", $admin_links) . $this->js();
     }
 
     function js() {

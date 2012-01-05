@@ -421,12 +421,14 @@
 
     $(function() {
         $(".delete-attachment-link").click(function() {
-            $.get($(this).attr("href"), {domId: $(this).attr("id")}, function(data) {
-                data = jQuery.parseJSON(data);
-                if (data.success) {
-                    $("#" + data.domId).parent().hide();
-                }
-            });
+            if (confirm("<?php __("Are you sure you want to delete this attachment?") ?>")) {
+                $.get($(this).attr("href"), {domId: $(this).attr("id")}, function(data) {
+                    data = jQuery.parseJSON(data);
+                    if (data.success) {
+                        $("#" + data.domId).parent().hide();
+                    }
+                });
+            }
             return false;
         });
     });

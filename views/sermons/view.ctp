@@ -23,7 +23,7 @@
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
                 array_push($playlist, array(
                         "title" => $sermon["Post"]["title"],
-                        "link" => "/urg_sermon/audio/" . $sermon["Sermon"]["id"] . "/" . $filename,
+                        "link" => "/urg_post/audio/" . $sermon["Sermon"]["id"] . "/" . $filename,
                         "id" => "sermon-audio-link-" . $sermon["Sermon"]["id"] . "-player"
                 ));
             }
@@ -64,7 +64,7 @@
                 <?php foreach ($attachments["Documents"] as $filename=>$attachment_id) { ?> 
                     <li>
                         <?php 
-                        $url = $this->Html->url("/urg_sermon/files/" .  
+                        $url = $this->Html->url("/urg_post/files/" .  
                                 $sermon["Sermon"]["id"] . "/" . $filename); 
                         $image_options = array("style"=>"height: 32px", 
                                                "alt"=>$filename, 
@@ -80,7 +80,7 @@
                 <?php if (isset($attachments["Audio"])) { ?>
                     <li>
                         <?php foreach ($attachments["Audio"] as $filename => $attachment_id) {
-                            $url = $this->Html->url("/urg_sermon/audio/" . 
+                            $url = $this->Html->url("/urg_post/audio/" . 
                                     $sermon["Sermon"]["id"] . "/" . $filename);
                             $image_options = array("style"=>"height: 32px",
                                                    "alt"=>$filename,
@@ -129,7 +129,7 @@
                 foreach ($series_sermons as $series_sermon) {
             ?>
                 <li class="series-sermon-list-item <?php echo $counter++ % 2 ? "even" : ""?>">
-                    <a href="<?php echo $this->Html->url("/urg_sermon/sermons/view/") . 
+                    <a href="<?php echo $this->Html->url("/urg_post/posts/view/") . 
                             $series_sermon["Sermon"]["id"] ?>"><?php echo $series_sermon["Post"]["title"]?></a>
                     <div class="series-sermon-details">
                         <?php echo sprintf(__("by %s on %s", true),

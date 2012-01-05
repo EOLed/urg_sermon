@@ -4,7 +4,7 @@ if (isset($attachments)) {
     $counter = 0;
     foreach ($attachments as $attachment) {
         $filename = $attachment["Attachment"]["filename"];
-        $link = $this->Html->link(substr($filename, 0, 40), "/urg_sermon/" . 
+        $link = $this->Html->link(substr($filename, 0, 40), "/urg_post/" . 
                 $this->requestAction("/urg_sermon/sermons/get_webroot_folder/$filename") . 
                 "/$sermon_id/$filename", array("id"=>"ExistingAttachmentQueueLink$counter"));
         $link .= $this->Html->link(

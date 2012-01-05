@@ -14,10 +14,10 @@ class SermonsController extends TranslatableController {
     var $IMAGES_WEBROOT = "img";
     var $FILES_WEBROOT = "files";
 
-    var $AUDIO = "/app/plugins/urg_sermon/webroot/audio";
+    var $AUDIO = "/app/plugins/urg_post/webroot/audio";
     var $IMAGES = "/app/plugins/urg_post/webroot/img";
-    var $FILES = "/app/plugins/urg_sermon/webroot/files";
-    var $WEBROOT = "/app/plugins/urg_sermon/webroot";
+    var $FILES = "/app/plugins/urg_post/webroot/files";
+    var $WEBROOT = "/app/plugins/urg_post/webroot";
 
     var $BANNER_SIZE = 700;
     var $PANEL_BANNER_SIZE = 460;

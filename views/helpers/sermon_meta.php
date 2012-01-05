@@ -73,7 +73,7 @@ EOT;
 
         if (isset($attachments["Documents"])) {
             foreach ($attachments["Documents"] as $filename=>$attachment_id) {
-                $url = $this->Html->url("/urg_sermon/files/" .  
+                $url = $this->Html->url("/urg_post/files/" .  
                         $sermon["Sermon"]["id"] . "/" . $filename); 
                 $image_options = array("style"=>"height: 32px", 
                                        "alt"=>$filename, 
@@ -88,7 +88,7 @@ EOT;
 
         if (isset($attachments["Audio"])) {
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
-                $url = $this->Html->url("/urg_sermon/audio/" . 
+                $url = $this->Html->url("/urg_post/audio/" . 
                         $sermon["Sermon"]["id"] . "/" . $filename);
                 $image_options = array("style"=>"height: 32px",
                                        "alt"=>$filename,

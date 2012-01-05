@@ -21,7 +21,7 @@ class SermonPlayerHelper extends AbstractWidgetHelper {
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
                 array_push($playlist, array(
                         "title" => $sermon["Post"]["title"],
-                        "link" => "/urg_sermon/audio/" . $sermon["Post"]["id"] . "/" . $filename,
+                        "link" => "/urg_post/audio/" . $sermon["Post"]["id"] . "/" . $filename,
                         "id" => "sermon-audio-link-" . $sermon["Post"]["id"] . "-player"
                 ));
             }

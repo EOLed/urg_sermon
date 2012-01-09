@@ -1,7 +1,8 @@
 <?php
 App::import("Lib", "Urg.AbstractWidgetHelper");
+App::import("Helper", "Markdown.Markdown");
 class SermonDescriptionHelper extends AbstractWidgetHelper {
-    var $helpers = array("Html", "Time");
+    var $helpers = array("Html", "Time", "Markdown");
 
     function build_widget() {
         CakeLog::write("debug", "building sermon description widget");
@@ -15,7 +16,7 @@ class SermonDescriptionHelper extends AbstractWidgetHelper {
         if (trim($sermon["Sermon"]["description"]) != "") {
             $description = $this->Html->div("sermon-description", 
                                             $this->Html->tag("h2", __("Description", true)) . 
-                                            $sermon["Sermon"]["description"]);
+                                            $this->Markdown->html($sermon["Sermon"]["description"]));
         }
 
         return $description;

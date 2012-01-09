@@ -79,6 +79,7 @@
         attachment_in_progress = true;
     }
 <?php echo $this->Html->scriptEnd(); ?>
+<?php echo $this->Html->script("/urg_post/js/jquery.timepicker.min.js"); ?>
 
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon'); ?>
@@ -106,17 +107,11 @@
             echo $this->Html->div("validated", "✓", 
                     array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
             echo $this->Form->input("passages");
-            echo $this->Form->hidden("Post.publish_timestamp");
-            echo $this->Form->input("Post.display_date", 
-                    array("type"=>"text", 
-                          "label"=>__("Date", true), 
-                          "value"=>($this->data["Post"]["publish_timestamp"] == "") ? 
-                                   "" : $this->Time->format("F d, Y", 
-                                                            $this->data["Post"]["publish_timestamp"])
-                    )
-            );
-            echo $this->Form->input('description', array("label"=>__("Description", true)));
-            echo $this->Form->input('Post.content', array("label"=>__("Notes", true), "rows"=>"20"));
+            echo $this->Form->hidden("Post.formatted_date");
+            echo $this->Form->input("Post.displayDate", 
+                    array("type"=>"text", "label"=>__("Date", true), "after"=>$this->Form->text("Post.displayTime", array("div"=>false, "label"=>false))));
+            echo $this->Markdown->input('description', array("label"=>__("Description", true), "rows"=>"8"));
+            echo $this->Markdown->input('Post.content', array("label"=>__("Notes", true), "rows"=>"20"));
             ?>
         </fieldset>
     </div>
@@ -320,24 +315,7 @@
     });
 <?php echo $this->Html->scriptEnd(); ?>
 
-<?php echo $this->Html->script("tinymce/jquery.tinymce.js"); ?>
-
 <?php echo $this->Html->scriptStart(); ?>
-    $(function() {
-        $('#SermonDescription, #PostContent').tinymce({
-            script_url: "<?php echo $this->Html->url("/js/tinymce/tiny_mce.js"); ?>",
-            theme: "advanced",
-            theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|," +
-                                      "justifyleft,justifycenter,justifyright,fontsizeselect",
-            theme_advanced_buttons2 : "bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|," +
-                                      "link,unlink,anchor,cleanup,code,|,forecolor,backcolor",
-            theme_advanced_buttons3 : "",
-            theme_advanced_toolbar_location : "top",
-            theme_advanced_toolbar_align : "left",
-            theme_advanced_resizing : true
-        });
-    });
-
     $(function() {
         $("#in-progress").dialog({
             modal: true,
@@ -410,16 +388,6 @@
     });
 
     $(function() {
-        $("#PostDisplayDate").datepicker({
-            altField: "#PostPublishTimestamp",
-            altFormat: "yy-mm-dd",
-            dateFormat: "MM d, yy"
-        });
-
-        $("input:submit").button();
-    });
-
-    $(function() {
         $(".delete-attachment-link").click(function() {
             if (confirm("<?php __("Are you sure you want to delete this attachment?") ?>")) {
                 $.get($(this).attr("href"), {domId: $(this).attr("id")}, function(data) {
@@ -432,5 +400,23 @@
             return false;
         });
     });
-<?php echo $this->Html->scriptEnd(); ?>
-<?php $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
+
+    $(function() {
+        $("#PostDisplayDate").datepicker({
+            altField: "#PostFormattedDate",
+            altFormat: "yy-mm-dd",
+            dateFormat: "MM d, yy"
+        });
+
+        $("input:submit").button();
+    });
+
+    $(function() {
+        $('#PostDisplayTime').timepicker({
+            scrollDefaultNow: true,
+            timeFormat: 'h:i A'
+        });
+    });
+<?php echo $this->Html->scriptEnd();
+$this->Html->css("/urg_post/css/jquery.timepicker.css", null, array("inline"=>false));
+$this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

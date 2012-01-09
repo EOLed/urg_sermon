@@ -6,6 +6,7 @@ App::import("Component", "Bible.Bible");
 App::import("Component", "TempFolder");
 App::import("Helper", "Bible.Bible");
 App::import("Helper", "Sm2.SoundManager2");
+App::import("Helper", "Markdown.Markdown");
 App::import("Lib", "Urg.TranslatableController");
 
 App::import("Component", "Urg.WidgetUtil");
@@ -35,7 +36,7 @@ class SermonsController extends TranslatableController {
     );
 
     var $helpers = array(
-        "Js" => array("Jquery"), "Time", "Bible", "SoundManager2"
+        "Js" => array("Jquery"), "Time", "Bible", "SoundManager2", "Markdown"
     );
     var $name = 'Sermons';
 
@@ -190,6 +191,12 @@ class SermonsController extends TranslatableController {
 
         $this->data["Post"]["id"] = $this->data["Sermon"]["id"];
 
+        $post_timestamp = date_parse_from_format("F d, Y h:i A", 
+                                                 $this->data["Post"]["displayDate"] . " " . 
+                                                 $this->data["Post"]["displayTime"]);
+        $this->data["Post"]["publish_timestamp"] = 
+                "$post_timestamp[year]-$post_timestamp[month]-$post_timestamp[day]" . 
+                " $post_timestamp[hour]:$post_timestamp[minute]";
         //unset($this->Sermon->Post->validate["group_id"]);
 /*
         if ($id != null) {
@@ -443,6 +450,8 @@ class SermonsController extends TranslatableController {
         if (empty($this->data)) {
             $this->data = $this->Sermon->find("first", array("conditions" => array("Sermon.id" => $id),
                                                              "recursive" => 2));
+            $this->data["Post"]["displayDate"] = date("F j, Y", strtotime($this->data["Post"]["publish_timestamp"]));
+            $this->data["Post"]["displayTime"] = date("h:i A", strtotime($this->data["Post"]["publish_timestamp"]));
             $this->log("form data: " . Debugger::exportVar($this->data, 2), LOG_DEBUG);
             $this->load_speaker();
         }

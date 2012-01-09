@@ -251,6 +251,15 @@ ul#upcoming-events li:hover {
     background-color: #ececec;
 }
 
+input#PostDisplayTime {
+    width: 150px;
+    padding-left: 10px;
+}
+
+input#PostDisplayDate {
+    width: 200px;
+}
+
 /** NOTICES & MESSAGES */
 div.validated {
     clear: both;

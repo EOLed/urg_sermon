@@ -9,6 +9,13 @@ class SermonsComponent extends AbstractWidgetComponent {
                 isset($settings["pastor_id"]) ? $settings["pastor_id"] : null);
         $this->set("upcoming_sermons", $upcoming);
         $this->set("past_sermons", $past);
+        $this->set("can_add", $this->can_add());
+    }
+
+    function can_add() {
+        return $this->controller->Urg->has_access(array("plugin"=>"urg_sermon", 
+                                                        "controller"=>"sermons", 
+                                                        "action"=>"add"));
     }
 
     function bindModels() {

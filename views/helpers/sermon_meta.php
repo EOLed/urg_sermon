@@ -20,11 +20,17 @@ class SermonMetaHelper extends AbstractWidgetHelper {
                 $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"])),
                 array("id" => "sermon-date", "style" => "border-right-width: 0px"));
 
-        $speaker = $this->Html->div("grid_3 top-border bottom-border left-border right-border " .
-                "sermon-details", $this->item(__("Spoken by", true), 
-                $sermon["Pastor"]["name"] != "" ? $sermon["Pastor"]["name"] : 
-                $sermon["Sermon"]["speaker_name"]),
-                array("id" => "sermon-speaker", "style" => "border-right-width: 0px"));
+        $speaker = $this->Html->div("grid_3 top-border bottom-border left-border right-border sermon-details", 
+                                    $this->item(__("Spoken by", true), 
+                                            $sermon["Pastor"]["name"] != "" ? 
+                                                    $this->Html->link($sermon["Pastor"]["name"], 
+                                                                      array("plugin" => "urg", 
+                                                                            "controller" => "groups", 
+                                                                            "action" => "view", 
+                                                                            $sermon["Pastor"]["slug"])) : 
+                                                    $sermon["Sermon"]["speaker_name"]),
+                                    array("id" => "sermon-speaker", 
+                                          "style" => "border-right-width: 0px"));
 
         $resources = $this->Html->div("omega grid_3 top-border bottom-border left-border " .
                 "sermon-details", $this->item(__("Resources", true), 

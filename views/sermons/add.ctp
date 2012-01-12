@@ -38,7 +38,7 @@
 
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
-                "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Sermon"]["id"]); ?>" 
+                "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Post"]["id"]); ?>" 
                 + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
@@ -62,13 +62,13 @@
                 .appendTo("#attachment-queue");
 
         $("<a>").attr({
-                href: "<?php echo $this->Html->url("/urg_sermon/") ?>" + response.webroot_folder + 
-                        "/<?php echo $this->data["Sermon"]["id"] ?>/" + fileObj.name,
+                href: "<?php echo $this->Html->url("/urg_post/") ?>" + response.webroot_folder + 
+                        "/<?php echo $this->data["Post"]["id"] ?>/" + fileObj.name,
                 id: "AttachmentQueueAudioLink" + attachmentCounter ,
                 target: "_blank"
         }).appendTo("#AttachmentQueueListItem" + attachmentCounter);
 
-        $("#AttachmentQueueAudioLink" + attachmentCounter).text(fileObj.name);
+        $("#AttachmentQueueAudioLink" + attachmentCounter).text(fileObj.name.substring(0, 40));
     }
 
     function image_upload_in_progress(event, ID, fileObj, data) {

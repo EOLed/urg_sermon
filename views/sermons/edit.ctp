@@ -38,7 +38,7 @@
 
         $("#sermon-banner").html(
                 "<img id='#sermon-banner-img' src='" +
-                "<?php echo $this->Html->url("/urg_sermon/img/" . $this->data["Sermon"]["id"]); ?>" 
+                "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Post"]["id"]); ?>" 
                 + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }
 
@@ -62,8 +62,8 @@
                 .appendTo("#attachment-queue");
 
         $("<a>").attr({
-                href: "<?php echo $this->Html->url("/urg_sermon/") ?>" + response.webroot_folder + 
-                        "/<?php echo $this->data["Sermon"]["id"] ?>/" + fileObj.name,
+                href: "<?php echo $this->Html->url("/urg_post/") ?>" + response.webroot_folder + 
+                        "/<?php echo $this->data["Post"]["id"] ?>/" + fileObj.name,
                 id: "AttachmentQueueAudioLink" + attachmentCounter ,
                 target: "_blank"
         }).appendTo("#AttachmentQueueListItem" + attachmentCounter);
@@ -110,7 +110,7 @@
             echo $this->Form->hidden("Post.formatted_date");
             echo $this->Form->input("Post.displayDate", 
                     array("type"=>"text", "label"=>__("Date", true), "after"=>$this->Form->text("Post.displayTime", array("div"=>false, "label"=>false))));
-            echo $this->Markdown->input('description', array("label"=>__("Description", true), "rows"=>"8"));
+            echo $this->Markdown->input('Sermon.description', array("label"=>__("Description", true), "rows"=>"8"));
             echo $this->Markdown->input('Post.content', array("label"=>__("Notes", true), "rows"=>"20"));
             ?>
         </fieldset>

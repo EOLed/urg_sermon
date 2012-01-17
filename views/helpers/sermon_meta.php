@@ -47,10 +47,13 @@ class SermonMetaHelper extends AbstractWidgetHelper {
         }
 
         if ($this->options["can_delete"]) {
-            $admin_links .= $this->Html->link(__("Delete", true), array("plugin" => "urg_sermon",
-                                                                              "controller" => "sermons",
-                                                                              "action" => "delete",
-                                                                              $this->options["sermon"]["Sermon"]["id"]));
+            $admin_links .= $this->Html->link(__("Delete", true),
+                                              array("plugin" => "urg_sermon",
+                                                    "controller" => "sermons",
+                                                    "action" => "delete",
+                                                    $this->options["sermon"]["Sermon"]["id"]),
+                                              null,
+                                              __("Are you sure you want to delete this?", true));
         }
         
         return $this->Html->div("grid_12", 

@@ -3,6 +3,8 @@ App::import("Lib", "Urg.AbstractWidgetComponent");
 class SermonsComponent extends AbstractWidgetComponent {
     function build_widget() {
         $settings = $this->widget_settings;
+        Configure::load("config");
+
         $upcoming = $this->get_upcoming_sermons(
                 isset($settings["pastor_id"]) ? $settings["pastor_id"] : null);
         $past = $this->get_past_sermons(
@@ -45,18 +47,24 @@ class SermonsComponent extends AbstractWidgetComponent {
     }
 
     function get_past_sermons($pastor_id = null) {
+        $days_of_relevance = Configure::read("ActivityFeed.daysOfRelevance");
+        $limit = isset($this->widget_settings["limit"]) ? $this->widget_settings["limit"] : Configure::read("ActivityFeed.limit");
+
         $options = array("order" => "Post.publish_timestamp DESC",
-                         "conditions" => array("Post.publish_timestamp < NOW()"),
+                         "conditions" => array("Post.publish_timestamp BETWEEN SYSDATE() - INTERVAL $days_of_relevance DAY AND SYSDATE()"),
                          "recursive" => 2,
-                         "limit" => 5);
+                         "limit" => $limit);
         return $this->get_sermons($options, $pastor_id);
     }
     
     function get_upcoming_sermons($pastor_id = null) {
+        $days_of_relevance = Configure::read("ActivityFeed.daysOfRelevance");
+        $limit = isset($this->widget_settings["limit"]) ? $this->widget_settings["limit"] : Configure::read("ActivityFeed.limit");
+
         $options = array("order" => "Post.publish_timestamp ASC",
                          "conditions" => array("Post.publish_timestamp > NOW()"),
                          "recursive" => 2,
-                         "limit" => 5);
+                         "limit" => $limit);
         return array_reverse($this->get_sermons($options, $pastor_id));
     }
 }

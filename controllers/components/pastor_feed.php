@@ -52,10 +52,15 @@ class PastorFeedComponent extends AbstractWidgetComponent {
         $pastor = $this->controller->Group->findById($pastor_id);
         $this->bindModels();
         $this->controller->Sermon->bindModel(array("belongsTo" => array("Post")));
+
+        Configure::load("config");
+        $days_of_relevance = Configure::read("ActivityFeed.daysOfRelevance");
+        $limit = isset($this->widget_settings["limit"]) ? $this->widget_settings["limit"] : Configure::read("ActivityFeed.limit");
+
         $sermons = $this->controller->Sermon->find('all', 
                 array("conditions" => array("Sermon.pastor_id" => $pastor["Group"]["id"],
-                                            "Post.publish_timestamp < NOW()"),
-                      "limit" => 10,
+                                            "Post.publish_timestamp BETWEEN SYSDATE() - INTERVAL $days_of_relevance DAY AND SYSDATE()"),
+                      "limit" => $limit,
                       "order" => "Post.publish_timestamp DESC"));
         $activity = array();
 
@@ -72,8 +77,8 @@ class PastorFeedComponent extends AbstractWidgetComponent {
         
         $articles = $this->controller->Post->find("all",
                 array("conditions" => array("Post.group_id" => $article_group["Group"]["id"],
-                                            "Post.publish_timestamp < NOW()"),
-                      "limit" => 10,
+                                            "Post.publish_timestamp BETWEEN SYSDATE() - INTERVAL $days_of_relevance DAY AND SYSDATE()"),
+                      "limit" => $limit,
                       "order" => "Post.publish_timestamp DESC"));
 
         foreach ($articles as $article) {

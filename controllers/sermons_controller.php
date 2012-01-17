@@ -360,7 +360,7 @@ class SermonsController extends TranslatableController {
 
                     if ($render) {
                         $this->Session->setFlash(__('The sermon has been saved', true));
-                        $this->redirect(array('action' => 'index'));
+                        $this->redirect(array("plugin"=>"urg_post", "controller"=>"posts", "action"=>"view", $this->data["Post"]["id"]));
                     }
                 } else {
                     $sermon_ds->rollback($this->Sermon);
@@ -432,7 +432,9 @@ class SermonsController extends TranslatableController {
 
                     $this->log("Sermon successfully saved.", LOG_DEBUG);
                     $this->Session->setFlash(__('The sermon has been saved', true));
-                    $this->redirect(array('action' => 'index'));
+                    $referer = $this->Session->read("Referer");
+                    $this->Session->delete("Referer");
+                    $this->redirect($referer);
                 } else {
                     $sermon_ds->rollback($this->Sermon);
                     $post_ds->rollback($this->Sermon->Post);
@@ -454,6 +456,7 @@ class SermonsController extends TranslatableController {
             $this->data["Post"]["displayTime"] = date("h:i A", strtotime($this->data["Post"]["publish_timestamp"]));
             $this->log("form data: " . Debugger::exportVar($this->data, 2), LOG_DEBUG);
             $this->load_speaker();
+            $this->Session->write("Referer", $this->referer());
         }
 
         $this->loadModel("Attachment");

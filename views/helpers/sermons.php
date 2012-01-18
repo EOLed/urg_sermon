@@ -23,7 +23,7 @@ class SermonsHelper extends AbstractWidgetHelper {
     function upcoming_sermons($sermons) {
         $upcoming_events = "";
         foreach ($sermons as $sermon) {
-            $speaker = isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"];
+            $speaker = __(isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"], true);
             $series = $sermon["Post"]["Group"]["name"];
             $sermon_info = $this->Html->div("upcoming-info", $speaker . " | " . $sermon["Sermon"]["passages"]);
             $post_title = $this->Html->link($sermon["Post"]["title"], array("plugin" => "urg_post",

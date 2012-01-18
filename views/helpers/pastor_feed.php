@@ -50,11 +50,11 @@ class PastorFeedHelper extends AbstractWidgetHelper {
 
         if (isset($feed_item["Sermon"])) {
             $feed_message = sprintf(__("%s preached a sermon called %s.", true),
-                    $pastor["Group"]["name"],
+                    __($pastor["Group"]["name"], true),
                     $this->Html->link($feed_item["Post"]["title"], $post_url));
         } else {
             $feed_message = sprintf(__("%s wrote an article called %s.", true),
-                    $pastor["Group"]["name"],
+                    __($pastor["Group"]["name"], true),
                     $this->Html->link($feed_item["Post"]["title"], $post_url));
         }
 

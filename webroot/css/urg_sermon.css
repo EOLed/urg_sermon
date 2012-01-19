@@ -194,12 +194,12 @@ span.footnote-ref {
     z-index:2; 
 }
 
-ul#activity-feed, ul#upcoming-events {
+ul#activity-feed, ul#upcoming-events, ul#past-sermons, ul#upcoming-sermons {
     list-style-type: none;
     padding-left: 0;
 }
 
-ul#activity-feed li, ul#upcoming-events li {
+ul#activity-feed li, ul#upcoming-events li, ul#past-sermons, ul#upcoming-sermons {
     margin-bottom: 20px;
 }
 
@@ -234,12 +234,12 @@ ul.playlist li a {
     overflow: auto;
 }
 
-ul#upcoming-events li a {
+ul#upcoming-events li a, ul#past-sermons li a, ul#upcoming-sermons li a {
     color: #000000;
     text-decoration: none;
 }
 
-ul#upcoming-events li {
+ul#upcoming-events li, ul#past-sermons li, ul#upcoming-sermons li {
     cursor: pointer;
     padding: 5px 0;
     -webkit-border-radius: 0 15px 15px 0;
@@ -247,7 +247,11 @@ ul#upcoming-events li {
     border-radius: 0 15px 15px 0;
 }
 
-ul#upcoming-events li:hover {
+ul#upcoming-sermons li {
+    cursor: default;
+}
+
+ul#upcoming-events li:hover, ul#past-sermons li:hover {
     background-color: #ececec;
 }
 

@@ -42,7 +42,7 @@ class SermonSeriesHelper extends AbstractWidgetHelper {
     function speaker_name($sermon) {
         $speaker = $sermon["Pastor"]["name"] != null ? 
                 $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"];
-        return $speaker;
+        return __($speaker, true);
     }
 }
 

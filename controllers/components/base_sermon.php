@@ -81,7 +81,8 @@ class BaseSermonComponent extends AbstractWidgetComponent {
         $this->bindModels();
 
         $series = $this->controller->Sermon->find("all",
-                array(  "conditions" => array("Post.group_id" => $sermon["Post"]["Group"]["id"]),
+                array(  "conditions" => array("Post.group_id" => $sermon["Post"]["Group"]["id"],
+                                              "Post.publish_timestamp < SYSDATE()"),
                         "order" => array("Post.publish_timestamp"),
                         "recursive" => 2
                 )

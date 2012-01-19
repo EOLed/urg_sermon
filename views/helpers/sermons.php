@@ -16,33 +16,40 @@ class SermonsHelper extends AbstractWidgetHelper {
         }
       
         return $this->Html->div("upcoming-events", $title . $admin_links .
-                $this->upcoming_sermons($this->options["upcoming_sermons"]) .
-                $this->upcoming_sermons($this->options["past_sermons"]));
+                $this->upcoming_sermons("upcoming-sermons", $this->options["upcoming_sermons"], false) .
+                $this->upcoming_sermons("past-sermons", $this->options["past_sermons"]));
     }
 
-    function upcoming_sermons($sermons) {
+    function upcoming_sermons($id, $sermons, $enabled = true) {
         $upcoming_events = "";
         foreach ($sermons as $sermon) {
             $speaker = __(isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"], true);
             $series = $sermon["Post"]["Group"]["name"];
             $sermon_info = $this->Html->div("upcoming-info", $speaker . " | " . $sermon["Sermon"]["passages"]);
-            $post_title = $this->Html->link($sermon["Post"]["title"], array("plugin" => "urg_post",
-                                                                            "controller" => "posts",
-                                                                            "action" => "view",
-                                                                            $sermon["Post"]["id"],
-                                                                            $sermon["Post"]["slug"]));
+            $post_title = $sermon["Post"]["title"];
+            if ($enabled) {
+                $post_title = $this->Html->link($post_title, array("plugin" => "urg_post",
+                                                                   "controller" => "posts",
+                                                                   "action" => "view",
+                                                                   $sermon["Post"]["id"],
+                                                                   $sermon["Post"]["slug"]));
+            }
             $time = $this->Html->div("upcoming-timestamp", 
                                      $this->Time->format("F d, Y @ g:i A", $sermon["Post"]["publish_timestamp"]));
             $upcoming_events .= $this->Html->tag("li", $time . $post_title . $sermon_info);
         }
 
-        return $this->Html->tag("ul", $upcoming_events, array("id" => "upcoming-events")) . 
-               $this->Html->scriptBlock($this->js());
+        $js = "";
+        if ($enabled) {
+            $js = $this->Html->scriptBlock($this->js($id));
+        }
+
+        return $this->Html->tag("ul", $upcoming_events, array("id" => $id)) . $js;
     }
 
-    function js() {
+    function js($id) {
         return '
-            $("#upcoming-events li").click(function() {
+            $("#' . $id . '-events li").click(function() {
                 window.location = $(this).find("a").attr("href");
             });
         ';

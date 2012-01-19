@@ -23,12 +23,12 @@ class SermonMetaHelper extends AbstractWidgetHelper {
         $speaker = $this->Html->div("grid_3 top-border bottom-border left-border right-border sermon-details", 
                                     $this->item(__("Spoken by", true), 
                                             $sermon["Pastor"]["name"] != "" ? 
-                                                    $this->Html->link($sermon["Pastor"]["name"], 
+                                                    $this->Html->link(__($sermon["Pastor"]["name"], true), 
                                                                       array("plugin" => "urg", 
                                                                             "controller" => "groups", 
                                                                             "action" => "view", 
                                                                             $sermon["Pastor"]["slug"])) : 
-                                                    $sermon["Sermon"]["speaker_name"]),
+                                                    __($sermon["Sermon"]["speaker_name"], true)),
                                     array("id" => "sermon-speaker", 
                                           "style" => "border-right-width: 0px"));
 

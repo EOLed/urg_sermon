@@ -25,7 +25,7 @@ class SermonsHelper extends AbstractWidgetHelper {
         foreach ($sermons as $sermon) {
             $speaker = __(isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"], true);
             $series = $sermon["Post"]["Group"]["name"];
-            $sermon_info = $this->Html->div("upcoming-info", $speaker . " | " . $sermon["Sermon"]["passages"]);
+            $sermon_info = $this->Html->div("upcoming-info", $speaker);
             $post_title = $sermon["Post"]["title"];
             if ($enabled) {
                 $post_title = $this->Html->link($post_title, array("plugin" => "urg_post",

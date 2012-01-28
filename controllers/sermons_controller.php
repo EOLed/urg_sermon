@@ -383,6 +383,8 @@ class SermonsController extends TranslatableController {
         } else {
             $this->loadModel("Urg.SequenceId");
             $this->data["Sermon"]["id"] = $this->data["Post"]["id"] = $this->SequenceId->next($this->Sermon->Post->useTable);
+            $this->data["Post"]["displayDate"] = date("F d, Y");
+            $this->data["Post"]["displayTime"] = date("h:i A");
         }
 
         $this->loadModel("Attachment");

@@ -117,8 +117,8 @@ ul.playlist li .controls .statusbar {
 }
 
 ul.playlist li .controls .statusbar .position {
-    background-color: #aa1111;
-    border-right-color: #aa1111;
+    background-color: #776622;
+    border-right-color: #776622;
 }
 
 div.sermon-audio, #sermon-title, .page-title {
@@ -130,7 +130,7 @@ div.esv {
 }
 
 div.esv a {
-    color: #aa1111;
+    color: #776622;
     font-size: 10px;
 }
 
@@ -172,7 +172,7 @@ div.footnotes a {
 div.footnotes h3 {
     font-size: 12px;
     text-transform: uppercase;
-    color: #aa1111;
+    color: #776622;
     padding-bottom: 5px;
     text-shadow: 0px 1px 2px #aaa;
 }
@@ -209,7 +209,7 @@ ul#activity-feed li div.feed-timestamp, .upcoming-info {
 }
 
 div.upcoming-timestamp {
-    color: #aa1111;
+    color: #776622;
 }
 
 img.feed-icon {

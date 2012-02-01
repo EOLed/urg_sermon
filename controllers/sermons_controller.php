@@ -593,7 +593,7 @@ class SermonsController extends TranslatableController {
             $attachment_type = $this->Attachment->AttachmentType->findByName("Audio");
             $webroot_folder = $this->AUDIO_WEBROOT;
         } else if ($this->is_filetype($this->Cuploadify->get_filename(), 
-                array(".ppt", ".pptx", ".doc", ".docx"))) {
+                array(".ppt", ".pptx", ".doc", ".docx",".pdf"))) {
             $root = $this->FILES;
             $attachment_type = $this->Attachment->AttachmentType->findByName("Documents");
             $webroot_folder = $this->FILES_WEBROOT;

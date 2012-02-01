@@ -149,7 +149,7 @@
                                     "buttonText" => strtoupper(__("Attachments", true)), 
                                     "removeCompleted" => true,
                                     "fileExt" => "*.mp3;*.jpg;*.jpeg;*.png;*.gif;*.bmp;" .
-                                                 "*.ppt;*.pptx;*.doc;*.docx",
+                                                 "*.ppt;*.pptx;*.doc;*.docx;*.pdf",
                                     "fileDataName" => "attachmentFile",
                                     "fileDesc" => "Sermon Attachments",
                                     "multi" => true,

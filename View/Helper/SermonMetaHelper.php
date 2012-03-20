@@ -12,48 +12,48 @@ class SermonMetaHelper extends AbstractWidgetHelper {
         $sermon = $this->options["sermon"];
         $attachments = $this->options["attachments"];
         $series = $this->Html->div("alpha grid_3 top-border bottom-border right-border " .
-                "sermon-details", $this->item(__("From the series", true), $sermon["Post"]["Group"]["name"]),
+                "sermon-details", $this->item(__("From the series"), $sermon["Post"]["Group"]["name"]),
                 array("id" => "sermon-series", "style" => "border-right-width: 0px"));
 
         $time = $this->Html->div("grid_3 top-border bottom-border left-border right-border " .
-                "sermon-details", $this->item(__("Taken place on", true), 
+                "sermon-details", $this->item(__("Taken place on"), 
                 $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"])),
                 array("id" => "sermon-date", "style" => "border-right-width: 0px"));
 
         $speaker = $this->Html->div("grid_3 top-border bottom-border left-border right-border sermon-details", 
-                                    $this->item(__("Spoken by", true), 
+                                    $this->item(__("Spoken by"), 
                                             $sermon["Pastor"]["name"] != "" ? 
-                                                    $this->Html->link(__($sermon["Pastor"]["name"], true), 
+                                                    $this->Html->link(__($sermon["Pastor"]["name"]), 
                                                                       array("plugin" => "urg", 
                                                                             "controller" => "groups", 
                                                                             "action" => "view", 
                                                                             $sermon["Pastor"]["slug"])) : 
-                                                    __($sermon["Sermon"]["speaker_name"], true)),
+                                                    __($sermon["Sermon"]["speaker_name"])),
                                     array("id" => "sermon-speaker", 
                                           "style" => "border-right-width: 0px"));
 
         $resources = $this->Html->div("omega grid_3 top-border bottom-border left-border " .
-                "sermon-details", $this->item(__("Resources", true), 
+                "sermon-details", $this->item(__("Resources"), 
                 $this->resource_list($sermon, $attachments)),
                 array("id" => "sermon-resources", "style" => "border-right-width: 0px"));
 
         $admin_links = "";
 
         if ($this->options["can_edit"]) {
-            $admin_links .= $this->Html->link(__("Edit", true), array("plugin" => "urg_sermon",
+            $admin_links .= $this->Html->link(__("Edit"), array("plugin" => "urg_sermon",
                                                                               "controller" => "sermons",
                                                                               "action" => "edit",
                                                                               $this->options["sermon"]["Sermon"]["id"]));
         }
 
         if ($this->options["can_delete"]) {
-            $admin_links .= $this->Html->link(__("Delete", true),
+            $admin_links .= $this->Html->link(__("Delete"),
                                               array("plugin" => "urg_sermon",
                                                     "controller" => "sermons",
                                                     "action" => "delete",
                                                     $this->options["sermon"]["Sermon"]["id"]),
                                               null,
-                                              __("Are you sure you want to delete this?", true));
+                                              __("Are you sure you want to delete this?"));
         }
         
         return $this->Html->div("grid_12", 

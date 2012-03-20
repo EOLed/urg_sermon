@@ -5,11 +5,11 @@ class SermonsHelper extends AbstractWidgetHelper {
 
     function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
-        $title = $this->Html->tag("h2", __("Sermon Schedule", true));
+        $title = $this->Html->tag("h2", __("Sermon Schedule"));
         $admin_links = "";
 
         if ($this->options["can_add"]) {
-            $admin_links = $this->Html->div("", $this->Html->link(__("Add Sermon...", true),
+            $admin_links = $this->Html->div("", $this->Html->link(__("Add Sermon..."),
                                                                   array("plugin" => "urg_sermon",
                                                                         "controller" => "sermons",
                                                                         "action" => "add")));
@@ -23,7 +23,7 @@ class SermonsHelper extends AbstractWidgetHelper {
     function upcoming_sermons($id, $sermons, $enabled = true) {
         $upcoming_events = "";
         foreach ($sermons as $sermon) {
-            $speaker = __(isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"], true);
+            $speaker = __(isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"]);
             $series = $sermon["Post"]["Group"]["name"];
             $sermon_info = $this->Html->div("upcoming-info", $speaker);
             $post_title = $sermon["Post"]["title"];

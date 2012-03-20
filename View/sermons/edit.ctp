@@ -85,12 +85,12 @@
 <?php echo $this->Form->create('Sermon'); ?>
     <div class="grid_6 right-border">
         <fieldset>
-            <legend> <div> <h2><?php __('Edit Sermon'); ?></h2> </div> </legend>
+            <legend> <div> <h2><?php echo __('Edit Sermon'); ?></h2> </div> </legend>
             <?php
             echo $this->Form->hidden("bannerAttachmentIndex");
             echo $this->Form->hidden("Sermon.id");
             echo $this->Form->hidden("Post.id");
-            echo $this->Form->input("series_name", array("label"=>__("Series", true)));
+            echo $this->Form->input("series_name", array("label"=>__("Series")));
             echo $this->Html->div("error-message", "", 
                     array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
             echo $this->Html->div("validated", "✓", 
@@ -101,7 +101,7 @@
             echo $this->Html->div("validated", "✓", 
                     array("id"=>"PostTitleValid", "style"=>"display: none"));
             echo $this->Form->input("speaker_name", 
-                    array("label"=>__("Speaker", true)));
+                    array("label"=>__("Speaker")));
             echo $this->Html->div("error-message", "", 
                     array("id"=>"SermonSpeakerNameError", "style"=>"display: none"));
             echo $this->Html->div("validated", "✓", 
@@ -109,15 +109,15 @@
             echo $this->Form->input("passages");
             echo $this->Form->hidden("Post.formatted_date");
             echo $this->Form->input("Post.displayDate", 
-                    array("type"=>"text", "label"=>__("Date", true), "after"=>$this->Form->text("Post.displayTime", array("div"=>false, "label"=>false))));
-            echo $this->Markdown->input('Sermon.description', array("label"=>__("Description", true), "rows"=>"8"));
-            echo $this->Markdown->input('Post.content', array("label"=>__("Notes", true), "rows"=>"20"));
+                    array("type"=>"text", "label"=>__("Date"), "after"=>$this->Form->text("Post.displayTime", array("div"=>false, "label"=>false))));
+            echo $this->Markdown->input('Sermon.description', array("label"=>__("Description"), "rows"=>"8"));
+            echo $this->Markdown->input('Post.content', array("label"=>__("Notes"), "rows"=>"20"));
             ?>
         </fieldset>
     </div>
     <div class="grid_6">
         <fieldset>
-            <legend> <div> <h2><?php __('Edit Resources'); ?></h2> </div> </legend>
+            <legend> <div> <h2><?php echo __('Edit Resources'); ?></h2> </div> </legend>
             <?php 
             echo $this->Html->div("input", 
                     $this->Html->div("placeholder", 
@@ -133,7 +133,7 @@
                             "options" => array("auto" => true, 
                                     "folder" => "/" . $this->data["Sermon"]["id"],
                                     "script" => $this->Html->url("/urg_sermon/sermons/upload_image"),
-                                    "buttonText" => strtoupper(__("Add Banner", true)), 
+                                    "buttonText" => strtoupper(__("Add Banner")), 
                                     //"multi" => true,
                                     //"queueID" => "upload_queue",
                                     "removeCompleted" => true,
@@ -151,7 +151,7 @@
                             "options" => array("auto" => true, 
                                     "folder" => "/" . $this->data["Sermon"]["id"],
                                     "script" => $this->Html->url("/urg_sermon/sermons/upload_attachments"),
-                                    "buttonText" => strtoupper(__("Attachments", true)), 
+                                    "buttonText" => strtoupper(__("Attachments")), 
                                     "removeCompleted" => true,
                                     "fileExt" => "*.mp3;*.jpg;*.jpeg;*.png;*.gif;*.bmp;" .
                                                  "*.ppt;*.pptx;*.doc;*.docx;*.pdf",
@@ -170,15 +170,15 @@
         </fieldset>
     </div>
     <div class="grid_6 suffix_6">
-        <?php echo $this->Form->end(__('Save', true));?>
+        <?php echo $this->Form->end(__('Save'));?>
     </div>
     <?php 
         echo $this->Html->div("", $this->Html->image("/urg_sermon/img/loading.gif"), 
                 array("id" => "loading-validate", "style" => "display: none")); 
     ?>
-    <div style="display: none;" id="in-progress" title="<?php echo __("Uploads pending...", true); ?>">
+    <div style="display: none;" id="in-progress" title="<?php echo __("Uploads pending..."); ?>">
         <p>
-            <?php echo __("The sermon form will be submitted after all attachments have been uploaded.", true); ?>
+            <?php echo __("The sermon form will be submitted after all attachments have been uploaded."); ?>
         </p>
     </div>
 </div>
@@ -389,7 +389,7 @@
 
     $(function() {
         $(".delete-attachment-link").click(function() {
-            if (confirm("<?php __("Are you sure you want to delete this attachment?") ?>")) {
+            if (confirm("<?php echo __("Are you sure you want to delete this attachment?") ?>")) {
                 $.get($(this).attr("href"), {domId: $(this).attr("id")}, function(data) {
                     data = jQuery.parseJSON(data);
                     if (data.success) {

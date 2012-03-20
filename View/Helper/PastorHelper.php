@@ -19,12 +19,12 @@ class PastorHelper extends AppHelper {
         $feed_message = "";
 
         if (isset($feed_item["Sermon"])) {
-            $feed_message = sprintf(__("%s preached a sermon called %s.", true),
+            $feed_message = sprintf(__("%s preached a sermon called %s."),
                     $pastor["Group"]["name"],
                     $this->Html->link($feed_item["Post"]["title"], 
                             "/urg_sermon/sermons/view/" . $feed_item["Sermon"]["id"]));
         } else {
-            $feed_message = sprintf(__("%s wrote an article called %s.", true),
+            $feed_message = sprintf(__("%s wrote an article called %s."),
                     $pastor["Group"]["name"],
                     $this->Html->link($feed_item["Post"]["title"], 
                             "/urg_post/posts/view/" . $feed_item["Post"]["id"] . "/" .

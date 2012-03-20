@@ -5,7 +5,7 @@
     </div>
     <?php } ?>
     <div id="about-panel" class="grid_3">
-        <h3><?php echo strtoupper(__("About us", true)); ?></h3>
+        <h3><?php echo strtoupper(__("About us")); ?></h3>
         <?php echo $about["Post"]["content"] ?>
     </div>
 
@@ -14,15 +14,15 @@
     </div>
 
     <div id="about-pastor" class="grid_4 right-border">
-        <h2><?php echo __("Bio", true) ?></h2>
+        <h2><?php echo __("Bio") ?></h2>
         <?php echo $about_pastor["Post"]["content"]; ?>
     </div>
     <div id="pastor-feed" class="grid_4 right-border">
-        <h2><?php echo __("Recent activity", true); ?></h2>
+        <h2><?php echo __("Recent activity"); ?></h2>
         <?php echo $this->Pastor->activity_feed($pastor, $activity); ?>
     </div>
     <div id="pastor-upcoming" class="grid_4">
-        <h2><?php echo __("Upcoming events", true); ?></h2>
+        <h2><?php echo __("Upcoming events"); ?></h2>
         <?php echo $this->Pastor->upcoming_events($pastor, $upcoming_events); ?>
     </div>
 </div>

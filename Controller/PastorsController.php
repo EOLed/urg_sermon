@@ -40,7 +40,7 @@ class PastorsController extends UrgSermonAppController {
     function view($slug = null) {
         $this->log("Entering view action", LOG_DEBUG);
         if (!$slug) {
-            $this->Session->setFlash(__('Invalid sermon', true));
+            $this->Session->setFlash(__('Invalid sermon'));
             $this->redirect(array('action' => 'index'));
         }
         $pastor = $this->Group->findBySlug($slug);
@@ -51,7 +51,7 @@ class PastorsController extends UrgSermonAppController {
         $this->set("activity", $this->get_recent_activity($pastor));
         $this->set("upcoming_events", $this->get_upcoming_sermons($pastor));
 
-        $this->set("title_for_layout", __("Pastors", true) . " &raquo; " . $pastor["Group"]["name"]);
+        $this->set("title_for_layout", __("Pastors") . " &raquo; " . $pastor["Group"]["name"]);
     }
 
     function get_about($name) {

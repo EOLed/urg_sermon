@@ -69,7 +69,7 @@
                     "options" => array("auto" => true, 
                             "folder" => "/import",
                             "script" => $this->Html->url("/urg_sermon/sermons/upload_import_file"),
-                            "buttonText" => strtoupper(__("Import", true)), 
+                            "buttonText" => strtoupper(__("Import")), 
                             "multi" => false,
                             //"queueID" => "upload_queue",
                             "removeCompleted" => true,

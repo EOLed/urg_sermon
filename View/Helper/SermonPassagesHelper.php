@@ -26,7 +26,7 @@ class SermonPassagesHelper extends AbstractWidgetHelper {
                                             "action" => "passages",
                                             $this->Bible->encode_passage($sermon["Sermon"]["passages"]))));
             $passages = $this->Html->div("sermon-passages", 
-                                         $this->Html->tag("h2", __("Passage", true)) .  
+                                         $this->Html->tag("h2", __("Passage")) .  
                                          $sermon["Sermon"]["passages"] .
                                          $translations . $passage_placeholder . $loading);
         }

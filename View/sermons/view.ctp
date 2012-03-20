@@ -6,13 +6,13 @@
     <?php } ?>
     <div id="about-panel" class="grid_3">
         <?php if ($sermon["Series"]["description"] != "") { ?>
-            <h3><?php __("About the series") ?></h3>
+            <h3><?php echo __("About the series") ?></h3>
             <?php echo $sermon["Series"]["description"]; ?>
         <?php } else if ($sermon["Pastor"]["description"] != "") { ?>
-            <h3><?php __("About the speaker") ?></h3>
+            <h3><?php echo __("About the speaker") ?></h3>
             <?php echo $sermon["Pastor"]["description"]; ?>
         <?php } else { ?>
-            <h3><?php echo strtoupper(__("About us", true)); ?></h3>
+            <h3><?php echo strtoupper(__("About us")); ?></h3>
         <?php } ?>
     </div>
 
@@ -40,25 +40,25 @@
         <div id="sermon-series" 
                 class="alpha grid_3 top-border bottom-border right-border sermon-details" 
                 style="border-right-width: 0px">
-            <h3 class="sermon-details"><?php __("From the series"); ?></h3>
+            <h3 class="sermon-details"><?php echo __("From the series"); ?></h3>
             <?php echo $sermon["Series"]["name"]; ?>
         </div>
         <div id="sermon-date" 
                 class="grid_3 top-border bottom-border right-border left-border sermon-details"
                 style="border-right-width: 0px">
-            <h3 class="sermon-details"><?php __("Taken place on"); ?></h3>
+            <h3 class="sermon-details"><?php echo __("Taken place on"); ?></h3>
             <?php echo $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"]) ?>
         </div>
         <div id="sermon-speaker" 
                 class="grid_3 top-border bottom-border right-border left-border sermon-details"
                 style="border-right-width: 0px">
-            <h3 class="sermon-details"><?php __("Spoken by"); ?></h3>
+            <h3 class="sermon-details"><?php echo __("Spoken by"); ?></h3>
             <?php echo $sermon["Pastor"]["name"] != "" ? $sermon["Pastor"]["name"] : 
                     $sermon["Sermon"]["speaker_name"] ?>
         </div>
         <div id="sermon-resources" 
                 class="omega grid_3 top-border bottom-border left-border sermon-details">
-            <h3 class="sermon-details"><?php __("Resources"); ?></h3>
+            <h3 class="sermon-details"><?php echo __("Resources"); ?></h3>
             <?php if (isset($attachments["Documents"])) { ?>
                 <ul id="sermon-resource-list">
                 <?php foreach ($attachments["Documents"] as $filename=>$attachment_id) { ?> 
@@ -102,13 +102,13 @@
     <div id="sermon-meta" class="grid_5 right-border">
         <?php if ($sermon["Sermon"]["description"] != "") { ?>
         <div class="sermon-description">
-            <h2><?php __("Description") ?></h2>
+            <h2><?php echo __("Description") ?></h2>
             <?php echo $sermon["Sermon"]["description"] ?>
         </div>
         <?php } ?>
         <?php if ($sermon["Sermon"]["passages"] != "") { ?>
         <div class="sermon-passage">
-            <h2><?php __("Passage") ?></h2>
+            <h2><?php echo __("Passage") ?></h2>
             <?php echo $sermon["Sermon"]["passages"] . " "; ?>
             <span class="sermon-passage-translation">
                 <?php echo $this->Html->link("[ESV]", "/urg_sermon/sermons/passages/" . $this->Bible->encode_passage($sermon["Sermon"]["passages"])); ?>
@@ -132,7 +132,7 @@
                     <a href="<?php echo $this->Html->url("/urg_post/posts/view/") . 
                             $series_sermon["Sermon"]["id"] ?>"><?php echo $series_sermon["Post"]["title"]?></a>
                     <div class="series-sermon-details">
-                        <?php echo sprintf(__("by %s on %s", true),
+                        <?php echo sprintf(__("by %s on %s"),
                                 $this->element("speaker_name", array("plugin"=>"urg_sermon", 
                                         "sermon"=> $series_sermon)),
                                 $this->Time->format("n/j/y", $sermon['Post']['publish_timestamp'])) ?>
@@ -152,7 +152,7 @@
         </div>
     <? } ?>
         <div id="sermon-notes">
-            <h2><?php echo __("Sermon notes", true); ?></h2>
+            <h2><?php echo __("Sermon notes"); ?></h2>
             <?php echo $sermon["Post"]["content"]; ?>
         </div>
     </div>

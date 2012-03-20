@@ -52,7 +52,7 @@ class SermonsController extends TranslatableController {
     function view($id = null) {
         $this->log("Entering view action", LOG_DEBUG);
         if (!$id) {
-            $this->Session->setFlash(__('Invalid sermon', true));
+            $this->Session->setFlash(__('Invalid sermon'));
             $this->redirect(array('action' => 'index'));
         }
         $sermon = $this->Sermon->find("first", 
@@ -104,7 +104,7 @@ class SermonsController extends TranslatableController {
             $banner = $key;
         }
 
-        $this->set("title_for_layout", __("Sermons", true) . " &raquo; " . $sermon["Series"]["name"] . " &raquo; " . $sermon["Post"]["title"]);
+        $this->set("title_for_layout", __("Sermons") . " &raquo; " . $sermon["Series"]["name"] . " &raquo; " . $sermon["Post"]["title"]);
 
         $this->set("banners", array($this->get_image_path($banner, $sermon, $this->BANNER_SIZE)));
     }
@@ -126,8 +126,7 @@ class SermonsController extends TranslatableController {
         if ($passages == null) {
             $this->log("No passages found for $passage", LOG_DEBUG);
             $this->Session->setFlash(
-                    __("We're having problems retrieving Bible verses at the moment. Please try again later.", 
-                       true), 
+                    __("We're having problems retrieving Bible verses at the moment. Please try again later."), 
                     "flash_error");
         }
 
@@ -359,7 +358,7 @@ class SermonsController extends TranslatableController {
                     $this->log("Sermon successfully saved.", LOG_DEBUG);
 
                     if ($render) {
-                        $this->Session->setFlash(__('The sermon has been saved', true));
+                        $this->Session->setFlash(__('The sermon has been saved'));
                         $this->redirect(array("plugin"=>"urg_post", "controller"=>"posts", "action"=>"view", $this->data["Post"]["id"]));
                     }
                 } else {
@@ -369,7 +368,7 @@ class SermonsController extends TranslatableController {
 
                     if ($render) {
                         $this->Session->setFlash(
-                                __('The sermon could not be saved. Please, try again.', true));
+                                __('The sermon could not be saved. Please, try again.'));
                     }
                 } 
           /*  } else {
@@ -377,7 +376,7 @@ class SermonsController extends TranslatableController {
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
 
                 if ($render) {
-                    $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+                    $this->Session->setFlash(__('The sermon could not be saved. Please, try again.'));
                 }
             }*/
         } else {
@@ -404,7 +403,7 @@ class SermonsController extends TranslatableController {
         $this->Sermon->id = $id;
 
         if (!$id && empty($this->data)) {
-            $this->Session->setFlash(__('Invalid sermon', true));
+            $this->Session->setFlash(__('Invalid sermon'));
             $this->redirect(array('action' => 'index'));
         }
         if (!empty($this->data)) {
@@ -434,7 +433,7 @@ class SermonsController extends TranslatableController {
                     $sermon_ds->commit($this->Sermon);
 
                     $this->log("Sermon successfully saved.", LOG_DEBUG);
-                    $this->Session->setFlash(__('The sermon has been saved', true));
+                    $this->Session->setFlash(__('The sermon has been saved'));
                     $referer = $this->Session->read("Referer");
                     $this->Session->delete("Referer");
                     $this->redirect($referer);
@@ -443,12 +442,12 @@ class SermonsController extends TranslatableController {
                     $post_ds->rollback($this->Sermon->Post);
                     $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
                     $this->Session->setFlash(
-                            __('The sermon could not be saved. Please, try again.', true));
+                            __('The sermon could not be saved. Please, try again.'));
                 } 
             } else {
                 $this->Sermon->saveAll($this->data, array("validate"=>"only"));
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
-                $this->Session->setFlash(__('The sermon could not be saved. Please, try again.', true));
+                $this->Session->setFlash(__('The sermon could not be saved. Please, try again.'));
             }
         }
 
@@ -499,7 +498,7 @@ class SermonsController extends TranslatableController {
 
     function delete($id = null) {
         if (!$id) {
-            $this->Session->setFlash(__('Invalid id for sermon', true));
+            $this->Session->setFlash(__('Invalid id for sermon'));
             $this->redirect(array('action'=>'index'));
         }
 
@@ -513,10 +512,10 @@ class SermonsController extends TranslatableController {
                     $this->IMAGES . "/" . $sermonToDelete["Sermon"]["id"]);
             $this->rrmdir($this->remove_trailing_slash(env("DOCUMENT_ROOT")) . 
                     $this->FILES . "/" . $sermonToDelete["Sermon"]["id"]);
-            $this->Session->setFlash(__('Sermon deleted', true));
+            $this->Session->setFlash(__('Sermon deleted'));
             $this->redirect(array('action'=>'index'));
         }
-        $this->Session->setFlash(__('Sermon was not deleted', true));
+        $this->Session->setFlash(__('Sermon was not deleted'));
         $this->redirect(array('action' => 'index'));
     }
 
@@ -844,7 +843,7 @@ class SermonsController extends TranslatableController {
             $this->loadModel("Urg.SequenceId");
             $this->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->useTable);
             $data["Post"]["title"] = $this->get_value($sermon, "title");
-            $this->ajax_log(sprintf(__("Importing sermon: %s", true), $data["Post"]["title"]), 
+            $this->ajax_log(sprintf(__("Importing sermon: %s"), $data["Post"]["title"]), 
                     $this->get_percentage(++$current_stage, $stages));
             $data["Sermon"]["series_name"] = $this->get_value($sermon, "series");
             $data["Sermon"]["speaker_name"] = $this->get_value($sermon, "speaker");
@@ -864,10 +863,10 @@ class SermonsController extends TranslatableController {
                 $attachment = array();
                 $attachment["attachment_type_id"] = $banner_type["AttachmentType"]["id"];
                 $file_path = $banner->attributes["src"];
-                $this->ajax_log(sprintf(__("Copying banner from %s...", true), $file_path));
+                $this->ajax_log(sprintf(__("Copying banner from %s..."), $file_path));
                 $filename = $this->get_filename($this->copy_file($file_path, $temp_folder));
                 $attachment["filename"] = $filename;
-                $this->ajax_log(sprintf(__("Banner %s copied", true), $filename),
+                $this->ajax_log(sprintf(__("Banner %s copied"), $filename),
                         $this->get_percentage(++$current_stage, $stages));
 
                 $data["Attachment"][$attachment_counter++] = $attachment;
@@ -884,10 +883,10 @@ class SermonsController extends TranslatableController {
                 $attachment = array();
                 $attachment_type = $this->get_attachment_type($file_path);
                 $attachment["attachment_type_id"] = $attachment_type["AttachmentType"]["id"];
-                $this->ajax_log(sprintf(__("Copying attachment from %s...", true), $file_path));
+                $this->ajax_log(sprintf(__("Copying attachment from %s..."), $file_path));
                 $filename = $this->get_filename($this->copy_file($file_path, $temp_folder));
                 $attachment["filename"] = $filename;
-                $this->ajax_log(sprintf(__("Attachment %s copied", true), $filename),
+                $this->ajax_log(sprintf(__("Attachment %s copied"), $filename),
                         $this->get_percentage(++$current_stage, $stages));
 
                 $data["Attachment"][$attachment_counter++] = $attachment;
@@ -896,13 +895,13 @@ class SermonsController extends TranslatableController {
             $this->data = &$data;
 
             $this->autoRender = false;
-            $this->ajax_log(sprintf(__("Saving sermon %s...", true), $data["Post"]["title"]));
+            $this->ajax_log(sprintf(__("Saving sermon %s..."), $data["Post"]["title"]));
             $this->add(false);
-            $this->ajax_log(sprintf(__("Sermon %s saved.", true), $data["Post"]["title"]),
+            $this->ajax_log(sprintf(__("Sermon %s saved."), $data["Post"]["title"]),
                         $this->get_percentage(++$current_stage, $stages));
         }
 
-        $this->ajax_log(__("Sermon import completed.", true), 
+        $this->ajax_log(__("Sermon import completed."), 
                 $this->get_percentage(++$current_stage, $stages));
     }
 

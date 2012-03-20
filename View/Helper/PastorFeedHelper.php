@@ -7,7 +7,7 @@ class PastorFeedHelper extends AbstractWidgetHelper {
     function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
         $title = $this->Html->tag("h2", 
-                __(isset($this->options["title"]) ? $this->options["title"] : "Recent Activity", true));
+                __(isset($this->options["title"]) ? $this->options["title"] : "Recent Activity"));
 
         return $title . $this->activity_feed($this->options["pastor"], $this->options["pastor_feed"]);
     }
@@ -16,13 +16,13 @@ class PastorFeedHelper extends AbstractWidgetHelper {
         $feed = "";
 
         if ($this->options["add_sermon"]) {
-            $feed .= $this->Html->link(__("Add a new sermon...", true), array("plugin" => "urg_sermon",
+            $feed .= $this->Html->link(__("Add a new sermon..."), array("plugin" => "urg_sermon",
                                                                             "controller" => "sermons",
                                                                             "action" => "add"));
         }
 
         if ($this->options["add_article"]) {
-            $feed .= $this->Html->link(__("Add a new article...", true), array("plugin" => "urg_post",
+            $feed .= $this->Html->link(__("Add a new article..."), array("plugin" => "urg_post",
                                                                                "controller" => "posts",
                                                                                "action" => "add",
                                                                                $this->options["article_group_slug"]));
@@ -49,12 +49,12 @@ class PastorFeedHelper extends AbstractWidgetHelper {
                           $feed_item["Post"]["slug"]);
 
         if (isset($feed_item["Sermon"])) {
-            $feed_message = sprintf(__("%s preached a sermon called %s.", true),
-                    __($pastor["Group"]["name"], true),
+            $feed_message = sprintf(__("%s preached a sermon called %s."),
+                    __($pastor["Group"]["name"]),
                     $this->Html->link($feed_item["Post"]["title"], $post_url));
         } else {
-            $feed_message = sprintf(__("%s wrote an article called %s.", true),
-                    __($pastor["Group"]["name"], true),
+            $feed_message = sprintf(__("%s wrote an article called %s."),
+                    __($pastor["Group"]["name"]),
                     $this->Html->link($feed_item["Post"]["title"], $post_url));
         }
 

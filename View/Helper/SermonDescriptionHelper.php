@@ -15,7 +15,7 @@ class SermonDescriptionHelper extends AbstractWidgetHelper {
         $description = "";
         if (trim($sermon["Sermon"]["description"]) != "") {
             $description = $this->Html->div("sermon-description", 
-                                            $this->Html->tag("h2", __("Description", true)) . 
+                                            $this->Html->tag("h2", __("Description")) . 
                                             $this->Markdown->html($sermon["Sermon"]["description"]));
         }
 

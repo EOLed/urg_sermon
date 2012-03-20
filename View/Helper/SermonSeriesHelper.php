@@ -23,7 +23,7 @@ class SermonSeriesHelper extends AbstractWidgetHelper {
                                                  "action" => "view", 
                                                  $series_sermon["Post"]["id"]));
                 $item .= $this->Html->div("series-sermon-details",
-                        sprintf(__("by %s on %s", true),
+                        sprintf(__("by %s on %s"),
                                 $this->speaker_name($series_sermon),
                                 $this->Time->format("n/j/y", $series_sermon['Post']['publish_timestamp'])));
                 $item = $this->Html->tag("li", $item, array("class" => "series-sermon-list-item " . 
@@ -42,7 +42,7 @@ class SermonSeriesHelper extends AbstractWidgetHelper {
     function speaker_name($sermon) {
         $speaker = $sermon["Pastor"]["name"] != null ? 
                 $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"];
-        return __($speaker, true);
+        return __($speaker);
     }
 }
 

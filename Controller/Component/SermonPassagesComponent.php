@@ -1,5 +1,5 @@
 <?php
-App::import("Component", "UrgSermon.BaseSermon");
+App::uses("Component", "UrgSermon.Controller/Component");
 class SermonPassagesComponent extends BaseSermonComponent {
 }
 

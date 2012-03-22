@@ -1,6 +1,5 @@
 <?php
-App::import("Component", "UrgSermon.BaseSermon");
-App::import("Component", "UrgSermon.BaseSermonComponent");
+App::uses("BaseSermonComponent", "UrgSermon.Controller/Component");
 class SermonMetaComponent extends BaseSermonComponent {
     function build_widget() {
         parent::build_widget();

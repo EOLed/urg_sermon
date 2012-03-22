@@ -1,8 +1,8 @@
 <?php
-App::import("Lib", "Urg.AbstractWidgetHelper");
-App::import("Helper", "Markdown.Markdown");
+App::uses("AbstractWidgetHelper", "Urg.Lib");
+App::uses("MarkdownHelper", "Markdown.View/Helper");
 class SermonDescriptionHelper extends AbstractWidgetHelper {
-    var $helpers = array("Html", "Time", "Markdown");
+    var $helpers = array("Html", "Time", "Markdown.Markdown");
 
     function build_widget() {
         CakeLog::write("debug", "building sermon description widget");

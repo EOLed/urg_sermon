@@ -1,8 +1,8 @@
 <?php
-App::import("Sanitize");
-App::import("Component", "ImgLib.ImgLib");
-App::import("Controller", "Urg.Group");
-App::import("Helper", "UrgSermon.Pastor");
+App::uses("Sanitize");
+App::uses("ImgLibComponent", "ImgLib.Controller/Component");
+App::uses("GroupController", "Urg.Controller");
+App::uses("PastorHelper", "UrgSermon.View/Helper");
 class PastorsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
@@ -17,11 +17,11 @@ class PastorsController extends UrgSermonAppController {
 
     var $name = 'Pastors';
     var $useTable = false;
-    var $uses = array("Group", "Sermon");
+    var $uses = array("Urg.Group", "UrgSermon.Sermon");
 
-    var $components = array("ImgLib");
+    var $components = array("ImgLib.ImgLib");
 
-    var $helpers = array("Time", "Pastor");
+    var $helpers = array("Time", "UrgSermon.Pastor");
 
     function search($term = "") {
         $term = Sanitize::clean($term);

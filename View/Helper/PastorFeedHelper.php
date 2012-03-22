@@ -1,5 +1,5 @@
 <?php
-App::import("Lib", "Urg.AbstractWidgetHelper");
+App::uses("AbstractWidgetHelper", "Urg.Lib");
 class PastorFeedHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time");
     var $widget_options = array("pastor", "pastor_feed");

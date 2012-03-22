@@ -1,5 +1,5 @@
 <?php
-App::import("Lib", "Urg.AbstractWidgetComponent");
+App::uses("AbstractWidgetComponent", "Urg.Lib");
 class SermonsComponent extends AbstractWidgetComponent {
     function build_widget() {
         $settings = $this->widget_settings;

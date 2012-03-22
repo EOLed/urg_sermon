@@ -1,5 +1,5 @@
 <?php
-App::import("Lib", "Urg.AbstractWidgetComponent");
+App::uses("AbstractWidgetComponent", "Urg.Controller/Component");
 class PastorFeedComponent extends AbstractWidgetComponent {
     function build_widget() {
         $settings = $this->settings[$this->widget_id];

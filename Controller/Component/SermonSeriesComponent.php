@@ -1,5 +1,5 @@
 <?php
-App::import("Component", "UrgSermon.BaseSermonComponent");
+App::uses("BaseSermonComponent", "UrgSermon.Controller/Component");
 class SermonSeriesComponent extends BaseSermonComponent {
     function build_widget() {
         parent::build_widget();

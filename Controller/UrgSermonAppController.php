@@ -1,4 +1,4 @@
 <?php
-App::import("Controller", "Urg.UrgApp");
+App::uses("UrgAppController", "Urg.Controller");
 class UrgSermonAppController extends AppController {
 }

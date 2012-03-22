@@ -1,8 +1,8 @@
 <?php
-App::import("Helper", "Bible.Bible");
-App::import("Lib", "Urg.AbstractWidgetHelper");
+App::uses("BibleHelper", "Bible.View/Helper");
+App::uses("AbstractWidgetHelper", "Urg.View/Helper");
 class SermonPassagesHelper extends AbstractWidgetHelper {
-    var $helpers = array("Html", "Time", "Bible");
+    var $helpers = array("Html", "Time", "Bible.Bible");
 
     function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));

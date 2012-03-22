@@ -1,15 +1,15 @@
 <?php
-App::import("Sanitize");
-App::import("Component", "Cuploadify.Cuploadify");
-App::import("Component", "ImgLib.ImgLib");
-App::import("Component", "Bible.Bible");
-App::import("Component", "TempFolder");
-App::import("Helper", "Bible.Bible");
-App::import("Helper", "Sm2.SoundManager2");
-App::import("Helper", "Markdown.Markdown");
-App::import("Lib", "Urg.TranslatableController");
+App::uses("Sanitize");
+App::uses("CuploadifyComponent", "Cuploadify.Controller/Component");
+App::uses("ImgLibComponent", "ImgLib.Controller/Component");
+App::uses("BibleComponent", "Bible.Controller/Component");
+App::uses("TempFolderComponent", "Controller/Component");
+App::uses("BibleHelper", "Bible.View/Helper");
+App::uses("SoundManager2Helper", "Sm2.View/Helper");
+App::uses("MarkdownHelper", "Markdown.View/Helper");
+App::uses("TranslatableController", "Urg.Controller");
 
-App::import("Component", "Urg.WidgetUtil");
+App::uses("WidgetUtilComponent", "Urg.Controller/Component");
 class SermonsController extends TranslatableController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
@@ -31,12 +31,12 @@ class SermonsController extends TranslatableController {
                            "action" => "login",
                            "admin" => false
                    )
-           ), "Urg", "Cuploadify", "ImgLib", "TempFolder",
-           "Bible" => array("Esv"=>array("key" => "bef9e04393f0f17f"))
+           ), "Urg.Urg", "Cuploadify.Cuploadify", "ImgLib.ImgLib", "TempFolder",
+           "Bible.Bible" => array("Esv"=>array("key" => "bef9e04393f0f17f"))
     );
 
     var $helpers = array(
-        "Js" => array("Jquery"), "Time", "Bible", "SoundManager2", "Markdown"
+        "Js" => array("Jquery"), "Time", "Bible.Bible", "Sm2.SoundManager2", "Markdown.Markdown"
     );
     var $name = 'Sermons';
 
@@ -823,7 +823,7 @@ class SermonsController extends TranslatableController {
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
 
-        App::import("Xml");
+        App::uses("Xml");
 
         $temp_import_dir = $this->TempFolder->mkdir() . "/import";
         if (!file_exists($temp_import_dir)) {

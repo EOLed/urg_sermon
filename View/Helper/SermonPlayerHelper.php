@@ -1,6 +1,6 @@
 <?php
-App::import("Helper", "Sm2.SoundManager2");
-App::import("Lib", "Urg.AbstractWidgetHelper");
+App::uses("SoundManager2Helper", "Sm2.View/Helper");
+App::uses("AbstractWidgetHelper", "Urg.Lib");
 class SermonPlayerHelper extends AbstractWidgetHelper {
     var $helpers = array("Html", "Time", "Sm2.SoundManager2");
 

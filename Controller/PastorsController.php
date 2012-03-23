@@ -1,5 +1,5 @@
 <?php
-App::uses("Sanitize");
+App::uses("Sanitize", "Utility");
 App::uses("ImgLibComponent", "ImgLib.Controller/Component");
 App::uses("GroupController", "Urg.Controller");
 App::uses("PastorHelper", "UrgSermon.View/Helper");

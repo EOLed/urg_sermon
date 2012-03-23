@@ -1,5 +1,5 @@
 <?php
-App::uses("Sanitize");
+App::uses("Sanitize", "Utility");
 App::uses("CuploadifyComponent", "Cuploadify.Controller/Component");
 App::uses("ImgLibComponent", "ImgLib.Controller/Component");
 App::uses("BibleComponent", "Bible.Controller/Component");

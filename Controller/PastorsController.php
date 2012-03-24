@@ -8,9 +8,9 @@ class PastorsController extends UrgSermonAppController {
     var $IMAGES_WEBROOT = "img";
     var $FILES_WEBROOT = "files";
 
-    var $AUDIO = "/app/plugins/urg_post/webroot/audio";
-    var $IMAGES = "/app/plugins/urg_post/webroot/img";
-    var $FILES = "/app/plugins/urg_post/webroot/files";
+    var $AUDIO = "/app/Plugin/UrgPost/webroot/audio";
+    var $IMAGES = "/app/Plugin/UrgPost/webroot/img";
+    var $FILES = "/app/Plugin/UrgPost/webroot/files";
 
     var $BANNER_SIZE = 700;
     var $PANEL_BANNER_SIZE = 460;

@@ -21,7 +21,7 @@ class SermonsComponent extends AbstractWidgetComponent {
     }
 
     function bindModels() {
-        $this->controller->loadModel("Sermon");
+        $this->controller->loadModel("UrgSermon.Sermon");
         $this->controller->Sermon->bindModel(array(
                 "belongsTo" => array('Post' => array('className' => 'UrgPost.Post',
                                                      'foreignKey' => 'post_id',

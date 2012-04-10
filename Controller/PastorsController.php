@@ -55,7 +55,7 @@ class PastorsController extends UrgSermonAppController {
     }
 
     function get_about($name) {
-        $this->loadModel("Post");
+        $this->loadModel("UrgPost.Post");
         $this->Post->bindModel(array("belongsTo" => array("Group")));
         $this->Post->bindModel(array("hasMany" => array("Attachment")));
 
@@ -107,7 +107,7 @@ class PastorsController extends UrgSermonAppController {
 
         $article_group = $this->get_article_group($pastor);
         $this->log("article group for pastor: " . Debugger::exportVar($article_group, 3), LOG_DEBUG);
-        $this->loadModel("Post");
+        $this->loadModel("UrgPost.Post");
         $this->Post->bindModel(array("belongsTo" => array("Group")));
         $this->Post->bindModel(array("hasMany" => array("Attachment")));
         

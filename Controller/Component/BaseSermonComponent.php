@@ -38,7 +38,7 @@ class BaseSermonComponent extends AbstractWidgetComponent {
     }
 
     function bindModels() {
-        $this->controller->loadModel("Sermon");
+        $this->controller->loadModel("UrgSermon.Sermon");
         $this->controller->Sermon->bindModel(array(
                 "belongsTo" => array('Post' => array('className' => 'UrgPost.Post',
                                                      'foreignKey' => 'post_id',
@@ -94,7 +94,7 @@ class BaseSermonComponent extends AbstractWidgetComponent {
     }
 
     function bind_attachments() {
-        $this->controller->loadModel("Attachment");
+        $this->controller->loadModel("UrgPost.Attachment");
     }
 }
 

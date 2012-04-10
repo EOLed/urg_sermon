@@ -68,7 +68,7 @@ class SermonsController extends TranslatableController {
         );
                         
 
-        $this->loadModel("Attachment");
+        $this->loadModel("UrgPost.Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $attachments = $this->Attachment->find("list", 
                 array(  "conditions" => array("AND" => array(
@@ -294,7 +294,7 @@ class SermonsController extends TranslatableController {
         $full_image_path = $this->get_doc_root($this->IMAGES) . "/" .  $sermon_id;
 
         if (file_exists($full_image_path)) {
-            $this->loadModel("Attachment");
+            $this->loadModel("UrgPost.Attachment");
             $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
 
             $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
@@ -387,7 +387,7 @@ class SermonsController extends TranslatableController {
             $this->data["Post"]["displayTime"] = date("h:i A");
         }
 
-        $this->loadModel("Attachment");
+        $this->loadModel("UrgPost.Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
 
         $this->set("banner_type", 
@@ -462,7 +462,7 @@ class SermonsController extends TranslatableController {
             $this->Session->write("Referer", $this->referer());
         }
 
-        $this->loadModel("Attachment");
+        $this->loadModel("UrgPost.Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
 
         $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
@@ -578,7 +578,7 @@ class SermonsController extends TranslatableController {
 
         $this->log("determining what type of attachment...", LOG_DEBUG);
 
-        $this->loadModel("Attachment");
+        $this->loadModel("UrgPost.Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $attachment_type = null;
         $root = null;
@@ -819,7 +819,7 @@ class SermonsController extends TranslatableController {
             $filename = $this->params["url"]["filename"];
         }
 
-        $this->loadModel("Attachment");
+        $this->loadModel("UrgPost.Attachment");
         $this->Attachment->bindModel(array("belongsTo" => array("AttachmentType")));
         $banner_type = $this->Attachment->AttachmentType->findByName("Banner");
 

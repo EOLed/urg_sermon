@@ -30,7 +30,7 @@ class PastorFeedComponent extends AbstractWidgetComponent {
     }
 
     function bindModels() {
-        $this->controller->loadModel("Sermon");
+        $this->controller->loadModel("UrgSermon.Sermon");
         $this->controller->Sermon->bindModel(array(
                 "belongsTo" => array('Post' => array('className' => 'UrgPost.Post',
                                                      'foreignKey' => 'post_id',
@@ -71,7 +71,7 @@ class PastorFeedComponent extends AbstractWidgetComponent {
 
         $article_group = $this->get_article_group($pastor);
         CakeLog::write("debug", "article group for pastor: " . Debugger::exportVar($article_group, 3));
-        $this->controller->loadModel("Post");
+        $this->controller->loadModel("UrgPost.Post");
         $this->controller->Post->bindModel(array("belongsTo" => array("Group")));
         $this->controller->Post->bindModel(array("hasMany" => array("Attachment")));
         

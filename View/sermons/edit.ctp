@@ -125,10 +125,10 @@
                                     isset($banner) ? $this->Html->image($banner, array("id"=>"sermon-banner-id")) : "", 
                                     array("id" => "sermon-banner")
                     ) . 
-                    $this->element("uploadify", 
-                    array("plugin" => "cuploadify", 
+                    $this->element("Cuploadify.uploadify", 
+                    array("plugin" => "Cuploadify", 
                             "dom_id" => "image_upload", 
-                            "session_id" => $this->Session->id(),
+                            "session_id" => CakeSession::id(),
                             "include_scripts" => array("uploadify_css", "uploadify", "swfobject"),
                             "options" => array("auto" => true, 
                                     "folder" => "/" . $this->data["Sermon"]["id"],
@@ -144,10 +144,10 @@
                                     "onProgress" => "image_upload_in_progress",
                                     "onAllComplete" => "image_uploads_completed"
                                     ))))); 
-            echo $this->Html->div("input", $this->element("uploadify",
-                    array("plugin" => "cuploadify", 
+            echo $this->Html->div("input", $this->element("Cuploadify.uploadify",
+                    array("plugin" => "Cuploadify", 
                             "dom_id" => "attachment_upload", 
-                            "session_id" => $this->Session->id(),
+                            "session_id" => CakeSession::id(),
                             "options" => array("auto" => true, 
                                     "folder" => "/" . $this->data["Sermon"]["id"],
                                     "script" => $this->Html->url("/urg_sermon/sermons/upload_attachments"),

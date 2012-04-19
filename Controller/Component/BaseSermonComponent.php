@@ -1,5 +1,5 @@
 <?php
-App::uses("AbstractWidgetComponent", "Urg.Controller/Component");
+App::uses("AbstractWidgetComponent", "Urg.Lib");
 class BaseSermonComponent extends AbstractWidgetComponent {
     var $sermon = null;
 

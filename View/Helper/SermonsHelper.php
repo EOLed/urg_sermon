@@ -21,10 +21,12 @@ class SermonsHelper extends AbstractWidgetHelper {
     }
 
     function upcoming_sermons($id, $sermons, $enabled = true) {
+        if (empty($sermons))
+            return;
+
         $upcoming_events = "";
         foreach ($sermons as $sermon) {
             $speaker = __(isset($sermon["Pastor"]["name"]) ? $sermon["Pastor"]["name"] : $sermon["Sermon"]["speaker_name"]);
-            $series = $sermon["Post"]["Group"]["name"];
             $sermon_info = $this->Html->div("upcoming-info", $speaker);
             $post_title = $sermon["Post"]["title"];
             if ($enabled) {
@@ -49,7 +51,7 @@ class SermonsHelper extends AbstractWidgetHelper {
 
     function js($id) {
         return '
-            $("#' . $id . '-events li").click(function() {
+            $("#' . $id . ' li").click(function() {
                 window.location = $(this).find("a").attr("href");
             });
         ';

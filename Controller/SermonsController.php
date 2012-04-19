@@ -7,10 +7,9 @@ App::uses("TempFolderComponent", "Controller/Component");
 App::uses("BibleHelper", "Bible.View/Helper");
 App::uses("SoundManager2Helper", "Sm2.View/Helper");
 App::uses("MarkdownHelper", "Markdown.View/Helper");
-App::uses("TranslatableController", "Urg.Controller");
-
+App::uses("UrgSermonAppController", "UrgSermon.Controller");
 App::uses("WidgetUtilComponent", "Urg.Controller/Component");
-class SermonsController extends TranslatableController {
+class SermonsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";
     var $FILES_WEBROOT = "files";
@@ -31,12 +30,23 @@ class SermonsController extends TranslatableController {
                            "action" => "login",
                            "admin" => false
                    )
-           ), "Urg.Urg", "Cuploadify.Cuploadify", "ImgLib.ImgLib", "TempFolder",
+           ), 
+           "Urg.Urg", 
+           "Cuploadify.Cuploadify", 
+           "ImgLib.ImgLib", 
+           "TempFolder",
            "Bible.Bible" => array("Esv"=>array("key" => "bef9e04393f0f17f"))
     );
 
     var $helpers = array(
-        "Js" => array("Jquery"), "Time", "Bible.Bible", "Sm2.SoundManager2", "Markdown.Markdown"
+        "Js" => array("Jquery"), 
+        "Time", 
+        "Bible.Bible", 
+        "Sm2.SoundManager2", 
+        "Markdown.Markdown", 
+        "Html", 
+        "Form",
+        "Session"
     );
     var $name = 'Sermons';
 
@@ -134,8 +144,8 @@ class SermonsController extends TranslatableController {
     }
 
     function populate_series() {
-        if ($this->data["Sermon"]["series_name"] != "") {
-            $series_name = $this->data["Sermon"]["series_name"];
+        if ($this->request->data["Sermon"]["series_name"] != "") {
+            $series_name = $this->request->data["Sermon"]["series_name"];
             $series_group = $this->Sermon->Post->Group->find("first", array("conditions"=>array("Group.name"=>"Series")));
             $existing_series = $this->Sermon->Post->Group->find("first", 
                     array("conditions" => 
@@ -148,14 +158,14 @@ class SermonsController extends TranslatableController {
 
             if ($existing_series === false) {
                 $this->Sermon->Post->Group->create();
-                $this->data["Group"]["parent_id"] = $series_group["Group"]["id"];
-                $this->data["Group"]["name"] = $this->data["Sermon"]["series_name"];
-                $this->Sermon->Post->Group->save($this->data);
-                $this->data["Group"]["id"] = $this->Sermon->Post->Group->id;
+                $this->request->data["Group"]["parent_id"] = $series_group["Group"]["id"];
+                $this->request->data["Group"]["name"] = $this->data["Sermon"]["series_name"];
+                $this->Sermon->Post->Group->save($this->request->data);
+                $this->request->data["Group"]["id"] = $this->Sermon->Post->Group->id;
                 $this->log("New Series for: " . $series_name, LOG_DEBUG);
             } else {
-                $this->data["Group"] = $existing_series["Group"];
-                $this->log("Series exists: " . Debugger::exportVar($this->data["Group"], 3), 
+                $this->request->data["Group"] = $existing_series["Group"];
+                $this->log("Series exists: " . Debugger::exportVar($this->request->data["Group"], 3), 
                         LOG_DEBUG);
             }
         } else {
@@ -165,12 +175,12 @@ class SermonsController extends TranslatableController {
 
     function prepare_attachments() {
         $logged_user = $this->Auth->user();
-        $attachment_count = isset($this->data["Attachment"]) ? 
-                sizeof($this->data["Attachment"]) : 0;
+        $attachment_count = isset($this->request->data["Attachment"]) ? 
+                sizeof($this->request->data["Attachment"]) : 0;
         if ($attachment_count > 0) {
             $this->log("preparing $attachment_count attachments...", LOG_DEBUG);
-            foreach ($this->data["Attachment"] as &$attachment) {
-                $attachment["user_id"] = $logged_user["User"]["id"];
+            foreach ($this->request->data["Attachment"] as &$attachment) {
+                $attachment["user_id"] = $logged_user["id"];
             }
 
             $this->Sermon->Post->bindModel(array("hasMany" => array("Attachment")));
@@ -180,7 +190,7 @@ class SermonsController extends TranslatableController {
 
     function save_post($id = null) {
         $logged_user = $this->Auth->user();
-        $this->data["User"] = $logged_user["User"];
+        $this->request->data["User"] = $logged_user;
 
         $this->populate_series();
         $this->prepare_attachments();
@@ -188,30 +198,30 @@ class SermonsController extends TranslatableController {
         $this->log("post belongsto: " . 
                 Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
 
-        $this->data["Post"]["id"] = $this->data["Sermon"]["id"];
+        $this->request->data["Post"]["id"] = $this->data["Sermon"]["id"];
 
         $post_timestamp = date_parse_from_format("Y-m-d h:i A", 
-                                                 $this->data["Post"]["formatted_date"] . " " . 
-                                                 $this->data["Post"]["displayTime"]);
-        $this->data["Post"]["publish_timestamp"] = 
+                                                 $this->request->data["Post"]["formatted_date"] . " " . 
+                                                 $this->request->data["Post"]["displayTime"]);
+        $this->request->data["Post"]["publish_timestamp"] = 
                 "$post_timestamp[year]-$post_timestamp[month]-$post_timestamp[day]" . 
                 " $post_timestamp[hour]:$post_timestamp[minute]";
         //unset($this->Sermon->Post->validate["group_id"]);
 /*
         if ($id != null) {
-            $this->data["Group"] = $this->data["Series"];
+            $this->request->data["Group"] = $this->data["Series"];
         } else {
             //$this->loadModel("Urg.SequenceId");
-            $this->data["Post"]["id"] = $this->data["Sermon"]["id"];//$this->SequenceId->next($this->Sermon->Post->useTable);
+            $this->request->data["Post"]["id"] = $this->data["Sermon"]["id"];//$this->SequenceId->next($this->Sermon->Post->useTable);
         }
 */
-        $this->log("Saving post: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
+        $this->log("Saving post: " . Debugger::exportVar($this->request->data, 3), LOG_DEBUG);
 
         $this->log("updated post belongsto: " . 
                 Debugger::exportVar($this->Sermon->Post->belongsTo, 3), LOG_DEBUG);
 
-        if ($this->data["Post"]["publish_timestamp"] == 0) {
-            $this->data["Post"]["publish_timestamp"] = null;
+        if ($this->request->data["Post"]["publish_timestamp"] == 0) {
+            $this->request->data["Post"]["publish_timestamp"] = null;
         }
 /*
         $this->Sermon->Post->bindModel(array("belongsTo" => array(
@@ -223,17 +233,17 @@ class SermonsController extends TranslatableController {
         ));
 
         $this->log("binded model", LOG_DEBUG);
-        $status = $this->Sermon->Post->saveAll($this->data, array("atomic"=>false));
+        $status = $this->Sermon->Post->saveAll($this->request->data, array("atomic"=>false));
 
         if ($id != null && isset($this->Sermon->Post->Group->id)) {
-            unset($this->data["Group"]);
-            $this->data["Series"]["id"] = $this->Sermon->Post->Group->id;
-            $this->log("Saving post with group id: " . $this->data["Series"]["id"], LOG_DEBUG);
+            unset($this->request->data["Group"]);
+            $this->request->data["Series"]["id"] = $this->Sermon->Post->Group->id;
+            $this->log("Saving post with group id: " . $this->request->data["Series"]["id"], LOG_DEBUG);
         }
 
         $this->log("Post saved: " . Debugger::exportVar($status, 3), LOG_DEBUG);
 */
-        $status = $this->Sermon->Post->saveAll($this->data);
+        $status = $this->Sermon->Post->saveAll($this->request->data);
         return $status;
     }
 
@@ -245,8 +255,8 @@ class SermonsController extends TranslatableController {
     }
 
     function populate_speaker() {
-        if ($this->data["Sermon"]["speaker_name"] != "") {
-            $speaker_name = $this->data["Sermon"]["speaker_name"];
+        if ($this->request->data["Sermon"]["speaker_name"] != "") {
+            $speaker_name = $this->request->data["Sermon"]["speaker_name"];
             $pastors_group = $this->Sermon->Post->Group->find("first", array("conditions"=>array("Group.name"=>"Pastors")));
             CakeLog::write(LOG_DEBUG, "pastors group for populate: " . Debugger::exportVar($pastors_group, 3));
             $existing_pastor = $this->Sermon->Pastor->find("first", 
@@ -261,8 +271,8 @@ class SermonsController extends TranslatableController {
             if ($existing_pastor === false) {
                 $this->log("New speaker: " . $speaker_name, LOG_DEBUG);
             } else {
-                $this->data["Pastor"] = $existing_pastor["Pastor"];
-                $this->data["Sermon"]["speaker_name"] = null;
+                $this->request->data["Pastor"] = $existing_pastor["Pastor"];
+                $this->request->data["Sermon"]["speaker_name"] = null;
                 unset($this->Sermon->validate["speaker_name"]);
                 $this->log("Speaker is a pastor: $speaker_name", LOG_DEBUG);
             }
@@ -280,7 +290,7 @@ class SermonsController extends TranslatableController {
             $temp_webroot = "$webroot_dir/$temp_dir";
 
             if (file_exists($doc_root . $temp_webroot)) {
-                $perm_dir = $webroot_dir . "/" . $this->data["Post"]["id"];
+                $perm_dir = $webroot_dir . "/" . $this->request->data["Post"]["id"];
                 $this->rename_dir($doc_root . $temp_webroot, $doc_root . $perm_dir);
                 $this->log("moved attachments to permanent folder: $doc_root$perm_dir", LOG_DEBUG);
             } else {
@@ -301,7 +311,7 @@ class SermonsController extends TranslatableController {
             $post_banner = $this->Attachment->find("first", 
                     array("conditions" => array("AND" => array(
                     "Attachment.attachment_type_id" => $banner_type["AttachmentType"]["id"],
-                    "Attachment.post_id" => $this->data["Post"]["id"]
+                    "Attachment.post_id" => $this->request->data["Post"]["id"]
             ))));
 
             if (isset($post_banner["Attachment"])) {
@@ -312,13 +322,13 @@ class SermonsController extends TranslatableController {
                         $post_banner["Attachment"]["filename"], $this->BANNER_SIZE, 0, 'landscape');
                 $this->log("saved $saved_image[filename]", LOG_DEBUG);
             } else {
-                $this->log("no banners found for post: " . $this->data["Post"]["id"], LOG_DEBUG);
+                $this->log("no banners found for post: " . $this->request->data["Post"]["id"], LOG_DEBUG);
             }
         }
     }
 
     function add($render = true) {
-        if (!empty($this->data)) {
+        if (!empty($this->request->data)) {
             $logged_user = $this->Auth->user();
 
             $sermon_ds = $this->Sermon->getDataSource();
@@ -332,18 +342,18 @@ class SermonsController extends TranslatableController {
 
             // if post saved successfully
             //if (!is_bool($save_post_status) || $save_post_status) {
-                //$this->data["Series"]["id"] = $this->Sermon->Series->id;
-                //$this->data["Post"]["id"] = $this->Sermon->Post->id;
+                //$this->request->data["Series"]["id"] = $this->Sermon->Series->id;
+                //$this->request->data["Post"]["id"] = $this->Sermon->Post->id;
                 /*$this->log("Post successfully saved. Now saving sermon with series id as: " . 
-                        $this->data["Series"]["id"] . " group id as: " .
-                        $this->data["Post"]["id"], LOG_DEBUG);*/
+                        $this->request->data["Series"]["id"] . " group id as: " .
+                        $this->request->data["Post"]["id"], LOG_DEBUG);*/
                 $this->Sermon->create();
 
                 $this->populate_speaker();
 
-                $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
-                if ($this->Sermon->saveAll($this->data)) { //, array("atomic"=>false))) {
-                    /*$temp_dir = $this->data["Sermon"]["id"];
+                $this->log("Attempting to save: " . Debugger::exportVar($this->request->data, 3), LOG_DEBUG);
+                if ($this->Sermon->saveAll($this->request->data)) { //, array("atomic"=>false))) {
+                    /*$temp_dir = $this->request->data["Sermon"]["id"];
 
                     $this->consolidate_attachments(
                             array($this->AUDIO, $this->FILES, $this->IMAGES), 
@@ -359,7 +369,7 @@ class SermonsController extends TranslatableController {
 
                     if ($render) {
                         $this->Session->setFlash(__('The sermon has been saved'));
-                        $this->redirect(array("plugin"=>"urg_post", "controller"=>"posts", "action"=>"view", $this->data["Post"]["id"]));
+                        $this->redirect(array("plugin"=>"urg_post", "controller"=>"posts", "action"=>"view", $this->request->data["Post"]["id"]));
                     }
                 } else {
                     $sermon_ds->rollback($this->Sermon);
@@ -372,7 +382,7 @@ class SermonsController extends TranslatableController {
                     }
                 } 
           /*  } else {
-                $this->Sermon->saveAll($this->data, array("validate"=>"only"));
+                $this->Sermon->saveAll($this->request->data, array("validate"=>"only"));
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
 
                 if ($render) {
@@ -381,10 +391,10 @@ class SermonsController extends TranslatableController {
             }*/
         } else {
             $this->loadModel("Urg.SequenceId");
-            $this->data["Sermon"]["id"] = $this->data["Post"]["id"] = $this->SequenceId->next($this->Sermon->Post->useTable);
-            $this->data["Post"]["formatted_date"] = date("Y-m-d");
-            $this->data["Post"]["displayDate"] = date("F d, Y");
-            $this->data["Post"]["displayTime"] = date("h:i A");
+            $this->request->data["Sermon"]["id"] = $this->request->data["Post"]["id"] = $this->SequenceId->next($this->Sermon->Post->useTable);
+            $this->request->data["Post"]["formatted_date"] = date("Y-m-d");
+            $this->request->data["Post"]["displayDate"] = date("F d, Y");
+            $this->request->data["Post"]["displayTime"] = date("h:i A");
         }
 
         $this->loadModel("UrgPost.Attachment");
@@ -402,11 +412,11 @@ class SermonsController extends TranslatableController {
     function edit($id = null) {
         $this->Sermon->id = $id;
 
-        if (!$id && empty($this->data)) {
+        if (!$id && empty($this->request->data)) {
             $this->Session->setFlash(__('Invalid sermon'));
             $this->redirect(array('action' => 'index'));
         }
-        if (!empty($this->data)) {
+        if (!empty($this->request->data)) {
             $logged_user = $this->Auth->user();
 
             $sermon_ds = $this->Sermon->getDataSource();
@@ -415,18 +425,18 @@ class SermonsController extends TranslatableController {
             $post_ds->begin($this->Sermon->Post);
             $sermon_ds->begin($this->Sermon);
 
-            $save_post_status = $this->save_post($this->data["Post"]["id"]);
+            $save_post_status = $this->save_post($this->request->data["Post"]["id"]);
 
             // if post saved successfully
             if (!is_bool($save_post_status) || $save_post_status) {
                 $this->log("Post successfully saved. Now saving sermon with series id as: " . 
-                        $this->data["Group"]["id"] . " and post id as: " . 
-                        $this->data["Post"]["id"], LOG_DEBUG);
+                        $this->request->data["Group"]["id"] . " and post id as: " . 
+                        $this->request->data["Post"]["id"], LOG_DEBUG);
 
                 $this->populate_speaker();
 
-                $this->log("Attempting to save: " . Debugger::exportVar($this->data, 3), LOG_DEBUG);
-                if ($this->Sermon->saveAll($this->data, array("atomic"=>false))) {
+                $this->log("Attempting to save: " . Debugger::exportVar($this->request->data, 3), LOG_DEBUG);
+                if ($this->Sermon->saveAll($this->request->data, array("atomic"=>false))) {
                     $this->resize_banner($this->Sermon->id);
 
                     $post_ds->commit($this->Sermon->Post);
@@ -445,19 +455,19 @@ class SermonsController extends TranslatableController {
                             __('The sermon could not be saved. Please, try again.'));
                 } 
             } else {
-                $this->Sermon->saveAll($this->data, array("validate"=>"only"));
+                $this->Sermon->saveAll($this->request->data, array("validate"=>"only"));
                 $this->log("Sermon needs to be corrected, redirecting to form.", LOG_DEBUG);
                 $this->Session->setFlash(__('The sermon could not be saved. Please, try again.'));
             }
         }
 
-        if (empty($this->data)) {
-            $this->data = $this->Sermon->find("first", array("conditions" => array("Sermon.id" => $id),
+        if (empty($this->request->data)) {
+            $this->request->data = $this->Sermon->find("first", array("conditions" => array("Sermon.id" => $id),
                                                              "recursive" => 2));
-            $this->data["Post"]["formatted_date"] = date("Y-m-d", strtotime($this->data["Post"]["publish_timestamp"]));
-            $this->data["Post"]["displayDate"] = date("F j, Y", strtotime($this->data["Post"]["publish_timestamp"]));
-            $this->data["Post"]["displayTime"] = date("h:i A", strtotime($this->data["Post"]["publish_timestamp"]));
-            $this->log("form data: " . Debugger::exportVar($this->data, 2), LOG_DEBUG);
+            $this->request->data["Post"]["formatted_date"] = date("Y-m-d", strtotime($this->data["Post"]["publish_timestamp"]));
+            $this->request->data["Post"]["displayDate"] = date("F j, Y", strtotime($this->data["Post"]["publish_timestamp"]));
+            $this->request->data["Post"]["displayTime"] = date("h:i A", strtotime($this->data["Post"]["publish_timestamp"]));
+            $this->log("form data: " . Debugger::exportVar($this->request->data, 2), LOG_DEBUG);
             $this->load_speaker();
             $this->Session->write("Referer", $this->referer());
         }
@@ -471,10 +481,10 @@ class SermonsController extends TranslatableController {
         $this->set("audio_type", $this->Attachment->AttachmentType->findByName("Audio"));
         
         $posts = $this->Sermon->Post->find('list');
-        $this->data["Sermon"]["series_name"] = $this->data["Post"]["Group"]["name"];
+        $this->request->data["Sermon"]["series_name"] = $this->data["Post"]["Group"]["name"];
         $banner = $this->Attachment->find("first", array(
                 "conditions"=>
-                        array("Attachment.post_id"=>$this->data["Post"]["id"],
+                        array("Attachment.post_id"=>$this->request->data["Post"]["id"],
                               "Attachment.attachment_type_id"=>$banner_type["AttachmentType"]["id"]
                         ),
                 "order" => "Attachment.created DESC"
@@ -482,11 +492,11 @@ class SermonsController extends TranslatableController {
         );
 
         $this->set("banner", $this->get_image_path($banner["Attachment"]["filename"], 
-                                                   $this->data, 
+                                                   $this->request->data, 
                                                    $this->PANEL_BANNER_SIZE));
 
         $this->set("attachments", $this->Attachment->find("all", array("conditions"=>
-                array("Attachment.post_id"=>$this->data["Post"]["id"],
+                array("Attachment.post_id"=>$this->request->data["Post"]["id"],
                       "Attachment.attachment_type_id !="=>$banner_type["AttachmentType"]["id"]
                 )
             )
@@ -625,8 +635,8 @@ class SermonsController extends TranslatableController {
     }
 
     function load_speaker() {
-        if (isset($this->data["Pastor"]["name"])) {
-            $this->data["Sermon"]["speaker_name"] = $this->data["Pastor"]["name"];
+        if (isset($this->request->data["Pastor"]["name"])) {
+            $this->request->data["Sermon"]["speaker_name"] = $this->data["Pastor"]["name"];
         }
     }
 
@@ -686,10 +696,10 @@ class SermonsController extends TranslatableController {
         $this->layout = "ajax";
         $errors = array();
 
-        $this->data[$model_name][$field] = $this->params["url"]["value"];
+        $this->request->data[$model_name][$field] = $this->params["url"]["value"];
 
         $model = $model_name == "Sermon" ? $this->Sermon : $this->Sermon->{$model_name};
-        $model->set($this->data);
+        $model->set($this->request->data);
 
         if ($model->validates(array("fieldList"=>array($field)))) {
         } else {
@@ -841,7 +851,7 @@ class SermonsController extends TranslatableController {
         foreach ($import_file->children[0]->children as $sermon) {
             $data = array();
             $this->loadModel("Urg.SequenceId");
-            $this->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->useTable);
+            $this->request->data["Sermon"]["id"] = $this->SequenceId->next($this->Sermon->useTable);
             $data["Post"]["title"] = $this->get_value($sermon, "title");
             $this->ajax_log(sprintf(__("Importing sermon: %s"), $data["Post"]["title"]), 
                     $this->get_percentage(++$current_stage, $stages));
@@ -892,7 +902,7 @@ class SermonsController extends TranslatableController {
                 $data["Attachment"][$attachment_counter++] = $attachment;
             }
 
-            $this->data = &$data;
+            $this->request->data = &$data;
 
             $this->autoRender = false;
             $this->ajax_log(sprintf(__("Saving sermon %s..."), $data["Post"]["title"]));

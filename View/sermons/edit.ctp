@@ -83,7 +83,7 @@
 
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon'); ?>
-    <div class="grid_6 right-border">
+    <div class="span6 right-border">
         <fieldset>
             <legend> <div> <h2><?php echo __('Edit Sermon'); ?></h2> </div> </legend>
             <?php
@@ -115,7 +115,7 @@
             ?>
         </fieldset>
     </div>
-    <div class="grid_6">
+    <div class="span6">
         <fieldset>
             <legend> <div> <h2><?php echo __('Edit Resources'); ?></h2> </div> </legend>
             <?php 
@@ -169,7 +169,7 @@
             ?>
         </fieldset>
     </div>
-    <div class="grid_6 suffix_6">
+    <div class="span6 suffix_6">
         <?php echo $this->Form->end(__('Save'));?>
     </div>
     <?php 

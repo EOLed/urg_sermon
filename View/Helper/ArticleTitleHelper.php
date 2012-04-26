@@ -23,7 +23,7 @@ class ArticleTitleHelper extends AbstractWidgetHelper {
                                                   date("F j, Y h:i A", strtotime($post["Post"]["publish_timestamp"]))),
                                           true), array("id" => "post-info"));
 
-        return $this->Html->div("grid_12 page-title", $title . $post_info, array("id" => "article-title"));
+        return $this->Html->div("span12 page-title", $title . $post_info, array("id" => "article-title"));
     }
 }
 

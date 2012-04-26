@@ -58,7 +58,7 @@
 </script>
 <div class="sermons form">
 <?php echo $this->Form->create('Sermon'); ?>
-    <div class="grid_6 right-border">
+    <div class="span6 right-border">
     <?php 
     echo $this->Html->div("input", 
             $this->element("uploadify", 

@@ -11,16 +11,16 @@ class SermonMetaHelper extends AbstractWidgetHelper {
     function meta() {
         $sermon = $this->options["sermon"];
         $attachments = $this->options["attachments"];
-        $series = $this->Html->div("alpha grid_3 top-border bottom-border right-border " .
+        $series = $this->Html->div("alpha span3 top-border bottom-border right-border " .
                 "sermon-details", $this->item(__("From the series"), $sermon["Post"]["Group"]["name"]),
                 array("id" => "sermon-series", "style" => "border-right-width: 0px"));
 
-        $time = $this->Html->div("grid_3 top-border bottom-border left-border right-border " .
+        $time = $this->Html->div("span3 top-border bottom-border left-border right-border " .
                 "sermon-details", $this->item(__("Taken place on"), 
                 $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"])),
                 array("id" => "sermon-date", "style" => "border-right-width: 0px"));
 
-        $speaker = $this->Html->div("grid_3 top-border bottom-border left-border right-border sermon-details", 
+        $speaker = $this->Html->div("span3 top-border bottom-border left-border right-border sermon-details", 
                                     $this->item(__("Spoken by"), 
                                             $sermon["Pastor"]["name"] != "" ? 
                                                     $this->Html->link(__($sermon["Pastor"]["name"]), 
@@ -32,7 +32,7 @@ class SermonMetaHelper extends AbstractWidgetHelper {
                                     array("id" => "sermon-speaker", 
                                           "style" => "border-right-width: 0px"));
 
-        $resources = $this->Html->div("omega grid_3 top-border bottom-border left-border " .
+        $resources = $this->Html->div("omega span3 top-border bottom-border left-border " .
                 "sermon-details", $this->item(__("Resources"), 
                 $this->resource_list($sermon, $attachments)),
                 array("id" => "sermon-resources", "style" => "border-right-width: 0px"));
@@ -56,9 +56,9 @@ class SermonMetaHelper extends AbstractWidgetHelper {
                                               __("Are you sure you want to delete this?"));
         }
         
-        return $this->Html->div("grid_12", 
+        return $this->Html->div("row", 
                                 $series . $time . $speaker . $resources, 
-                                array("id" => "sermon-info")) . $this->Html->div("grid_12", $admin_links) . $this->js();
+                                array("id" => "sermon-info")) . $this->Html->div("span12", $admin_links) . $this->js();
     }
 
     function js() {

@@ -1,27 +1,27 @@
 <div class="pastors view">
     <?php foreach ($banners as $banner) { ?>
-    <div id="banner" class="grid_9 right-border">
+    <div id="banner" class="span9 right-border">
         <?php echo $this->Html->image($banner, array("class"=>"shadow")); ?>
     </div>
     <?php } ?>
-    <div id="about-panel" class="grid_3">
+    <div id="about-panel" class="span3">
         <h3><?php echo strtoupper(__("About us")); ?></h3>
         <?php echo $about["Post"]["content"] ?>
     </div>
 
-    <div id='pastor-name' class='grid_12 page-title'>
+    <div id='pastor-name' class='span12 page-title'>
         <div><?php echo $pastor["Group"]["name"]?></div>
     </div>
 
-    <div id="about-pastor" class="grid_4 right-border">
+    <div id="about-pastor" class="span4 right-border">
         <h2><?php echo __("Bio") ?></h2>
         <?php echo $about_pastor["Post"]["content"]; ?>
     </div>
-    <div id="pastor-feed" class="grid_4 right-border">
+    <div id="pastor-feed" class="span4 right-border">
         <h2><?php echo __("Recent activity"); ?></h2>
         <?php echo $this->Pastor->activity_feed($pastor, $activity); ?>
     </div>
-    <div id="pastor-upcoming" class="grid_4">
+    <div id="pastor-upcoming" class="span4">
         <h2><?php echo __("Upcoming events"); ?></h2>
         <?php echo $this->Pastor->upcoming_events($pastor, $upcoming_events); ?>
     </div>

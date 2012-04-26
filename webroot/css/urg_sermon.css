@@ -197,6 +197,7 @@ span.footnote-ref {
 ul#activity-feed, ul#upcoming-events, ul#past-sermons, ul#upcoming-sermons {
     list-style-type: none;
     padding-left: 0;
+    margin-left: 0;
 }
 
 ul#activity-feed li, ul#upcoming-events li, ul#past-sermons, ul#upcoming-sermons {

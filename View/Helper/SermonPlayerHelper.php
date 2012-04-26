@@ -15,7 +15,7 @@ class SermonPlayerHelper extends AbstractWidgetHelper {
 
         $player = "";
         if (isset($attachments["Audio"])) {
-            $player .= "<div class='grid_12 sermon-audio'>";
+            $player .= "<div class='span12 sermon-audio'>";
             $playlist = array();
             CakeLog::write("debug", "Sermon attachments " . Debugger::exportVar($this->options["attachments"], 3));
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
@@ -28,7 +28,7 @@ class SermonPlayerHelper extends AbstractWidgetHelper {
             $player .=  $this->SoundManager2->build_page_player($playlist);
             $player .= "</div>";
         } else {
-            $player .= "<div id='sermon-title' class='grid_12'>";
+            $player .= "<div id='sermon-title' class='span12'>";
             $player .= "<div>" . $sermon["Post"]["title"] . "</div>";
             $player .= "</div>";
         }

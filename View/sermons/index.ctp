@@ -1,4 +1,4 @@
-<div class="sermons index grid_12">
+<div class="sermons index span12">
     <h2><?php echo __('Sermons');?></h2>
     <table cellpadding="0" cellspacing="0">
     <tr>
@@ -54,7 +54,7 @@
         <?php echo $this->Paginator->next(__('next') . ' >>', array(), null, array('class' => 'disabled'));?>
     </div>
 </div>
-<div class="actions grid_12">
+<div class="actions span12">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
         <li><?php echo $this->Html->link(__('New Sermon'), array('action' => 'add')); ?></li>

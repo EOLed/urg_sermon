@@ -1,10 +1,10 @@
 <div class="sermons view">
     <?php foreach ($banners as $banner) { ?>
-    <div id="banner" class="grid_9 right-border">
+    <div id="banner" class="span9 right-border">
         <?php echo $this->Html->image($banner, array("class"=>"shadow")); ?>
     </div>
     <?php } ?>
-    <div id="about-panel" class="grid_3">
+    <div id="about-panel" class="span3">
         <?php if ($sermon["Series"]["description"] != "") { ?>
             <h3><?php echo __("About the series") ?></h3>
             <?php echo $sermon["Series"]["description"]; ?>
@@ -18,7 +18,7 @@
 
     <?php 
         if (isset($attachments["Audio"])) {
-            echo "<div class='grid_12 sermon-audio'>";
+            echo "<div class='span12 sermon-audio'>";
             $playlist = array();
             foreach ($attachments["Audio"] as $filename => $attachment_id) {
                 array_push($playlist, array(
@@ -30,34 +30,34 @@
             echo $this->SoundManager2->build_page_player($playlist);
             echo "</div>";
         } else {
-            echo "<div id='sermon-title' class='grid_12'>";
+            echo "<div id='sermon-title' class='span12'>";
             echo "<div>" . $sermon["Post"]["title"] . "</div>";
             echo "</div>";
         }
     ?>
 
-    <div id="sermon-info" class="grid_12">
+    <div id="sermon-info" class="span12">
         <div id="sermon-series" 
-                class="alpha grid_3 top-border bottom-border right-border sermon-details" 
+                class="alpha span3 top-border bottom-border right-border sermon-details" 
                 style="border-right-width: 0px">
             <h3 class="sermon-details"><?php echo __("From the series"); ?></h3>
             <?php echo $sermon["Series"]["name"]; ?>
         </div>
         <div id="sermon-date" 
-                class="grid_3 top-border bottom-border right-border left-border sermon-details"
+                class="span3 top-border bottom-border right-border left-border sermon-details"
                 style="border-right-width: 0px">
             <h3 class="sermon-details"><?php echo __("Taken place on"); ?></h3>
             <?php echo $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"]) ?>
         </div>
         <div id="sermon-speaker" 
-                class="grid_3 top-border bottom-border right-border left-border sermon-details"
+                class="span3 top-border bottom-border right-border left-border sermon-details"
                 style="border-right-width: 0px">
             <h3 class="sermon-details"><?php echo __("Spoken by"); ?></h3>
             <?php echo $sermon["Pastor"]["name"] != "" ? $sermon["Pastor"]["name"] : 
                     $sermon["Sermon"]["speaker_name"] ?>
         </div>
         <div id="sermon-resources" 
-                class="omega grid_3 top-border bottom-border left-border sermon-details">
+                class="omega span3 top-border bottom-border left-border sermon-details">
             <h3 class="sermon-details"><?php echo __("Resources"); ?></h3>
             <?php if (isset($attachments["Documents"])) { ?>
                 <ul id="sermon-resource-list">
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div id="sermon-meta" class="grid_5 right-border">
+    <div id="sermon-meta" class="span5 right-border">
         <?php if ($sermon["Sermon"]["description"] != "") { ?>
         <div class="sermon-description">
             <h2><?php echo __("Description") ?></h2>
@@ -144,7 +144,7 @@
         <?php } ?>
     </div>
 
-    <div class="grid_7">
+    <div class="span7">
     <?php if (isset($attachments["Documents"])) { ?>
         <div id="sermon-docs" style="display: none">
             <iframe class="shadow sermon-attachment-viewer" id="sermon-doc-viewer"></iframe>

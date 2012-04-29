@@ -160,6 +160,7 @@ class SermonsController extends UrgSermonAppController {
                 $this->Sermon->Post->Group->create();
                 $this->request->data["Group"]["parent_id"] = $series_group["Group"]["id"];
                 $this->request->data["Group"]["name"] = $this->data["Sermon"]["series_name"];
+                $this->request->data["Group"]["slug"] = $series_group["Group"]["slug"] . "-" . strtolower(Inflector::slug(str_replace("'", "", $this->data["Sermon"]["series_name"]), "-"));
                 $this->Sermon->Post->Group->save($this->request->data);
                 $this->request->data["Group"]["id"] = $this->Sermon->Post->Group->id;
                 $this->log("New Series for: " . $series_name, LOG_DEBUG);

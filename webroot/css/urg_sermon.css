@@ -265,6 +265,10 @@ input#PostDisplayDate {
     width: 200px;
 }
 
+.markdown-preview {
+    padding-top: 60px;
+}
+
 /** NOTICES & MESSAGES */
 div.validated {
     clear: both;

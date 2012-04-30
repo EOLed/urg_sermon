@@ -42,7 +42,7 @@ class SermonsHelper extends AbstractWidgetHelper {
                                                                    $sermon["Post"]["slug"]));
             }
             $time = $this->Html->div("upcoming-timestamp", 
-                                     $this->Time->format("F d, Y @ g:i A", $sermon["Post"]["publish_timestamp"]));
+                                     $this->Time->format("F d, Y" /* @ g:i A*/ , $sermon["Post"]["publish_timestamp"]));
             $upcoming_events .= $this->Html->tag("li", $time . $post_title . $sermon_info);
         }
 

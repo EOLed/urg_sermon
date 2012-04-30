@@ -37,23 +37,36 @@ class SermonMetaHelper extends AbstractWidgetHelper {
                 $this->resource_list($sermon, $attachments)),
                 array("id" => "sermon-resources", "style" => "border-right-width: 0px"));
 
-        $admin_links = "";
+        $links = array();
 
         if ($this->options["can_edit"]) {
-            $admin_links .= $this->Html->link(__("Edit"), array("plugin" => "urg_sermon",
-                                                                              "controller" => "sermons",
-                                                                              "action" => "edit",
-                                                                              $this->options["sermon"]["Sermon"]["id"]));
+            array_push($links, $this->Html->link(__("Edit sermon"), 
+                                                 array("plugin" => "urg_sermon",
+                                                       "controller" => "sermons",
+                                                       "action" => "edit",
+                                                       $this->options["sermon"]["Sermon"]["id"])));
         }
 
         if ($this->options["can_delete"]) {
-            $admin_links .= $this->Html->link(__("Delete"),
-                                              array("plugin" => "urg_sermon",
-                                                    "controller" => "sermons",
-                                                    "action" => "delete",
-                                                    $this->options["sermon"]["Sermon"]["id"]),
-                                              null,
-                                              __("Are you sure you want to delete this?"));
+            array_push($links, $this->Html->link(__("Delete sermon"),
+                                                 array("plugin" => "urg_sermon",
+                                                       "controller" => "sermons",
+                                                       "action" => "delete",
+                                                       $this->options["sermon"]["Sermon"]["id"]),
+                                                 null,
+                                                 __("Are you sure you want to delete this?")));
+        }
+
+        $admin_links = "";
+
+        if (!empty($links)) {
+            $admin_links = $this->Html->div("", 
+                                     $this->_View->element("bootstrap_dropdown", 
+                                                           array("label" => __("Action", true),
+                                                                 "items" => $links,
+                                                                 "class" => "btn-mini btn-inverse")),
+                                     array("class" => "action-dropdown", "escape" => false));
+
         }
         
         return $this->Html->div("row", 

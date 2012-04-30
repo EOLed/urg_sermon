@@ -6,16 +6,21 @@ class SermonsHelper extends AbstractWidgetHelper {
     function build_widget() {
         $this->Html->css("/urg_sermon/css/urg_sermon.css", null, array("inline"=>false));
         $title = $this->Html->tag("h2", __("Sermon Schedule"));
-        $admin_links = "";
+        $links = "";
 
         if ($this->options["can_add"]) {
-            $admin_links = $this->Html->div("", $this->Html->link(__("Add Sermon..."),
-                                                                  array("plugin" => "urg_sermon",
-                                                                        "controller" => "sermons",
-                                                                        "action" => "add")));
+            $links = $this->Html->link(__("Add sermon"), array("plugin" => "urg_sermon",
+                                                               "controller" => "sermons",
+                                                               "action" => "add"));
+            $links = $this->Html->div("", 
+                                      $this->_View->element("bootstrap_dropdown", 
+                                                            array("label" => __("Action", true),
+                                                                  "items" => array($links),
+                                                                  "class" => "btn-mini btn-inverse")),
+                                      array("class" => "action-dropdown", "escape" => false));
         }
       
-        return $this->Html->div("upcoming-events", $title . $admin_links .
+        return $this->Html->div("upcoming-events", $title . $links .
                 $this->upcoming_sermons("upcoming-sermons", $this->options["upcoming_sermons"], false) .
                 $this->upcoming_sermons("past-sermons", $this->options["past_sermons"]));
     }

@@ -15,17 +15,30 @@ class PastorFeedHelper extends AbstractWidgetHelper {
     function activity_feed($pastor, $activity) {
         $feed = "";
 
+        $actions = array();
+
         if ($this->options["add_sermon"]) {
-            $feed .= $this->Html->link(__("Add a new sermon..."), array("plugin" => "urg_sermon",
-                                                                            "controller" => "sermons",
-                                                                            "action" => "add"));
+            array_push($actions, $this->Html->link(__("Add a sermon"),
+                                                   array("plugin" => "urg_sermon",
+                                                         "controller" => "sermons",
+                                                         "action" => "add")));
         }
 
         if ($this->options["add_article"]) {
-            $feed .= $this->Html->link(__("Add a new article..."), array("plugin" => "urg_post",
-                                                                               "controller" => "posts",
-                                                                               "action" => "add",
-                                                                               $this->options["article_group_slug"]));
+            array_push($actions, $this->Html->link(__("Add an article"), 
+                                                   array("plugin" => "urg_post",
+                                                         "controller" => "posts",
+                                                         "action" => "add",
+                                                         $this->options["article_group_slug"])));
+        }
+
+        if (!empty($actions)) {
+            $feed = $this->Html->div("", 
+                                     $this->_View->element("bootstrap_dropdown", 
+                                                           array("label" => __("Action", true),
+                                                                 "items" => $actions,
+                                                                 "class" => "btn-mini btn-inverse")),
+                                     array("class" => "action-dropdown", "escape" => false));
         }
 
         foreach ($activity as $feed_item) {

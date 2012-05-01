@@ -200,7 +200,7 @@ ul#activity-feed, ul#upcoming-events, ul#past-sermons, ul#upcoming-sermons {
     margin-left: 0;
 }
 
-ul#activity-feed li, ul#upcoming-events li, ul#past-sermons, ul#upcoming-sermons {
+#activity-feed .activity-feed-item, ul#upcoming-events li, ul#past-sermons, ul#upcoming-sermons {
     margin-bottom: 20px;
 }
 

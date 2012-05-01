@@ -11,16 +11,15 @@ class SermonMetaHelper extends AbstractWidgetHelper {
     function meta() {
         $sermon = $this->options["sermon"];
         $attachments = $this->options["attachments"];
-        $series = $this->Html->div("alpha span3 top-border bottom-border right-border " .
+        $series = $this->Html->div("span3 " .
                 "sermon-details", $this->item(__("From the series"), $sermon["Post"]["Group"]["name"]),
                 array("id" => "sermon-series", "style" => "border-right-width: 0px"));
 
-        $time = $this->Html->div("span3 top-border bottom-border left-border right-border " .
-                "sermon-details", $this->item(__("Taken place on"), 
+        $time = $this->Html->div("span3 sermon-details", $this->item(__("Taken place on"), 
                 $this->Time->format("F d, Y", $sermon["Post"]["publish_timestamp"])),
                 array("id" => "sermon-date", "style" => "border-right-width: 0px"));
 
-        $speaker = $this->Html->div("span3 top-border bottom-border left-border right-border sermon-details", 
+        $speaker = $this->Html->div("span3 sermon-details", 
                                     $this->item(__("Spoken by"), 
                                             $sermon["Pastor"]["name"] != "" ? 
                                                     $this->Html->link(__($sermon["Pastor"]["name"]), 
@@ -32,10 +31,11 @@ class SermonMetaHelper extends AbstractWidgetHelper {
                                     array("id" => "sermon-speaker", 
                                           "style" => "border-right-width: 0px"));
 
-        $resources = $this->Html->div("omega span3 top-border bottom-border left-border " .
-                "sermon-details", $this->item(__("Resources"), 
-                $this->resource_list($sermon, $attachments)),
-                array("id" => "sermon-resources", "style" => "border-right-width: 0px"));
+        $resources = $this->Html->div("span3 sermon-details", 
+                                      $this->item(__("Resources"), 
+                                      $this->resource_list($sermon, $attachments)),
+                                      array("id" => "sermon-resources", 
+                                            "style" => "border-right-width: 0px"));
 
         $links = array();
 
@@ -71,13 +71,13 @@ class SermonMetaHelper extends AbstractWidgetHelper {
         
         return $this->Html->div("row", 
                                 $series . $time . $speaker . $resources, 
-                                array("id" => "sermon-info")) . $this->Html->div("span12", $admin_links) . $this->js();
+                                array("id" => "sermon-info")) . $this->Html->div("row", $this->Html->div("span12", $admin_links)) . $this->js();
     }
 
     function js() {
         $js = $this->EqualHeight->equal_height(true);
         $js .= <<< EOT
-        $("div.sermon-details").equalHeight();
+        $("div.sermon-details div.well").equalHeight();
 
         $("#sermon-resource-list li a").click(function() {
             pagePlayer.handleClick({
@@ -128,6 +128,6 @@ EOT;
     }
 
     function item($heading, $value) {
-        return $this->Html->tag("h3", $heading, array("class" => "sermon-details")) . $value;
+        return $this->Html->div("well", $this->Html->tag("h3", $heading, array("class" => "sermon-details")) . $value);
     }
 }

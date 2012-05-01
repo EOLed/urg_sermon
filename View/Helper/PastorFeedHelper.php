@@ -46,7 +46,9 @@ class PastorFeedHelper extends AbstractWidgetHelper {
             $time = $this->Html->div("feed-timestamp",
                     $feed_icon . 
                     $this->Time->timeAgoInWords($feed_item["Post"]["publish_timestamp"], 'j/n/y', false, true));
-            $feed .= $this->Html->tag("li", $this->get_feed_message($pastor, $feed_item) . $time);
+            $feed .= $this->Html->tag("li", 
+                                      $this->get_feed_message($pastor, $feed_item) . $time,
+                                      array("class" => "activity-feed-item"));
         }
 
         return $this->Html->tag("ul", $feed, array("id" => "activity-feed"));

@@ -3,6 +3,7 @@ App::uses("Sanitize", "Utility");
 App::uses("ImgLibComponent", "ImgLib.Controller/Component");
 App::uses("GroupController", "Urg.Controller");
 App::uses("PastorHelper", "UrgSermon.View/Helper");
+App::uses("UrgSermonAppController", "UrgSermon.Controller");
 class PastorsController extends UrgSermonAppController {
     var $AUDIO_WEBROOT = "audio";
     var $IMAGES_WEBROOT = "img";

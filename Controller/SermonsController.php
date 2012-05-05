@@ -163,6 +163,7 @@ class SermonsController extends UrgSermonAppController {
                 $this->request->data["Group"]["slug"] = $series_group["Group"]["slug"] . "-" . strtolower(Inflector::slug(str_replace("'", "", $this->data["Sermon"]["series_name"]), "-"));
                 $this->Sermon->Post->Group->save($this->request->data);
                 $this->request->data["Group"]["id"] = $this->Sermon->Post->Group->id;
+                $this->request->data["Group"]["home"] = 1;
                 $this->log("New Series for: " . $series_name, LOG_DEBUG);
             } else {
                 $this->request->data["Group"] = $existing_series["Group"];

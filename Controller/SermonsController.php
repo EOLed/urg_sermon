@@ -780,6 +780,9 @@ class SermonsController extends UrgSermonAppController {
 	 * @return bool result of deletion
 	 */
     function __rrmdir($path) {
+        if (!file_exists($path))
+            return;
+
         if (is_dir($path)) {
             if (version_compare(PHP_VERSION, '5.0.0') < 0) {
                 $entries = array();

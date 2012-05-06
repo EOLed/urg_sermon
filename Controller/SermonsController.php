@@ -44,6 +44,7 @@ class SermonsController extends UrgSermonAppController {
         "Bible.Bible", 
         "Sm2.SoundManager2", 
         "Markdown.Markdown", 
+        "TwitterBootstrap.TwitterBootstrap",
         "Html", 
         "Form",
         "Session"
@@ -513,12 +514,12 @@ class SermonsController extends UrgSermonAppController {
 
     function autocomplete_speaker() {
         $term = Sanitize::clean($this->params["url"]["term"]);
-        $matches = strlen($term) == 0 ? $this->suggest_speaker() : $this->search_speaker($term);
+        $matches = strlen($term) == 0 ? $this->__suggest_speaker() : $this->__search_speaker($term);
         $this->set("data",$matches);
         $this->render("json", "ajax");
     }
     
-    function search_speaker($term) {
+    function __search_speaker($term) {
         $prepared_matches = array();
 
         $pastors = $this->requestAction("/urg_sermon/pastors/search/" . $this->params["url"]["term"]);
@@ -529,7 +530,8 @@ class SermonsController extends UrgSermonAppController {
         }
 
         $matches = $this->Sermon->find("all", array("conditions"=>array("Sermon.speaker_name LIKE"=>"%$term%"),
-                                                    "limit" => 3));
+                                                    "limit" => 3,
+                                                    "fields" => array("DISTINCT speaker_name")));
         foreach ($matches as $match) {
             array_push($prepared_matches, 
                     array("label"=>$match["Sermon"]["speaker_name"], 
@@ -539,7 +541,7 @@ class SermonsController extends UrgSermonAppController {
         return $prepared_matches;
     }
 
-    function suggest_speaker() {
+    function __suggest_speaker() {
         $prepared_matches = array();
 
         $pastors = $this->requestAction("/urg_sermon/pastors/search/" . $this->params["url"]["term"]);

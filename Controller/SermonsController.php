@@ -177,7 +177,7 @@ class SermonsController extends UrgSermonAppController {
     }
 
     function __prepare_attachments() {
-        $logged_user = $this->Auth->user();
+        $logged_user = $this->Session->read("User");
         $attachment_count = isset($this->request->data["Attachment"]) ? 
                 sizeof($this->request->data["Attachment"]) : 0;
         if ($attachment_count > 0) {
@@ -192,7 +192,7 @@ class SermonsController extends UrgSermonAppController {
     }
 
     function __save_post($id = null) {
-        $logged_user = $this->Auth->user();
+        $logged_user = $this->Session->read("User");
         $this->request->data["User"] = $logged_user["User"];
 
         $this->__populate_series();
@@ -311,7 +311,7 @@ class SermonsController extends UrgSermonAppController {
 
     function add($render = true) {
         if (!empty($this->request->data)) {
-            $logged_user = $this->Auth->user();
+            $logged_user = $this->Session->read("User");
 
             $sermon_ds = $this->Sermon->getDataSource();
             $post_ds = $this->Sermon->Post->getDataSource();
@@ -399,7 +399,7 @@ class SermonsController extends UrgSermonAppController {
             $this->redirect(array('action' => 'index'));
         }
         if (!empty($this->request->data)) {
-            $logged_user = $this->Auth->user();
+            $logged_user = $this->Session->read("User");
 
             $sermon_ds = $this->Sermon->getDataSource();
             $post_ds = $this->Sermon->Post->getDataSource();
@@ -449,6 +449,7 @@ class SermonsController extends UrgSermonAppController {
             $this->request->data["Post"]["formatted_date"] = date("Y-m-d", strtotime($this->data["Post"]["publish_timestamp"]));
             $this->request->data["Post"]["displayDate"] = date("F j, Y", strtotime($this->data["Post"]["publish_timestamp"]));
             $this->request->data["Post"]["displayTime"] = date("h:i A", strtotime($this->data["Post"]["publish_timestamp"]));
+            $this->request->data["Post"]["id"] = $this->request->data["Sermon"]["id"] = $id;
             $this->log("form data: " . Debugger::exportVar($this->request->data, 2), LOG_DEBUG);
             $this->__load_speaker();
             $this->Session->write("Referer", $this->referer());
@@ -473,9 +474,10 @@ class SermonsController extends UrgSermonAppController {
             )
         );
 
-        $this->set("banner", $this->__get_image_path($banner["Attachment"]["filename"], 
-                                                   $this->request->data, 
-                                                   $this->PANEL_BANNER_SIZE));
+        $banner_path = $banner === false ? false : $this->__get_image_path($banner["Attachment"]["filename"], 
+                                                                           $this->request->data, 
+                                                                           $this->PANEL_BANNER_SIZE);
+        $this->set("banner", $banner_path);
 
         $this->set("attachments", $this->Attachment->find("all", array("conditions"=>
                 array("Attachment.post_id"=>$this->request->data["Post"]["id"],
@@ -505,10 +507,10 @@ class SermonsController extends UrgSermonAppController {
             $this->__rrmdir($this->__remove_trailing_slash(env("DOCUMENT_ROOT")) . 
                     $this->FILES . "/" . $sermonToDelete["Sermon"]["id"]);
             $this->Session->setFlash(__('Sermon deleted'));
-            $this->redirect(array('action'=>'index'));
+            $this->redirect("/");
         }
         $this->Session->setFlash(__('Sermon was not deleted'));
-        $this->redirect(array('action' => 'index'));
+        $this->redirect("/");
     }
 
 
@@ -683,8 +685,10 @@ class SermonsController extends UrgSermonAppController {
 
         $model = $model_name == "Sermon" ? $this->Sermon : $this->Sermon->{$model_name};
         $model->set($this->request->data);
-
         if ($model->validates(array("fieldList"=>array($field)))) {
+            if (!isset($this->request->data["Sermon"]["display_speaker_name"]) || strlen(trim($this->request->data["Sermon"]["display_speaker_name"])) == 0) {
+                $errors["display_speaker_name"] = array("Please enter a speaker name.");
+            }
         } else {
             $errors = $model->invalidFields();
         }

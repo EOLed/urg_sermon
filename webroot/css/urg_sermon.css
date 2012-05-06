@@ -256,15 +256,6 @@ ul#upcoming-events li:hover, ul#past-sermons li:hover {
     background-color: #ececec;
 }
 
-input#PostDisplayTime {
-    width: 150px;
-    padding-left: 10px;
-}
-
-input#PostDisplayDate {
-    width: 200px;
-}
-
 .markdown-preview {
     padding-top: 60px;
 }

@@ -91,7 +91,7 @@ echo $this->element("sermon_form", array(), array("plugin" => "UrgSermon")); ?>
     function on_validate(dom_id, XMLHttpRequest, textStatus) {
         $("#loading-validate").hide();
         
-        if ($(dom_id + "Error").text() == "") {
+        if ($(dom_id + "Error").text().trim() == "") {
             $(dom_id + "Error").hide();
             $(dom_id).after($(dom_id + "Valid"));
             $(dom_id + "Valid").show();

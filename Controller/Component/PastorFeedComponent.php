@@ -66,7 +66,7 @@ class PastorFeedComponent extends AbstractWidgetComponent {
 
         $unsorted_activity = array();
         foreach ($sermons as $sermon) {
-            $unsorted_activity[$sermon["Post"]["created"]] = $sermon;
+            $unsorted_activity[$sermon["Post"]["publish_timestamp"]] = $sermon;
         }
 
         $article_group = $this->get_article_group($pastor);

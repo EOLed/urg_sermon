@@ -34,6 +34,7 @@ class SermonsComponent extends AbstractWidgetComponent {
     }
 
     function get_sermons($options, $pastor_id = null) {
+
         $this->bindModels();
         if ($pastor_id != null) {
             $options["conditions"]["Sermon.pastor_id"] = $pastor_id;
@@ -47,6 +48,12 @@ class SermonsComponent extends AbstractWidgetComponent {
     }
 
     function get_past_sermons($pastor_id = null) {
+        $cache = Cache::read("sermonsfeed-past-$pastor_id");
+        if ($cache !== false) {
+            CakeLog::write(LOG_DEBUG, "returning cached past sermon feed for pastor $pastor_id");
+            return $cache;
+        }
+
         $days_of_relevance = Configure::read("ActivityFeed.daysOfRelevance");
         $limit = isset($this->widget_settings["limit"]) ? $this->widget_settings["limit"] : Configure::read("ActivityFeed.limit");
 
@@ -54,10 +61,18 @@ class SermonsComponent extends AbstractWidgetComponent {
                          "conditions" => array("Post.publish_timestamp BETWEEN SYSDATE() - INTERVAL $days_of_relevance DAY AND SYSDATE()"),
                          "recursive" => 2,
                          "limit" => $limit);
-        return $this->get_sermons($options, $pastor_id);
+        $sermons = $this->get_sermons($options, $pastor_id);
+        Cache::write("sermonsfeed-past-$pastor_id", $sermons);
+        return $sermons;
     }
     
     function get_upcoming_sermons($pastor_id = null) {
+        $cache = Cache::read("sermonsfeed-upcoming-$pastor_id");
+        if ($cache !== false) {
+            CakeLog::write(LOG_DEBUG, "returning cached sermon feed for pastor $pastor_id");
+            return $cache;
+        }
+
         $days_of_relevance = Configure::read("ActivityFeed.daysOfRelevance");
         $limit = isset($this->widget_settings["limit"]) ? $this->widget_settings["limit"] : Configure::read("ActivityFeed.limit");
 
@@ -65,6 +80,8 @@ class SermonsComponent extends AbstractWidgetComponent {
                          "conditions" => array("Post.publish_timestamp > NOW()"),
                          "recursive" => 2,
                          "limit" => $limit);
-        return array_reverse($this->get_sermons($options, $pastor_id));
+        $upcoming = array_reverse($this->get_sermons($options, $pastor_id));
+        Cache::write("sermonsfeed-upcoming-$pastor_id", $upcoming);
+        return $upcoming;
     }
 }

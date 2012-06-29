@@ -37,7 +37,7 @@
         banner_width = $("#sermon-banner").width();
 
         $("#sermon-banner").html(
-                "<img id='#sermon-banner-img' src='" +
+                "<img id='editable-banner-img' src='" +
                 "<?php echo $this->Html->url("/urg_post/img/" . $this->data["Post"]["id"]); ?>" 
                 + "/" + fileObj.name + "#" + Math.random() + "' style='width: " + banner_width +  "px;' />");
     }

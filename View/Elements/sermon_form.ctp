@@ -1,3 +1,35 @@
+<!-- Load Feather code -->
+<script type="text/javascript" src="http://feather.aviary.com/js/feather.js"></script>
+
+<!-- Instantiate Feather -->
+<script type="text/javascript">
+    var featherEditor = new Aviary.Feather({ apiKey: '68348725d', 
+                                             apiVersion: 2, 
+                                             tools: 'all', 
+                                             appendTo: '', 
+                                             cropPresets: [["Banner","16:9"]],
+                                             onSave: function(imageID, newURL) { 
+                                                 $.get("<?php echo $this->Html->url(array("plugin" => "urg_post",
+                                                                                          "controller" => "posts",
+                                                                                          "action" => "sideload_banner")); ?>", { url: newURL, post_id: $("#PostId").val() }, function(data) {
+                                                         data = jQuery.parseJSON(data);
+                                                         var img = document.getElementById(imageID); 
+                                                         img.src = data.src; 
+                                                         if ($("#Attachment0Filename").length) {
+                                                             document.getElementById("Attachment0Filename").value = data.filename;
+                                                         } else {
+                                                             on_complete_images(null, null, { name:data.filename }, null);
+                                                         }
+                                                     });
+                                                 } 
+                                           }); 
+    
+    function launchEditor(id, src) { 
+        featherEditor.launch({ image: id, url: src }); 
+        return false; 
+    } 
+</script>
+<div id="injection_site"></div>
 <div class="sermons form">
     <div class="row">
         <div class="span12">
@@ -126,8 +158,12 @@
 </div>    
 </div>
 
-<?php if (isset($banner) && $banner !== false) { ?>
 <script type="text/javascript">
-$($("#sermon-banner").prepend('<?php echo $this->Html->image($banner); ?>'));
-</script>
+    $("#sermon-banner").click(function() {
+        launchEditor("editable-banner-img", "<?php echo substr(Router::url('/', true), 0, strlen(Router::url('/', true)) - 1); ?>" + $("#editable-banner-img").attr("src"));
+        return false;
+    });
+<?php if (isset($banner) && $banner !== false) { ?>
+$($("#sermon-banner").prepend('<?php echo $this->Html->image($banner, array("id" => "editable-banner-img")); ?>'));
 <?php } ?>
+</script>

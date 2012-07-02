@@ -52,7 +52,7 @@ class SermonsController extends UrgSermonAppController {
     var $name = 'Sermons';
 
     function beforeFilter() {
-        $this->Auth->allow("view", "passages");
+        $this->Auth->allow("view", "passages", "latest");
     }
 
     function index() {
@@ -968,6 +968,17 @@ class SermonsController extends UrgSermonAppController {
         }
 
         return $filename;
+    }
+
+    function latest() {
+        $latest_sermon = $this->Sermon->find("first", 
+                                             array("conditions" => array("Post.publish_timestamp <=" => "NOW()"),
+                                                   "order" => "Post.publish_timestamp DESC"));
+        CakeLog::write(LOG_DEBUG, "latest sermon: " . Debugger::exportVar($latest_sermon, 3));
+        $this->redirect(array("plugin" => "urg_post",
+                              "controller" => "posts",
+                              "action" => "view",
+                              $latest_sermon["Sermon"]["post_id"]));
     }
 }
 

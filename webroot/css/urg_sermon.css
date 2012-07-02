@@ -62,8 +62,13 @@ li.series-sermon-list-item {
     margin-bottom: 10px;
 }
 
-.sermon-description, .sermon-passage, .series {
-    /**padding-bottom: 20px;*/
+.sermon-description, .sermon-passages, .series {
+    padding-bottom: 20px;
+}
+
+.sermon-description p {
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 
 #sermon-passage-text {
@@ -259,6 +264,17 @@ ul#upcoming-events li:hover, ul#past-sermons li:hover {
 
 .markdown-preview {
     padding-top: 60px;
+}
+
+#sermon-notes h3 {
+    font-family: "Lato", sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    text-transform: uppercase;
+    border-bottom-style: dashed;
+    border-bottom-width: 1px;
+    border-bottom-color: #ccc;
+    margin-bottom: 20px;
 }
 
 /** NOTICES & MESSAGES */

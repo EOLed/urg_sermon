@@ -44,21 +44,27 @@
                             echo $this->Form->hidden("bannerAttachmentIndex");
                             echo $this->TwitterBootstrap->input("series_name", array("label" => __("Series"),
                                                                                      "class" => "span4"));
-                            echo $this->Html->div("error-message", "", 
-                                    array("id"=>"SermonSeriesNameError", "style"=>"display: none"));
-                            echo $this->Html->div("validated", "✓", 
-                                    array("id"=>"SermonSeriesNameValid", "style"=>"display: none"));
+                            echo $this->Html->tag("span", "", array("id"=>"SermonSeriesNameError",
+                                                                    "style"=>"display: none", 
+                                                                    "class"=>"help-inline"));
+                            echo $this->Html->tag("span", "✓", array("id"=>"SermonSeriesNameValid", 
+                                                                     "style"=>"display: none",
+                                                                     "class"=>"validated help-inline"));
                             echo $this->TwitterBootstrap->input('Post.title', array("class" => "span4"));
-                            echo $this->Html->div("error-message", "", 
-                                    array("id"=>"PostTitleError", "style"=>"display: none"));
-                            echo $this->Html->div("validated", "✓", 
-                                    array("id"=>"PostTitleValid", "style"=>"display: none"));
+                            echo $this->Html->tag("span", "", array("id"=>"PostTitleError",
+                                                                    "style"=>"display: none", 
+                                                                    "class"=>"help-inline"));
+                            echo $this->Html->tag("span", "✓", array("id"=>"PostTitleValid", 
+                                                                     "style"=>"display: none",
+                                                                     "class"=>"validated help-inline"));
                             echo $this->TwitterBootstrap->input("speaker_name", 
                                     array("label"=>__("Speaker"), "class" => "span4"));
-                            echo $this->Html->div("error-message", "", 
-                                    array("id"=>"SermonSpeakerNameError", "style"=>"display: none"));
-                            echo $this->Html->div("validated", "✓", 
-                                    array("id"=>"SermonSpeakerNameValid", "style"=>"display: none"));
+                            echo $this->Html->tag("span", "", array("id"=>"SermonSpeakerNameError",
+                                                                    "style"=>"display: none", 
+                                                                    "class"=>"help-inline"));
+                            echo $this->Html->tag("span", "✓", array("id"=>"SermonSpeakerNameValid", 
+                                                                     "style"=>"display: none",
+                                                                     "class"=>"validated help-inline"));
                             echo $this->TwitterBootstrap->input("passages", array("class" => "span4"));
                             echo $this->Form->hidden("Post.formatted_date");
                             $time = $this->Form->text("Post.displayTime", array("div"=> false, 

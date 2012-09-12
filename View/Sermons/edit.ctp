@@ -278,8 +278,6 @@ echo $this->element("sermon_form", array(), array("plugin" => "UrgSermon")); ?>
         }
     }
     
-    $($(":input").addClass("dirty"));
-
     $($(":input").change(function(event) {
         $(this).addClass("dirty");
     }));
@@ -290,12 +288,6 @@ echo $this->element("sermon_form", array(), array("plugin" => "UrgSermon")); ?>
             $(dom_id).addClass("invalid"); 
         }
     }
-
-    $(function() {
-        invalidate("#PostTitle");
-        invalidate("#SermonSeriesName");
-        invalidate("#SermonSpeakerName");
-    });
 
     $(function() {
         $(".delete-attachment-link").click(function() {

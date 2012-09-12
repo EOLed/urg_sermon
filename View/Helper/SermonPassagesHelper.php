@@ -24,7 +24,8 @@ class SermonPassagesHelper extends AbstractWidgetHelper {
                                       array("plugin" => "urg_sermon",
                                             "controller" => "sermons",
                                             "action" => "passages",
-                                            $this->Bible->encode_passage($sermon["Sermon"]["passages"]))));
+                                            $this->Bible->encode_passage($sermon["Sermon"]["passages"])),
+                                      array("rel" => "nofollow")));
             $passages = $this->Html->div("sermon-passages", 
                                          $this->Html->tag("h2", __("Passage")) .  
                                          $sermon["Sermon"]["passages"] .

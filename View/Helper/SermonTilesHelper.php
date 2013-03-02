@@ -20,7 +20,7 @@ class SermonTilesHelper extends AbstractWidgetHelper {
                                       array("class" => "action-dropdown", "escape" => false));
         }
       
-        return $this->Html->div("upcoming-events", $title . $links .
+        return $this->Html->div("sermon-tiles", $title . $links .
                 $this->upcoming_sermons("upcoming-sermons", $this->options["upcoming_sermons"], false) .
                 $this->upcoming_sermons("past-sermons", $this->options["past_sermons"]));
     }
@@ -43,7 +43,7 @@ class SermonTilesHelper extends AbstractWidgetHelper {
             }
             $time = $this->Html->div("upcoming-timestamp", 
                                      $this->Time->format("F d, Y" /* @ g:i A*/ , $sermon["Post"]["publish_timestamp"]));
-            $upcoming_events .= $this->Html->tag("li", $time . $post_title . $sermon_info);
+            $upcoming_events .= $this->Html->tag("li", $time . $post_title . $sermon_info, array("class" => "span4"));
         }
 
         $js = "";
